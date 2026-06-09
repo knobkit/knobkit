@@ -1,0 +1,6 @@
+@layer components {
+  audio {
+    width: 100%;
+    display: block;
+  }
+}
