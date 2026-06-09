@@ -18,3 +18,4 @@ export { bound } from "./bound.js";
 export { stream } from "./stream.js";
 export { Knobkit, knobkit } from "./knobkit.js";
 export type { KnobkitApp } from "./knobkit.js";
+export * from "./widgets/index.js";
