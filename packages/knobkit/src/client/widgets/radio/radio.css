@@ -1,0 +1,20 @@
+@layer components {
+  .pu-radio {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pu-radio-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .pu-radio-opt input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--pu-accent, #2563eb);
+    cursor: pointer;
+  }
+}
