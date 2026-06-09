@@ -1,0 +1,15 @@
+@layer components {
+  .pu-table {
+    border: 1px solid var(--pu-border, #e3e6ea);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .pu-table revo-grid {
+    display: block;
+    width: 100%;
+    /* RevoGrid floors the host at min-height:300px; we drive an exact fit height inline, so drop the
+       floor. !important is needed because RevoGrid injects that rule unlayered, which outranks our
+       @layer styles regardless of specificity. */
+    min-height: 0 !important;
+  }
+}
