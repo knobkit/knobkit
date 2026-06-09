@@ -1,0 +1,14 @@
+{
+  "name": "knobkit-example-webcam-live-filter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "knobkit dev",
+    "build": "knobkit build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "^0.10.22",
+    "knobkit": "workspace:*"
+  }
+}
