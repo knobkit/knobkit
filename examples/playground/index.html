@@ -10,32 +10,36 @@
         margin: 0;
         height: 100%;
       }
-      #app {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        height: 100vh;
-      }
-      #preview {
-        border: 0;
-        width: 100%;
+      #root {
         height: 100%;
       }
-      #panel {
+      .pu-page {
+        max-width: none;
         height: 100vh;
-        overflow: auto;
-        border-left: 1px solid #e3e6ea;
-        background: #f6f7f9;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
       }
-      #panel .pu-code {
+      .pu-page > .pu-field {
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+      .pu-layout-row,
+      .pu-layout-col {
+        min-height: 0;
+        height: 100%;
+      }
+      .pu-frame {
+        height: 100%;
+        min-height: 0;
+      }
+      .pu-code {
         min-height: 58vh;
       }
     </style>
   </head>
   <body>
-    <div id="app">
-      <iframe id="preview" src="./preview.html" title="preview"></iframe>
-      <div id="panel"></div>
-    </div>
+    <div id="root"></div>
     <script type="module" src="./demo.tsx"></script>
   </body>
 </html>

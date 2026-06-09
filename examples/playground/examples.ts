@@ -281,9 +281,27 @@ app.on(detect.clicked, async () => {
 app.mount("#root");
 `;
 
+const composed = `import { knobkit, number, button, row, col, embed } from "knobkit";
+
+function counter(name) {
+  const n = number({ value: 0 });
+  const inc = button({ label: name });
+  return knobkit({ widgets: row(n, inc) }).on(inc.clicked, async () => n.set((await n.value()) + 1));
+}
+
+const app = knobkit({
+  title: "Composed apps",
+  description: "Two independent counter apps, each authored on its own, embedded with embed().",
+  widgets: col(embed(counter("Apples +1")), embed(counter("Bananas +1"))),
+});
+
+app.mount("#root");
+`;
+
 export const EXAMPLES: Example[] = [
   { name: "Echo bot", code: echo },
   { name: "Sign-up", code: signup },
+  { name: "Composed apps", code: composed },
   { name: "Settings", code: settings },
   { name: "Live markdown", code: layout },
   { name: "Table & chart", code: dataViz },
