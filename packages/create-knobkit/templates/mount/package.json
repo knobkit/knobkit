@@ -1,0 +1,16 @@
+{
+  "name": "__PROJECT_NAME__",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "knobkit dev",
+    "build": "knobkit build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "knobkit": "__KNOBKIT_VERSION__"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

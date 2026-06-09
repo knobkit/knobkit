@@ -1,0 +1,34 @@
+{
+  "name": "create-knobkit",
+  "version": "0.0.1",
+  "description": "Scaffold a new knobkit app — `npm create knobkit@latest`.",
+  "license": "MIT",
+  "author": "Alain Brown",
+  "type": "module",
+  "bin": {
+    "create-knobkit": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "templates"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knobkit/knobkit.git",
+    "directory": "packages/create-knobkit"
+  },
+  "homepage": "https://github.com/knobkit/knobkit#readme",
+  "bugs": {
+    "url": "https://github.com/knobkit/knobkit/issues"
+  },
+  "keywords": [
+    "knobkit",
+    "create",
+    "scaffold",
+    "starter",
+    "widgets"
+  ]
+}

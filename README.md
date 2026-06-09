@@ -30,6 +30,18 @@ app.on(
 app.serve(); // …or app.mount("#root") to run entirely in the browser
 ```
 
+## Quick start
+
+```bash
+npm create knobkit@latest my-app   # scaffold a starter — pick mount (browser) or serve (node)
+cd my-app
+npm install
+npm run dev                      # knobkit dev auto-detects mount vs serve from your demo.tsx
+```
+
+`knobkit dev` / `knobkit build` / `knobkit serve` come with the `knobkit` package; the dev server detects
+whether your `demo.tsx` ends in `mount()` or `serve()`. Requires Node ≥ 22.
+
 ## Concepts
 
 - **Widgets** hold structured state and render themselves. Handlers interact through widget methods:
@@ -68,7 +80,8 @@ Inputs: `text`, `number`, `slider`, `dropdown`, `checkbox`, `checkboxGroup`, `ra
 `webcam`, `chat`, `button`.
 Outputs: `output` (plain text or `format: "markdown"`), `json`, `log`, `label`, `html`, `image`,
 `gallery`, `annotatedImage` (boxes/labels over an image), `highlightedText` (spans over text), `audio`,
-`video`, `file` (download), `progress`, `chart` (bar/line/area).
+`video`, `file` (download), `progress`, `chart` (bar/line/area), `frame` (embed a URL or a sandboxed
+HTML document in an isolated iframe).
 Both (editable or read-only): `code` (syntax-highlighted editor/viewer), `table` (data grid).
 Custom: `widget({ state, … })`.
 
