@@ -1,0 +1,30 @@
+@layer components {
+  .pu-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pu-image {
+    display: block;
+    max-width: 100%;
+    border: 1px solid var(--pu-border, #e3e6ea);
+    border-radius: 8px;
+  }
+  .pu-upload-drop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px 14px;
+    border: 1.5px dashed var(--pu-border, #e3e6ea);
+    border-radius: 8px;
+    color: var(--pu-muted, #6b7280);
+    background: #fafbfc;
+    cursor: pointer;
+    transition: border-color 0.12s, background 0.12s, color 0.12s;
+  }
+  .pu-upload-drop:hover {
+    border-color: var(--pu-accent, #2563eb);
+    color: var(--pu-accent, #2563eb);
+    background: rgba(37, 99, 235, 0.04);
+  }
+}
