@@ -1,0 +1,12 @@
+{
+  "name": "knobkit-example-tables-and-charts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "knobkit dev",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "knobkit": "workspace:*"
+  }
+}

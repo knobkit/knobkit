@@ -1,0 +1,7 @@
+{
+  "extends": "knobkit/tsconfig.base.json",
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ]
+}
