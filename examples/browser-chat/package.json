@@ -1,0 +1,14 @@
+{
+  "name": "knobkit-example-browser-chat",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "knobkit dev",
+    "build": "knobkit build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "knobkit": "workspace:*"
+  }
+}
