@@ -1,0 +1,39 @@
+@layer components {
+  .pu-label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .pu-label-top {
+    font-size: 18px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+  .pu-label-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--pu-border, #e3e6ea);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .pu-label-bar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: rgba(37, 99, 235, 0.12);
+    z-index: 0;
+  }
+  .pu-label-name {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+  }
+  .pu-label-score {
+    position: relative;
+    z-index: 1;
+    color: var(--pu-muted, #6b7280);
+    font-variant-numeric: tabular-nums;
+  }
+}
