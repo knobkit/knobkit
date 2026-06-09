@@ -1,0 +1,8 @@
+@layer components {
+  .pu-submit.pu-rec {
+    background: #dc2626;
+  }
+  .pu-submit.pu-rec:hover {
+    background: #b91c1c;
+  }
+}
