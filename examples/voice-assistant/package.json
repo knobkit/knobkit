@@ -1,0 +1,14 @@
+{
+  "name": "knobkit-example-voice-assistant",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "knobkit dev",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.5.1",
+    "kokoro-js": "^1.2.1",
+    "knobkit": "workspace:*"
+  }
+}
