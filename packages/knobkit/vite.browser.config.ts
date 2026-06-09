@@ -42,7 +42,7 @@ export default defineConfig({
         warn(warning);
       },
       output: {
-        inlineDynamicImports: true,
+        codeSplitting: false,
         entryFileNames: "knobkit.browser.js",
         assetFileNames: "knobkit.browser.[ext]",
       },
