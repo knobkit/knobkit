@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>knobkit — playground</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      #app {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        height: 100vh;
+      }
+      #preview {
+        border: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #panel {
+        height: 100vh;
+        overflow: auto;
+        border-left: 1px solid #e3e6ea;
+        background: #f6f7f9;
+      }
+      #panel .pu-code {
+        min-height: 58vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <iframe id="preview" src="./preview.html" title="preview"></iframe>
+      <div id="panel"></div>
+    </div>
+    <script type="module" src="./demo.tsx"></script>
+  </body>
+</html>

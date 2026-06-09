@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>knobkit preview</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      #root {
+        min-height: 100%;
+      }
+      #err {
+        display: none;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        padding: 10px 14px;
+        background: #fde8e8;
+        color: #9b1c1c;
+        font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+        border-top: 1px solid #f5c2c2;
+        white-space: pre-wrap;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="err"></div>
+    <div id="root"></div>
+    <script type="module" src="./preview.tsx"></script>
+  </body>
+</html>
