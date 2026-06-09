@@ -1,0 +1,30 @@
+@layer components {
+  .pu-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .pu-tabs-bar {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--pu-border, #e3e6ea);
+  }
+  .pu-tab {
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 8px 14px;
+    margin-bottom: -1px;
+    font: inherit;
+    color: var(--pu-muted, #6b7280);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+  }
+  .pu-tab:hover {
+    color: var(--pu-text, #1c1f23);
+  }
+  .pu-tab-active {
+    color: var(--pu-accent, #2563eb);
+    border-bottom-color: var(--pu-accent, #2563eb);
+  }
+}

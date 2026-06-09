@@ -1,0 +1,35 @@
+@layer components {
+  .pu-accordion {
+    border: 1px solid var(--pu-border, #e3e6ea);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .pu-accordion-head {
+    appearance: none;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #fafbfc;
+    border: none;
+    font: inherit;
+    font-weight: 550;
+    text-align: left;
+    cursor: pointer;
+  }
+  .pu-accordion-caret {
+    display: inline-block;
+    color: var(--pu-muted, #6b7280);
+    transition: transform 0.12s;
+  }
+  .pu-accordion-open .pu-accordion-caret {
+    transform: rotate(90deg);
+  }
+  .pu-accordion-body {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 16px 14px;
+  }
+}
