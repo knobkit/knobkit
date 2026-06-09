@@ -75,7 +75,7 @@ export function mountConfig(root: string, entry: string, ownHtml: boolean): Inli
     esbuild: { jsx: "automatic" },
     resolve: {
       dedupe: ["react", "react-dom"],
-      ...(src ? { alias: { knobkit: src } } : {}),
+      ...(src ? { alias: [{ find: /^knobkit$/, replacement: src }] } : {}),
     },
     ...(ownHtml ? {} : { optimizeDeps: { entries: [entryRel] } }),
     server: { fs: { allow: [searchForWorkspaceRoot(root)] } },

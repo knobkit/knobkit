@@ -42,6 +42,14 @@ from `dist/assets/*.js`, so client code **may use lazy `import()`** — a heavy 
 CodeMirror) loads only when rendered. ESM with `NodeNext`: imports use `.js` extensions even for
 `.ts`/`.tsx` sources.
 
+`build:client` runs vite twice: the serve client (`client/entry.tsx` → `dist/client.js`, the
+socket+render bootstrap) and the **standalone browser runtime** (`client/browser.ts` →
+`dist/knobkit.browser.js` + `.css`, via `vite.browser.config.ts`, exported as `knobkit/browser`). The
+latter bundles the authoring + mount API with React/CSS inlined and `serve()` stubbed out
+(`client/serve-stub.ts`) — a self-contained runtime a page can load with **no bundler**, for the cases
+that have no build step: running app code authored at runtime, or injecting knobkit into a sandboxed
+`frame`. Normal apps don't need it (`knobkit dev`/`build` bundle knobkit for you).
+
 ## State model
 
 Widget state is **uniform structured JSON** — an attribute map per widget: `chat { messages }`,
