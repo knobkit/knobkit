@@ -1,0 +1,131 @@
+@layer tokens, base, components;
+
+@layer tokens {
+  :root {
+    --pu-bg: #f6f7f9;
+    --pu-panel: #ffffff;
+    --pu-border: #e3e6ea;
+    --pu-text: #1c1f23;
+    --pu-muted: #6b7280;
+    --pu-accent: #2563eb;
+    --pu-accent-press: #1d4ed8;
+    --pu-radius: 12px;
+  }
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--pu-bg);
+    color: var(--pu-text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .pu-page {
+    max-width: 720px;
+    margin: 48px auto;
+    padding: 28px 28px 32px;
+    background: var(--pu-panel);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 10px 28px rgba(0, 0, 0, 0.05);
+  }
+
+  .pu-page:has(.pu-layout-row),
+  .pu-page:has(.pu-layout-grid) {
+    max-width: 1040px;
+  }
+
+  .pu-page h1 {
+    margin: 0 0 4px;
+    font-size: 24px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  .pu-desc {
+    margin: 0 0 24px;
+    color: var(--pu-muted);
+  }
+
+  /* a headless widget (e.g. mic({ control: false })) renders nothing — don't leave a gap */
+  .pu-field:empty {
+    display: none;
+  }
+  /* a disabled widget: dimmed and non-interactive (the runtime also drops its input events) */
+  .pu-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  /* a busy widget: a thin indeterminate bar across its top edge (the runtime drops its input events
+     while busy). Doesn't dim or cover content, so a chat stays readable while it streams. */
+  .pu-busy {
+    position: relative;
+  }
+  .pu-busy-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: rgba(37, 99, 235, 0.15);
+    overflow: hidden;
+    z-index: 2;
+  }
+  .pu-busy-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 40%;
+    border-radius: 2px;
+    background: var(--pu-accent);
+    animation: pu-busy-slide 1.1s ease-in-out infinite;
+  }
+  @keyframes pu-busy-slide {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(350%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pu-busy-bar::after {
+      animation-duration: 2.4s;
+    }
+  }
+
+  .pu-layout {
+    display: flex;
+    gap: 18px;
+  }
+  .pu-layout-col {
+    flex-direction: column;
+  }
+  .pu-layout-row {
+    flex-direction: row;
+  }
+  .pu-layout-row > .pu-field {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .pu-layout-grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  @media (max-width: 720px) {
+    .pu-page {
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      min-height: 100vh;
+    }
+  }
+}
