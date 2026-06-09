@@ -21,7 +21,7 @@ export interface AppDecl {
   serverEvents: string[];
 }
 
-const SKIP = new Set(["state", "behavior", "view", "fold", "type", "children"]);
+const SKIP = new Set(["state", "behavior", "view", "fold", "type", "children", "__subapp"]);
 
 interface TreeNode {
   widget: Widget<any>;

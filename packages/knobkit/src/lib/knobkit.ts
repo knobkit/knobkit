@@ -1,6 +1,7 @@
 import type { AppConfig, KnobkitServer, EventCtor, Widget } from "./types.js";
 import type { Handler } from "./on.js";
 import { widgetKeys } from "./declare.js";
+import { collectSubapps } from "./widgets/embed.js";
 
 // The knobkit is the authored app: a set of widgets plus the `on(event, handler)` handlers registered
 // against their events. It holds no state — the browser owns that. Handlers run on the server (serve)
@@ -12,6 +13,10 @@ export class Knobkit {
 
   constructor(public config: AppConfig) {
     this.keys = widgetKeys(config.widgets);
+    for (const sub of collectSubapps(config.widgets)) {
+      for (const [type, hs] of sub.handlers) this.handlers.set(type, [...(this.handlers.get(type) ?? []), ...hs]);
+      this.setups.push(...sub.setups);
+    }
   }
 
   keyFor(widget: Widget<any>): string {

@@ -1,0 +1,17 @@
+@layer components {
+  .pu-frame {
+    width: 100%;
+    min-height: 360px;
+    height: 100%;
+    display: block;
+    border: 1px solid var(--pu-border);
+    border-radius: 8px;
+    background: var(--pu-panel);
+  }
+
+  .pu-frame-empty {
+    display: grid;
+    place-items: center;
+    color: var(--pu-muted);
+  }
+}

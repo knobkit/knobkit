@@ -17,6 +17,7 @@ import { AnnotatedImageView } from "./annotated-image/index.js";
 import { FileView } from "./file/index.js";
 import { ProgressView } from "./progress/index.js";
 import { HtmlView } from "./html/index.js";
+import { FrameView } from "./frame/index.js";
 import { UploadView } from "./upload/index.js";
 import { ImageView } from "./image/index.js";
 import { ButtonView } from "./button/index.js";
@@ -51,6 +52,7 @@ export const VIEWS: Record<string, WidgetView> = {
   file: FileView,
   progress: ProgressView,
   html: HtmlView,
+  frame: FrameView,
   upload: UploadView,
   image: ImageView,
   button: ButtonView,
