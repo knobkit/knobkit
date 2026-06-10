@@ -20,7 +20,11 @@ export function ChartView({ widget, state }: ViewProps<ChartWidget, { data: Poin
       <CartesianGrid strokeDasharray="3 3" stroke={cssVar("--pu-border")} />
       <XAxis dataKey={x} tick={{ fontSize: 12 }} />
       <YAxis tick={{ fontSize: 12 }} />
-      <Tooltip />
+      <Tooltip
+        contentStyle={{ background: cssVar("--pu-panel"), border: `1px solid ${cssVar("--pu-border")}`, borderRadius: 8, color: cssVar("--pu-text") }}
+        labelStyle={{ color: cssVar("--pu-text") }}
+        cursor={{ fill: cssVar("--pu-overlay") }}
+      />
       {series.length > 1 && <Legend />}
     </>
   );
