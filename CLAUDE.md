@@ -24,6 +24,9 @@ packages/knobkit/src/
               mount.tsx, context.ts (browser ctx), widgets/<name>/index.tsx + .css (views),
               widgets/registry.tsx (type -> view)
   server/     node: serve.ts (http + socket.io), context.ts (AsyncLocalStorage ctx)
+  cli/        `knobkit` bin: index.ts (parse + dispatch), config.ts (vite mount config), mount.ts
+              (dev/build), serve.ts (runServe via `tsx watch`), playground.ts + playground-app.ts
+              (`knobkit playground`)
 ```
 
 ## Commands
@@ -49,6 +52,12 @@ latter bundles the authoring + mount API with React/CSS inlined and `serve()` st
 (`client/serve-stub.ts`) — a self-contained runtime a page can load with **no bundler**, for the cases
 that have no build step: running app code authored at runtime, or injecting knobkit into a sandboxed
 `frame`. Normal apps don't need it (`knobkit dev`/`build` bundle knobkit for you).
+
+`knobkit playground` (`cli/playground.ts`) is **itself a knobkit serve app** (`cli/playground-app.ts`):
+a `code` editor + a `frame` iframing the target's own dev server, `fill: true` for the split layout. It
+starts the dev server (`devMount`/`runServe`, silenced via `quiet`/`KNOBKIT_PORT`/`KNOBKIT_QUIET`), then
+on `code.changed` writes the file to disk (the dev watcher reloads the preview) and on an external file
+change pushes back into the editor via a captured `Bound`. Dogfooding — no bespoke editor.
 
 ## State model
 
@@ -129,10 +138,14 @@ via an attribute on the document root (so both **inherit** and can be scoped to 
 - **dimension** — `data-density` = `xs|sm|md|lg|xl` (md default). Tokens: `--pu-font/font-sm/h1/line/gap/
   pad/cpad-y/cpad-x/control/radius/radius-sm`.
 
+Plus a layout toggle (not a token family): `data-fill` — `knobkit({ fill: true })` → a full-bleed app
+shell (the page fills the viewport; the root row becomes a CSS grid) instead of the centered card.
+Rules live in `styles.css @layer base`; `knobkit playground` uses it.
+
 The dark block is duplicated (explicit `[data-theme="dark"]` + a `prefers-color-scheme` media query for
 the non-forced case) — vanilla CSS can't share a block across a selector and a media query. Authoring:
-`knobkit({ theme, density })` → flows through the decl → applied in `app.tsx` `render()` (mount) and the
-`serve.ts` `<html>` (no FOUC). Runtime: `setTheme`/`setDensity` (`lib/theme.ts`, DOM-guarded, public).
+`knobkit({ theme, density, fill })` → flows through the decl → applied in `app.tsx` `render()` (mount)
+and the `serve.ts` `<html>` (no FOUC). Runtime: `setTheme`/`setDensity` (`lib/theme.ts`, DOM-guarded, public).
 Lib-backed widgets: `code` (CodeMirror) and `table` (revo-grid) theme via token-valued CSS — CodeMirror
 through an `EditorView.theme`/`HighlightStyle` using `var(--pu-*)`, revo-grid by mapping its
 `--revo-grid-*` props to ours; both follow the cascade with no JS. Only JS-drawn colors (chart series,
@@ -154,6 +167,11 @@ label palettes) need `client/theme.ts` to re-read on change.
   `maxHttpBufferSize` is lifted — that's for legitimate large reads, not a workaround.
 - Rendering is **per-key** via `useSyncExternalStore` (`app.tsx` `Field`). No global "something changed"
   broadcast — don't add one.
+- Widget config is normally a **static prop** (in the decl, never changes). The exception: `code`'s
+  `language` lives in **state**, so it's runtime-switchable via `setLanguage()` (the playground's file
+  picker swaps grammar this way). `chat({ markdown })` renders assistant messages through the same lazy
+  markdown chunk as `output({ format: "markdown" })` — reuse `client/widgets/output/markdown.tsx`, don't
+  fork it.
 
 ## Conventions
 

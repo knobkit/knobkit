@@ -2,200 +2,176 @@
 
 [![CI](https://github.com/knobkit/knobkit/actions/workflows/ci.yml/badge.svg)](https://github.com/knobkit/knobkit/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/knobkit.svg)](https://www.npmjs.com/package/knobkit) [![license](https://img.shields.io/npm/l/knobkit.svg)](https://github.com/knobkit/knobkit/blob/main/LICENSE)
 
-**[knobkit.dev](https://knobkit.dev)** — watch the 30-second tour, then edit a real app in the live playground (nothing to install).
+**Your AI app, live as you type.** Declare widgets, write `on(event, handler)` functions — done. The
+same `demo.tsx` runs entirely in the browser (`mount`) or on a stateless Node server (`serve`); change
+the last line to swap. **The browser owns all state** — the server keeps none, so there are no sessions.
 
-**Your AI app, live as you type.** Declare widgets, write event handlers — done. The same file runs
-entirely in the browser — no server at all — or with handlers on a stateless Node server. Swap one line.
+**[knobkit.dev](https://knobkit.dev)** — 30-second tour + a live playground (nothing to install).
 
-<a href="https://knobkit.dev"><img src="https://knobkit.dev/demo.gif" alt="knobkit — scaffold a project, run the dev server, edit the code, watch the browser update live" width="100%" /></a>
+> 🛠️ **Building with an AI agent?** The **[knobkit-skills](https://github.com/knobkit/knobkit-skills)**
+> Agent Skill is the recommended way to scaffold and build a knobkit app fast — works in Claude Code
+> or any [Agent Skills](https://agentskills.io)–compatible agent.
+
+<a href="https://knobkit.dev"><img src="https://knobkit.dev/demo.gif" alt="knobkit — scaffold, run the dev server, edit, watch the browser update live" width="100%" /></a>
 
 ```ts
 import { knobkit, mic, output } from "knobkit";
 import { pipeline } from "@huggingface/transformers";
 
-// A local Whisper model — runs on the Node server with serve(), or in the browser with mount().
 const transcriber = await pipeline("automatic-speech-recognition", "onnx-community/whisper-base.en");
-
 const recorder = mic();
 const transcript = output();
 
-const app = knobkit({
-  title: "Transcribe",
-  description: "Record audio; a local Whisper model turns it into text.",
-  widgets: [recorder, transcript],
-});
+const app = knobkit({ title: "Transcribe", widgets: [recorder, transcript] });
 
 app.on(recorder.clip, async (samples) => {
   const { text } = (await transcriber(samples)) as { text: string };
   transcript.set(text.trim() || "(silence)");
 });
 
-app.serve();
+app.serve(); // runs Whisper on Node — change to app.mount("#root") to run it in the browser via WebGPU
 ```
 
-That's a complete app — record a clip, get a transcript. `app.serve()` runs Whisper on Node; change
-that one line to `app.mount("#root")` and the identical file runs the model in the browser via WebGPU.
-From there the same shape scales to a full local
-[voice assistant](https://github.com/knobkit/knobkit/tree/main/examples/voice-assistant) (Whisper →
-Qwen → Kokoro) or [live meeting transcription](https://github.com/knobkit/knobkit/tree/main/examples/live-meeting-help) —
-see [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples).
-
-## Why not Gradio or Streamlit?
-
-Same authoring feel — declare inputs, write a function, get an app — different architecture:
-
-- **The browser owns all state.** A knobkit server keeps nothing. A handler pulls only the
-  attributes it actually reads and writes back structured edits. No sessions, no sticky state —
-  restart, redeploy, or scale the server and no one's app breaks.
-- **One file, two tiers.** Prototype entirely in the browser (`mount` apps build to static files —
-  host them anywhere, run WebGPU models client-side), then move handlers to a server when you need
-  secrets, large models, or native deps — by changing the last line.
-- **Events, not reruns.** Handlers are plain `on(event, async fn)` functions. No full-script
-  re-execution on every interaction, no reactive graph to fight, no widget-key gymnastics.
-- **Data stays where it lives.** A request crossing the wire is just `{ type, payload }` — never a
-  copy of state. An attribute a handler never reads (say, generated audio) never leaves the browser.
+See [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples) — chatbots, image captioning,
+live transcription, webcam filters; each a single `demo.tsx`.
 
 ## Quick start
 
 ```bash
-npm create knobkit@latest my-app   # choose mount (browser) or serve (node)
-cd my-app
-npm install
-npm run dev
+npm create knobkit@latest my-app   # prompts mount (browser) vs serve (node); or pass --mount / --serve
+cd my-app && npm install && npm run dev
 ```
 
-Skip the prompts with `npm create knobkit@latest my-app -- --mount` (or `--serve`). Already have a
-project? `npm install knobkit`. Requires Node ≥ 22.
+Already have a project? `npm install knobkit`. Requires **Node ≥ 22**.
 
 ## CLI
 
-The `knobkit` package installs a `knobkit` command:
-
 ```bash
-knobkit dev         # dev server — auto-detects mount vs serve
-knobkit build       # build a browser (mount) app to dist/
-knobkit serve       # run a server (serve) app
-knobkit playground  # split-pane REPL — editor on the left, live app on the right
+knobkit dev         # dev server — auto-detects the tier from mount()/serve() in the entry
+knobkit build       # build a mount app to static files in dist/
+knobkit serve       # run a serve app
+knobkit playground  # split-pane REPL: editor + live preview, file picker, edits round-trip to disk
 ```
 
-The entry file is the `"main"` field of your package.json — like `vite`, the manifest names the
-entry. Pass a file to run something else: `knobkit dev other.tsx`. Flags: `--mount` / `--serve`
-force a mode, `--port <n>` sets the dev-server port. Otherwise `knobkit dev` detects the tier from
-whether your entry file ends in `mount()` or `serve()`.
+Entry = your package.json `"main"` (override with `knobkit dev other.tsx`). `--mount` / `--serve` force
+the tier; `--port <n>` sets the port (playground default 4317).
 
-`knobkit playground` runs your app's normal dev server and wraps it in an editor + live preview: edit
-on the left, see the running app update on the right (Vite HMR for mount, server restart for serve).
-A file picker lets you switch between the project's source files (the editor re-highlights per
-language); the preview reloads on any of them. It works on either tier, and edits round-trip to disk —
-so an external edit (your editor, or an agent) flows back into the playground editor too. The
-playground is itself a knobkit app (a `code` widget and a `frame`), running on `--port` (default 4317).
+## How it works
 
-## Concepts
+A handler is a plain `on(event, async fn)`. Inside it you do exactly three things:
 
-- **Widgets** hold structured state and render themselves. Handlers interact through widget methods:
-  - **read** with async getters — `await convo.history()`, `await box.value()` — pulled from the browser.
-  - **write** with structured edits — `convo.say(m)`, `convo.append(token)`, `out.set(v)`, `log.push(line)`.
-  - **produce** by `return`ing an event from a handler (it's re-emitted, like a user action).
-- **Events** are plain serializable `{ type, payload }`. `widget.sent("hi")` builds one.
-- **`on(event, handler)`** registers a handler against a widget's event (`convo.sent`, `go.clicked`).
-- **`setup(fn)`** runs once per session — in the browser on `mount`, per connection on `serve` — with a
-  live context, so async startup (load model weights, fetch a user's data) happens here. The page
-  renders first; setup is non-blocking.
-- **`busy`** marks a transient working span on a widget — `widget.busy(handler)` wraps an async handler,
-  or `widget.busyStart()`/`busyEnd()` bracket one by hand (e.g. a `setup()` load). The widget shows a
-  thin indeterminate bar and drops its input events while busy. `disable()`/`enable()` is the persistent
-  version (dimmed).
-- **`mount` vs `serve`** is the only thing that changes between in-browser and client/server — the
-  widgets, handlers, and methods are identical.
+- **read** widget state with async getters — `await box.value()`, `await convo.history()` (a real
+  round-trip on serve);
+- **write** with structured setters — `out.set(v)`, `convo.say(m)`, `log.push(line)`;
+- **produce** by `return`ing an event from the handler (re-emitted, like a user action).
 
-## The two runtimes
+`setup(fn)` runs once per session for async startup (load weights, fetch data). `widget.busy(fn)` wraps
+a handler in a transient working span (a bar; drops the widget's input while running); `disable()` /
+`enable()` is the persistent version. Widget methods only work inside a handler or `setup`.
 
 | | `mount("#root")` | `serve()` |
 |---|---|---|
-| State | in the browser | in the browser |
 | `on(...)` handlers | run in the browser | run on a stateless Node server |
-| Transport | local function call | socket.io |
-| Use when | everything fits client-side (incl. WebGPU models) | the handler needs the server (large models, secrets, native deps) |
+| transport | local call | socket.io |
+| use when | fits client-side (incl. WebGPU models) | needs the server (large models, secrets, native deps) |
+
+`mount` builds to static files you can host anywhere; `serve` adds no session state. Widgets, handlers,
+and methods are identical across both — only the last line changes.
 
 ## Widgets
 
-Inputs: `text`, `number`, `slider`, `dropdown`, `checkbox`, `checkboxGroup`, `radio`, `upload`, `mic`,
-`webcam`, `chat`, `button`.
-Outputs: `output` (plain text or `format: "markdown"`), `json`, `log`, `label`, `html`, `image`,
-`gallery`, `annotatedImage` (boxes/labels over an image), `highlightedText` (spans over text), `audio`,
-`video`, `file` (download), `progress`, `chart` (bar/line/area), `frame` (embed a URL or a sandboxed
-HTML document in an isolated iframe).
-Both (editable or read-only): `code` (syntax-highlighted editor/viewer — `language`, `editable`,
-`wrap` to soft-wrap long lines), `table` (data grid).
-Custom: `widget({ state, … })`.
+**Value inputs** all share one shape: a `changed` event whose **payload is the value**, plus
+`await w.value()` and `w.set(v)`. (No `.submitted`/`.uploaded` — listen on `changed`, or use a
+`button`'s `.clicked` and read `await input.value()`.)
+
+| Factory (defaults) | `changed` value | Notes |
+|---|---|---|
+| `text({ placeholder?, lines? })` | `string` | `lines` = textarea rows (default 1) |
+| `number({ value?, min?, max? })` | `number` | numeric stepper (init 0) |
+| `slider({ value?, min?, max?, step? })` | `number` | `min` 0, `max` 100, `step` 1 |
+| `dropdown({ choices, value? })` | `string` | `choices: string[]`; `value` defaults to `choices[0]` |
+| `checkbox({ label?, value? })` | `boolean` | single toggle |
+| `checkboxGroup({ choices, value? })` | `string[]` | multi-select |
+| `radio({ choices, value? })` | `string` | single-select |
+| `upload({ accept? })` | `string \| null` | value is a data URL; `accept` default `image/*` |
+
+**Other inputs:**
+
+| Factory (defaults) | Events | Methods |
+|---|---|---|
+| `button({ label })` | `clicked` | `set({ label })` |
+| `mic({ every?, control?, hold? })` | `clip` (Float32Array), `toggled` | `start()`, `stop()`, `await toggle()`, `await live()`. `every` ms emits a clip every N ms (0 = hold/toggle only) |
+| `webcam({ every?, control?, preview?, facing? })` | `frame` (data URL), `toggled` | same controls. `every` ms emits a frame every N ms (0 = preview only); `facing` `"user"`/`"environment"` |
+| `chat({ placeholder?, voice?, images?, markdown? })` | `sent` (`{ text, image? }`), `recorded` | `await history()`, `say(msg)`, `append(token)`. `markdown` renders assistant replies; `images`/`voice` add attach/talk buttons |
+
+**Outputs** (write-only; `set(...)` replaces the value):
+
+| Factory (defaults) | Write / methods | Notes |
+|---|---|---|
+| `output({ format? })` | `set(text)` | `format: "markdown"` renders GFM |
+| `json()` | `set(value)` | pretty-printed JSON |
+| `log()` | `push(line)`, `await all()` | append-only lines |
+| `label()` | `set(string \| { label?, confidences? })` | classifier result; `confidences: { label, score }[]` → bars |
+| `html({ value? })` | `set(markup)` | raw HTML |
+| `image()` | `set(urlOrDataUrl)` | one image |
+| `gallery()` | `set(items)`, `add(item)` | `item: { src, caption? }` |
+| `audio({ autoplay? })` / `video({ autoplay?, loop? })` | `set(src)` | URL or data URL |
+| `progress({ label? })` | `set(value, label?)` | `value` is 0..1 |
+| `file()` | `set({ name?, url } \| url)` | offer a download |
+| `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
+| `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain) |
+| `chart({ x, y, kind?, data?, maxHeight? })` | `await data()`, `setData(rows)`, `push(point)` | `x` = category key; `y` = key or `string[]`; `kind` bar/line/area |
+| `frame({ src?, doc?, sandbox?, title? })` | `load(url)`, `show(doc)`, `clear()` | iframe; event `loaded` |
+
+**Editable or read-only:**
+
+| Factory (defaults) | Events | Methods |
+|---|---|---|
+| `code({ value?, language?, editable?, wrap? })` | `changed` (string) | `await value()`, `set(src)`, `setLanguage(lang)`. `editable: false` = viewer; `wrap` soft-wraps |
+| `table({ columns?, rows?, editable?, maxHeight? })` | `edited` (`{ row, key, value }`) | `await data()`, `setRows`, `setColumns`, `addRow`, `setCell`. `Column: { key, label?, type?, width? }` |
+
+**Custom:** `widget({ state, view, fold?, behavior? })` builds a widget from scratch — `state` is its
+data, `view(state, emit)` renders it, `fold` applies events to state.
 
 ## Layout
 
-`widgets` is the widget tree. An array is a vertical stack; `row`, `col`, and `grid` are containers
-that nest other widgets — composed with the widget objects themselves, no keys or strings:
+`widgets` is a tree of widget objects (no keys/strings). An array is an implicit `col`:
 
 ```ts
-import { knobkit, upload, dropdown, button, output, row, col } from "knobkit";
-
 knobkit({ widgets: col(photo, row(size, go), caption) });
-knobkit({ widgets: grid([a, b, c, d], { cols: 2 }) });
+grid([a, b, c, d], { cols: 2 });
+tabs([{ label: "One", content: a }, { label: "Two", content: b }]);
+accordion({ label: "Advanced", open: false }, x, y);
 ```
 
-`tabs` and `accordion` are containers too — `tabs([{ label, content }, …])`,
-`accordion({ label, open }, …children)`. Containers are themselves widgets whose state is their
-arrangement, so a handler can restructure the UI at runtime — `panel.add(chart)`, `panel.remove(sidebar)`.
+Containers are widgets whose state is their arrangement, so a handler can restructure the UI at
+runtime — `panel.add(chart)`, `await panel.remove(sidebar)`.
 
 ## Theming
 
-Two independent axes, set once at authoring or flipped at runtime:
+Set on `knobkit({ … })`, or flip at runtime with `setTheme` / `setDensity`:
 
-- **`theme`** — `"system"` (default; follows the OS via `prefers-color-scheme`), `"light"`, or `"dark"`.
-- **`density`** — `"xs" | "sm" | "md" | "lg" | "xl"` (default `"md"`), scaling spacing, control sizes,
-  radii, and type — `xs` for packed dashboards, `xl` for spacious forms.
+- **`theme`** — `"system"` (default) | `"light"` | `"dark"`.
+- **`density`** — `"xs" | "sm" | "md" | "lg" | "xl"` (default `md`) — spacing, control sizes, radii, type.
+- **`fill: true`** — full-bleed shell that fills the viewport (for split panes / dashboards) instead of
+  the centered card.
 
-```ts
-knobkit({ widgets: [...], theme: "dark", density: "sm" });
-```
-
-A third option, **`fill: true`**, drops the centered card for a full-bleed shell that fills the
-viewport (a flex column: a slim title/description header, then the root layout stretches to fill) —
-for split panes and dashboards. It's what `knobkit playground` uses for its editor/preview split.
-
-Every widget renders from one set of CSS custom properties (`--pu-bg`, `--pu-accent`, `--pu-gap`,
-`--pu-radius`, the `--pu-series-*` chart palette, …). Theme and density just remap those tokens, so a
-single switch restyles the whole kit — including the `code` editor, `table` grid, and `chart`.
-
-Build a switcher with the runtime setters (e.g. for a settings menu or the playground toggle):
-
-```ts
-import { setTheme, setDensity } from "knobkit";
-setTheme("dark");      // or "light" / "system"
-setDensity("xs");
-```
-
-Both are just attributes on the document root, and they **inherit** — so you can scope them: put
-`data-density="xs"` on one `grid` and that panel goes compact while the rest of the page stays normal.
-To rebrand, override the tokens in your own CSS (e.g. `:root { --pu-accent: rebeccapurple }`) or define
-a named theme as a `[data-theme="brand"] { … }` block and pass `theme: "brand"`.
-
-## Examples
-
-In [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples) — each is a single
-`demo.tsx`. Run one with `pnpm -F knobkit-example-<name> dev`.
+Everything renders from CSS custom properties (`--pu-bg`, `--pu-accent`, `--pu-gap`, the `--pu-series-*`
+chart palette, …); theme/density just remap them, so one switch restyles the whole kit (including the
+`code` editor, `table`, and `chart`). The attributes inherit, so you can scope them to one container; to
+rebrand, override the tokens in your CSS (e.g. `:root { --pu-accent: rebeccapurple }`).
 
 ## Develop
 
-Requires Node ≥ 22 and pnpm.
-
 ```bash
 pnpm install
-pnpm -F knobkit build     # build the library + browser client bundle
-pnpm -F knobkit test      # vitest
-pnpm typecheck            # all packages
+pnpm -F knobkit build   # library + browser client bundle
+pnpm -F knobkit test    # vitest
+pnpm typecheck          # all packages
 ```
 
-See [CLAUDE.md](https://github.com/knobkit/knobkit/blob/main/CLAUDE.md) for the architecture and how
-to add a widget.
+See [CLAUDE.md](https://github.com/knobkit/knobkit/blob/main/CLAUDE.md) for the architecture and how to
+add a widget.
 
 ## License
 
