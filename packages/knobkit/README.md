@@ -72,15 +72,23 @@ project? `npm install knobkit`. Requires Node ≥ 22.
 The `knobkit` package installs a `knobkit` command:
 
 ```bash
-knobkit dev      # dev server — auto-detects mount vs serve
-knobkit build    # build a browser (mount) app to dist/
-knobkit serve    # run a server (serve) app
+knobkit dev         # dev server — auto-detects mount vs serve
+knobkit build       # build a browser (mount) app to dist/
+knobkit serve       # run a server (serve) app
+knobkit playground  # split-pane REPL — editor on the left, live app on the right
 ```
 
 The entry file is the `"main"` field of your package.json — like `vite`, the manifest names the
 entry. Pass a file to run something else: `knobkit dev other.tsx`. Flags: `--mount` / `--serve`
 force a mode, `--port <n>` sets the dev-server port. Otherwise `knobkit dev` detects the tier from
 whether your entry file ends in `mount()` or `serve()`.
+
+`knobkit playground` runs your app's normal dev server and wraps it in an editor + live preview: edit
+on the left, see the running app update on the right (Vite HMR for mount, server restart for serve).
+A file picker lets you switch between the project's source files (the editor re-highlights per
+language); the preview reloads on any of them. It works on either tier, and edits round-trip to disk —
+so an external edit (your editor, or an agent) flows back into the playground editor too. The
+playground is itself a knobkit app (a `code` widget and a `frame`), running on `--port` (default 4317).
 
 ## Concepts
 
@@ -117,7 +125,8 @@ Outputs: `output` (plain text or `format: "markdown"`), `json`, `log`, `label`, 
 `gallery`, `annotatedImage` (boxes/labels over an image), `highlightedText` (spans over text), `audio`,
 `video`, `file` (download), `progress`, `chart` (bar/line/area), `frame` (embed a URL or a sandboxed
 HTML document in an isolated iframe).
-Both (editable or read-only): `code` (syntax-highlighted editor/viewer), `table` (data grid).
+Both (editable or read-only): `code` (syntax-highlighted editor/viewer — `language`, `editable`,
+`wrap` to soft-wrap long lines), `table` (data grid).
 Custom: `widget({ state, … })`.
 
 ## Layout
@@ -148,6 +157,10 @@ Two independent axes, set once at authoring or flipped at runtime:
 knobkit({ widgets: [...], theme: "dark", density: "sm" });
 ```
 
+A third option, **`fill: true`**, drops the centered card for a full-bleed shell that fills the
+viewport (a flex column: a slim title/description header, then the root layout stretches to fill) —
+for split panes and dashboards. It's what `knobkit playground` uses for its editor/preview split.
+
 Every widget renders from one set of CSS custom properties (`--pu-bg`, `--pu-accent`, `--pu-gap`,
 `--pu-radius`, the `--pu-series-*` chart palette, …). Theme and density just remap those tokens, so a
 single switch restyles the whole kit — including the `code` editor, `table` grid, and `chart`.
@@ -169,12 +182,6 @@ a named theme as a `[data-theme="brand"] { … }` block and pass `theme: "brand"
 
 In [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples) — each is a single
 `demo.tsx`. Run one with `pnpm -F knobkit-example-<name> dev`.
-
-The **[live playground](https://knobkit.dev/playground/)** is an in-browser editor: a `code`
-editor whose contents run live as a mounted knobkit app beside it, with a `dropdown` of built-in
-examples — itself a knobkit app built from `code`/`dropdown`/layout, served as static files. Its
-source lives in the [`knobkit.github.io`](https://github.com/knobkit/knobkit.github.io) repo
-(alongside the marketing site and the demo video).
 
 ## Develop
 

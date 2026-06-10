@@ -6,7 +6,7 @@ const MODEL = "onnx-community/Qwen3.5-0.8B-ONNX";
 let processor: Awaited<ReturnType<typeof AutoProcessor.from_pretrained>>;
 let model: Awaited<ReturnType<typeof Qwen3_5ForConditionalGeneration.from_pretrained>>;
 
-const conversation = chat({ images: true, placeholder: "Say something, or attach an image…" });
+const conversation = chat({ images: true, markdown: true, placeholder: "Say something, or attach an image…" });
 
 const app = knobkit({
   title: "Chatbot",

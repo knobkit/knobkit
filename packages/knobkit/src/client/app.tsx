@@ -61,5 +61,6 @@ export function App({ decl, store }: { decl: AppDecl; store: Store }) {
 export function render(decl: AppDecl, store: Store, el: Element): void {
   if (decl.theme) setTheme(decl.theme);
   if (decl.density) setDensity(decl.density);
+  if (decl.fill && typeof document !== "undefined") document.documentElement.dataset.fill = "";
   createRoot(el).render(<App decl={decl} store={store} />);
 }

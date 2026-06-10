@@ -45,7 +45,7 @@ export class Knobkit {
     void import("../client/mount.js").then(({ mount }) => mount(this, selector));
   }
 
-  serve(opts?: { port?: number }): Promise<KnobkitServer> {
+  serve(opts?: { port?: number; quiet?: boolean }): Promise<KnobkitServer> {
     return import("../server/serve.js").then(({ serve }) => serve(this, opts));
   }
 }

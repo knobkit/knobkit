@@ -28,4 +28,12 @@
   .pu-code-ro .cm-cursor {
     display: none;
   }
+
+  [data-fill] .pu-code,
+  [data-fill] .pu-code .cm-editor {
+    height: 100%;
+  }
+  [data-fill] .pu-code .cm-scroller {
+    max-height: none;
+  }
 }

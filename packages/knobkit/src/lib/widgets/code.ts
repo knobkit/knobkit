@@ -1,11 +1,35 @@
-import { value } from "./value.js";
+import { event } from "../event.js";
+import { bound } from "../bound.js";
+import { controls } from "../controls.js";
+import type { EventCtor, Widget } from "../types.js";
 
-// A code editor over the uniform `value` attribute: holds `{ value: string }`, plus `language` (syntax
-// highlighting) and `editable` (false = a read-only, still-highlighted viewer) as static props. The
-// CodeMirror instance lives in the view; this stays a plain value widget (changed/value()/set()).
-export function code(opts: { value?: string; language?: string; editable?: boolean } = {}) {
-  return value("code", opts.value ?? "", {
-    language: opts.language ?? "",
+export interface CodeWidget extends Widget<{ value: string; language: string }> {
+  changed: EventCtor<string>;
+  editable: boolean;
+  wrap: boolean;
+  value(): Promise<string>;
+  set(value: string): void;
+  setLanguage(language: string): void;
+}
+
+export function code(
+  opts: { value?: string; language?: string; editable?: boolean; wrap?: boolean } = {},
+): CodeWidget {
+  return {
+    type: "code",
+    state: { value: opts.value ?? "", language: opts.language ?? "" },
+    changed: event<string>("code.changed"),
     editable: opts.editable ?? true,
-  });
+    wrap: opts.wrap ?? false,
+    ...controls,
+    value(): Promise<string> {
+      return bound(this).read<string>(this, ["value"]);
+    },
+    set(value: string): void {
+      bound(this).edit(this, "set", ["value"], value);
+    },
+    setLanguage(language: string): void {
+      bound(this).edit(this, "set", ["language"], language);
+    },
+  };
 }

@@ -15,6 +15,16 @@
   .pu-msg b {
     display: none;
   }
+  .pu-msg-md {
+    white-space: normal;
+  }
+  .pu-msg .pu-md {
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
   .pu-user {
     align-self: flex-end;
     background: var(--pu-accent);

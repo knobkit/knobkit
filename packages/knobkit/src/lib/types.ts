@@ -59,6 +59,7 @@ export interface AppConfig {
   loading?: string; // raw HTML placed in #root before mount, for serve() (mount apps own index.html)
   theme?: Theme;
   density?: Density;
+  fill?: boolean;
 }
 
 export interface KnobkitServer {

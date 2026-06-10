@@ -15,12 +15,15 @@ export interface ChatWidget extends Widget<{ messages: Message[] }> {
   placeholder: string;
   voice: boolean;
   images: boolean;
+  markdown: boolean;
   history(): Promise<Message[]>;
   say(message: Message): void; // append a whole message
   append(token: string): void; // stream a token into the last message's content
 }
 
-export function chat(opts: { placeholder?: string; voice?: boolean; images?: boolean } = {}): ChatWidget {
+export function chat(
+  opts: { placeholder?: string; voice?: boolean; images?: boolean; markdown?: boolean } = {},
+): ChatWidget {
   return {
     type: "chat",
     state: { messages: [] },
@@ -29,6 +32,7 @@ export function chat(opts: { placeholder?: string; voice?: boolean; images?: boo
     placeholder: opts.placeholder ?? "Say something…",
     voice: opts.voice ?? false,
     images: opts.images ?? false,
+    markdown: opts.markdown ?? false,
     ...controls,
     history(): Promise<Message[]> {
       return bound(this).read<Message[]>(this, ["messages"]);

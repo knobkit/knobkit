@@ -11,8 +11,11 @@ function tsxBin(): string {
   return resolve(dirname(pkgPath), bin);
 }
 
-export function runServe(file: string): Promise<void> {
-  const child = spawn(process.execPath, [tsxBin(), "watch", file], { stdio: "inherit" });
+export function runServe(file: string, opts: { port?: number; quiet?: boolean } = {}): Promise<void> {
+  const env = { ...process.env };
+  if (opts.port) env.KNOBKIT_PORT = String(opts.port);
+  if (opts.quiet) env.KNOBKIT_QUIET = "1";
+  const child = spawn(process.execPath, [tsxBin(), "watch", file], { stdio: "inherit", env });
   return new Promise((res) => {
     child.on("exit", (code) => {
       if (code) process.exitCode = code;

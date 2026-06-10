@@ -7,7 +7,7 @@ import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirro
 import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 import type { ViewProps } from "../../view.js";
-import type { ValueWidget } from "../../../lib/widgets/value.js";
+import type { CodeWidget } from "../../../lib/widgets/code.js";
 
 const cmTheme = EditorView.theme({
   "&": { color: "var(--pu-text)", backgroundColor: "transparent" },
@@ -57,7 +57,7 @@ const External = Annotation.define<boolean>();
 const langOf = (name: string): Promise<Extension> => LANGS[name]?.() ?? Promise.resolve([]);
 const editOf = (editable: boolean): Extension => [EditorView.editable.of(editable), EditorState.readOnly.of(!editable)];
 
-export function CodeView({ widget, state, emit, set }: ViewProps<ValueWidget<string>, { value: string }>) {
+export function CodeView({ widget, state, emit, set }: ViewProps<CodeWidget, { value: string; language: string }>) {
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
   const lang = useRef(new Compartment());
@@ -69,8 +69,9 @@ export function CodeView({ widget, state, emit, set }: ViewProps<ValueWidget<str
     emit(widget.changed(v));
   };
 
-  const language = (widget.language as string) ?? "";
+  const language = state.language ?? "";
   const editable = (widget.editable as boolean) ?? true;
+  const wrap = (widget.wrap as boolean) ?? false;
 
   useEffect(() => {
     const v = new EditorView({
@@ -89,6 +90,8 @@ export function CodeView({ widget, state, emit, set }: ViewProps<ValueWidget<str
           keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
           lang.current.of([]), // grammar loads async via the [language] effect below
           edit.current.of(editOf(editable)),
+          ...(wrap ? [EditorView.lineWrapping] : []),
+
           EditorView.updateListener.of((u) => {
             if (!u.docChanged) return;
             if (u.transactions.some((tr) => tr.annotation(External))) return; // our own sync, not a user edit

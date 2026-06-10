@@ -17,7 +17,7 @@ const ASSETS = fileURLToPath(new URL("../../dist/assets", import.meta.url));
 const isEvent = (x: any): x is Event => x != null && typeof x.type === "string" && "payload" in x;
 
 function html(decl: AppDecl, loading: string): string {
-  const attrs = `${decl.theme ? ` data-theme="${decl.theme}"` : ""}${decl.density ? ` data-density="${decl.density}"` : ""}`;
+  const attrs = `${decl.theme ? ` data-theme="${decl.theme}"` : ""}${decl.density ? ` data-density="${decl.density}"` : ""}${decl.fill ? ` data-fill` : ""}`;
   return `<!doctype html><html lang="en"${attrs}><head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${decl.title ?? "knobkit"}</title>${FAVICON_TAG}<link rel="stylesheet" href="/client.css" /></head>
@@ -28,7 +28,7 @@ function html(decl: AppDecl, loading: string): string {
 // bundle, then for each `request` (just `{type, payload}` — no state shipped) resolves the event's
 // `on(...)` handlers. Their context reads state by pulling one attribute from the client on demand
 // (`read` ack), applies state with `edit`/`enable`, and re-emits produced events with `emit`.
-export async function serve(knobkit: Knobkit, opts?: { port?: number }): Promise<KnobkitServer> {
+export async function serve(knobkit: Knobkit, opts?: { port?: number; quiet?: boolean }): Promise<KnobkitServer> {
   const decl = declare(knobkit.config, knobkit.serverEvents());
 
   let js = "";
@@ -119,12 +119,12 @@ export async function serve(knobkit: Knobkit, opts?: { port?: number }): Promise
     });
   });
 
-  const port = opts?.port ?? 3000;
+  const port = opts?.port ?? (process.env.KNOBKIT_PORT ? Number(process.env.KNOBKIT_PORT) : 3000);
   await new Promise<void>((r) => server.listen(port, r));
   const addr = server.address();
   const boundPort = addr && typeof addr === "object" && addr ? addr.port : port;
   const url = `http://localhost:${boundPort}/`;
-  console.log(`\n  knobkit  →  ${url}\n`);
+  if (!(opts?.quiet || process.env.KNOBKIT_QUIET)) console.log(`\n  knobkit  →  ${url}\n`);
   return {
     url,
     stop: () => new Promise<void>((r) => io.close(() => r())),

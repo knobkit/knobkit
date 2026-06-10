@@ -21,6 +21,7 @@ export interface AppDecl {
   serverEvents: string[];
   theme?: string;
   density?: string;
+  fill?: boolean;
 }
 
 const SKIP = new Set(["state", "behavior", "view", "fold", "type", "children", "__subapp"]);
@@ -72,5 +73,5 @@ function toDecl(node: TreeNode): WidgetDecl {
 export function declare(config: AppConfig, serverEvents: string[] = []): AppDecl {
   const root = buildTree(config.widgets);
   const widgets = flatten(root).map(toDecl);
-  return { title: config.title, description: config.description, widgets, root: root.key, serverEvents, theme: config.theme, density: config.density };
+  return { title: config.title, description: config.description, widgets, root: root.key, serverEvents, theme: config.theme, density: config.density, fill: config.fill };
 }

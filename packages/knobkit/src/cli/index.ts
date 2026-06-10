@@ -4,20 +4,22 @@ import { resolve } from "node:path";
 import { ensureTsconfig } from "./config.js";
 import { buildMount, devMount } from "./mount.js";
 import { runServe } from "./serve.js";
+import { runPlayground } from "./playground.js";
 
 const HELP = `knobkit — build a web app from widgets and event handlers
 
 Usage:
-  knobkit dev      Start a dev server (auto-detects mount vs serve)
-  knobkit build    Build a browser (mount) app to dist/
-  knobkit serve    Run a server (serve) app    (same as: knobkit dev --serve)
+  knobkit dev         Start a dev server (auto-detects mount vs serve)
+  knobkit build       Build a browser (mount) app to dist/
+  knobkit serve       Run a server (serve) app    (same as: knobkit dev --serve)
+  knobkit playground  Edit-and-preview REPL: editor left, live app right
 
   The entry file is "main" in package.json; pass a file to override (knobkit dev other.tsx)
 
 Flags:
   --mount      Force browser (mount) mode
   --serve      Force server (serve) mode
-  --port <n>   Dev server port (mount)
+  --port <n>   Dev server port (mount); playground port for \`playground\`
 `;
 
 interface Args {
@@ -79,7 +81,7 @@ async function main(): Promise<void> {
     process.stdout.write(HELP);
     return;
   }
-  if (cmd !== "dev" && cmd !== "build" && cmd !== "serve") {
+  if (cmd !== "dev" && cmd !== "build" && cmd !== "serve" && cmd !== "playground") {
     process.stderr.write(`knobkit: unknown command "${cmd}"\n\n${HELP}`);
     process.exit(1);
   }
@@ -91,8 +93,9 @@ async function main(): Promise<void> {
 
   if (cmd === "build") return buildMount(root, file);
   if (cmd === "serve") return runServe(file);
+  if (cmd === "playground") return runPlayground(root, file, mode(file, args), { port: args.port });
   if (mode(file, args) === "serve") return runServe(file);
-  return devMount(root, file, args.port);
+  await devMount(root, file, { port: args.port });
 }
 
 main().catch((err) => {

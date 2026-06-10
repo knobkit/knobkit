@@ -14,4 +14,8 @@
     place-items: center;
     color: var(--pu-muted);
   }
+
+  [data-fill] .pu-frame {
+    min-height: 0;
+  }
 }

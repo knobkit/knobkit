@@ -1,7 +1,9 @@
 import "./chat.css";
-import { useRef, useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import type { ViewProps } from "../../view.js";
 import type { ChatWidget, Message } from "../../../lib/widgets/chat.js";
+
+const Markdown = lazy(() => import("../output/markdown.js"));
 
 // shrink a picked image so attachments (and later history reads) stay small
 async function downscale(dataUrl: string, max = 768): Promise<string> {
@@ -74,12 +76,22 @@ export function ChatView({ widget, state, emit }: ViewProps<ChatWidget, { messag
 
   return (
     <div className="pu-chat">
-      {state.messages.map((m, i) => (
-        <p key={i} className={`pu-msg pu-${m.role}`}>
-          <b>{m.role}:</b> {m.content}
-          {m.image && <img className="pu-msg-image" src={m.image} alt="" />}
-        </p>
-      ))}
+      {state.messages.map((m, i) => {
+        const asMarkdown = widget.markdown && m.role === "assistant";
+        return (
+          <div key={i} className={`pu-msg pu-${m.role}${asMarkdown ? " pu-msg-md" : ""}`}>
+            <b>{m.role}:</b>{" "}
+            {asMarkdown ? (
+              <Suspense fallback={<span>{m.content}</span>}>
+                <Markdown value={m.content} />
+              </Suspense>
+            ) : (
+              m.content
+            )}
+            {m.image && <img className="pu-msg-image" src={m.image} alt="" />}
+          </div>
+        );
+      })}
       {pending && (
         <div className="pu-attachment">
           <img src={pending} alt="" />
