@@ -1,6 +1,6 @@
 {
   "name": "create-knobkit",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Scaffold a new knobkit app — `npm create knobkit@latest`.",
   "license": "MIT",
   "author": "Alain Brown",

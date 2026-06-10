@@ -1,6 +1,6 @@
 {
   "name": "knobkit",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Your AI app, live as you type — declare widgets, write event handlers, done. The same file runs in the browser or on a stateless Node server.",
   "keywords": [
     "widgets",
