@@ -2,8 +2,31 @@
   "name": "knobkit",
   "version": "0.0.1",
   "description": "Rapid web app development — describe inputs and a function, get a web app.",
+  "keywords": [
+    "widgets",
+    "ui",
+    "framework",
+    "declarative",
+    "web-app",
+    "react",
+    "events",
+    "isomorphic",
+    "rapid-prototyping"
+  ],
   "license": "MIT",
   "author": "Alain Brown",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knobkit/knobkit.git",
+    "directory": "packages/knobkit"
+  },
+  "homepage": "https://github.com/knobkit/knobkit#readme",
+  "bugs": {
+    "url": "https://github.com/knobkit/knobkit/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "types": "./dist/lib/index.d.ts",
   "exports": {
