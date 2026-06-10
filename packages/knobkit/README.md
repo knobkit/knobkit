@@ -2,31 +2,43 @@
 
 [![npm version](https://img.shields.io/npm/v/knobkit.svg)](https://www.npmjs.com/package/knobkit) [![license](https://img.shields.io/npm/l/knobkit.svg)](https://github.com/knobkit/knobkit/blob/main/LICENSE)
 
+**[knobkit.github.io](https://knobkit.github.io)** — watch the 30-second tour, then edit a real app in the live playground (nothing to install).
+
 **Your AI app, live as you type.** Declare widgets, write event handlers — done. The same file runs
 entirely in the browser — no server at all — or with handlers on a stateless Node server. Swap one line.
 
-```ts
-import { knobkit, chat } from "knobkit";
+<a href="https://knobkit.github.io"><img src="https://knobkit.github.io/demo.gif" alt="knobkit — scaffold a project, run the dev server, edit the code, watch the browser update live" width="100%" /></a>
 
-const convo = chat({ placeholder: "Say something…" });
+```ts
+import { knobkit, mic, output } from "knobkit";
+import { pipeline } from "@huggingface/transformers";
+
+// A local Whisper model — runs on the Node server with serve(), or in the browser with mount().
+const transcriber = await pipeline("automatic-speech-recognition", "onnx-community/whisper-base.en");
+
+const recorder = mic();
+const transcript = output();
 
 const app = knobkit({
-  title: "Echo bot",
-  description: "Whatever you send comes back reversed.",
-  widgets: [convo],
+  title: "Transcribe",
+  description: "Record audio; a local Whisper model turns it into text.",
+  widgets: [recorder, transcript],
 });
 
-app.on(convo.sent, async ({ text }) => {
-  convo.say({ role: "user", content: text });
-  convo.say({ role: "assistant", content: [...text].reverse().join("") });
+app.on(recorder.clip, async (samples) => {
+  const { text } = (await transcriber(samples)) as { text: string };
+  transcript.set(text.trim() || "(silence)");
 });
 
 app.serve();
 ```
 
-That's a complete app. `app.serve()` runs the handler on Node; change that one line to
-`app.mount("#root")` and the identical file runs fully client-side. For a real model-backed chatbot
-(streaming, history), see [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples).
+That's a complete app — record a clip, get a transcript. `app.serve()` runs Whisper on Node; change
+that one line to `app.mount("#root")` and the identical file runs the model in the browser via WebGPU.
+From there the same shape scales to a full local
+[voice assistant](https://github.com/knobkit/knobkit/tree/main/examples/voice-assistant) (Whisper →
+Qwen → Kokoro) or [live meeting transcription](https://github.com/knobkit/knobkit/tree/main/examples/live-meeting-help) —
+see [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples).
 
 ## Why not Gradio or Streamlit?
 
@@ -129,10 +141,11 @@ arrangement, so a handler can restructure the UI at runtime — `panel.add(chart
 In [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples) — each is a single
 `demo.tsx`. Run one with `pnpm -F knobkit-example-<name> dev`.
 
-[`examples/playground`](https://github.com/knobkit/knobkit/tree/main/examples/playground) is an
-in-browser playground: a `code` editor on the right runs live as a mounted knobkit app on the left,
-with a `dropdown` of built-in examples — itself a knobkit app built from `code`/`dropdown`/layout.
-Run it with `pnpm -F knobkit-example-playground dev`.
+The **[live playground](https://knobkit.github.io/playground/)** is an in-browser editor: a `code`
+editor whose contents run live as a mounted knobkit app beside it, with a `dropdown` of built-in
+examples — itself a knobkit app built from `code`/`dropdown`/layout, served as static files. Its
+source lives in the [`knobkit.github.io`](https://github.com/knobkit/knobkit.github.io) repo
+(alongside the marketing site and the demo video).
 
 ## Develop
 

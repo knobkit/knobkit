@@ -1,4 +1,0 @@
-{
-  "extends": "knobkit/tsconfig.base.json",
-  "include": ["demo.tsx", "examples.ts", "vite-env.d.ts"]
-}
