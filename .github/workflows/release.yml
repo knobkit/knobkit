@@ -1,0 +1,61 @@
+name: Release
+
+# Publishes both packages to npm in lockstep when a `knobkit@X` tag is pushed.
+# Auth is npm Trusted Publishing (OIDC) — no NPM_TOKEN. Each package has its own
+# trusted-publisher entry on npmjs.com pointing at this workflow file.
+# Note: we publish with the npm CLI, not `pnpm publish` — pnpm 11 has an OIDC
+# regression (pnpm#11513). pnpm still does install + build.
+on:
+  push:
+    tags: ['knobkit@*']
+
+permissions:
+  id-token: write # mints the OIDC token that authenticates the publish
+  contents: write # create the GitHub Release at the end
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+          cache: pnpm
+      - run: npm install -g npm@latest # trusted publishing needs npm >= 11.5.1
+      - run: pnpm install --frozen-lockfile --filter knobkit...
+      # The tag is the source of truth for the release; assert package.json agrees
+      # so a forgotten version bump fails loud here instead of shipping the wrong
+      # version (or a confusing duplicate-version error) from npm.
+      - name: Check tag matches package version
+        run: |
+          tag_version="${GITHUB_REF_NAME#knobkit@}"
+          for pkg in knobkit create-knobkit; do
+            pkg_version="$(node -p "require('./packages/$pkg/package.json').version")"
+            if [ "$tag_version" != "$pkg_version" ]; then
+              echo "::error::tag $GITHUB_REF_NAME implies $tag_version but packages/$pkg is $pkg_version"
+              exit 1
+            fi
+          done
+      # A tag push does not run ci.yml (that's branch/PR-triggered), so gate the
+      # publish on the same checks here rather than trusting the tagged commit
+      # already went green on main.
+      - run: pnpm -F knobkit typecheck
+      - run: pnpm -F knobkit test
+      # Build up front so a broken build fails the job before any publish, rather
+      # than mid-way through `prepublishOnly` with one package already pushed.
+      - run: pnpm -F knobkit build
+      - name: Publish knobkit
+        working-directory: packages/knobkit
+        run: npm publish --access public
+      - name: Publish create-knobkit
+        working-directory: packages/create-knobkit
+        run: npm publish --access public
+      # Surface the tag's own annotation (our changelog) on the Releases page.
+      # Runs only after both publishes succeed, so a Release always means npm shipped.
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-from-tag
