@@ -17,7 +17,8 @@ const ASSETS = fileURLToPath(new URL("../../dist/assets", import.meta.url));
 const isEvent = (x: any): x is Event => x != null && typeof x.type === "string" && "payload" in x;
 
 function html(decl: AppDecl, loading: string): string {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8" />
+  const attrs = `${decl.theme ? ` data-theme="${decl.theme}"` : ""}${decl.density ? ` data-density="${decl.density}"` : ""}`;
+  return `<!doctype html><html lang="en"${attrs}><head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${decl.title ?? "knobkit"}</title>${FAVICON_TAG}<link rel="stylesheet" href="/client.css" /></head>
 <body><div id="root">${loading}</div><script type="module" src="/client.js"></script></body></html>`;

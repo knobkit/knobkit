@@ -6,13 +6,13 @@
   }
   .pu-slider input[type="range"] {
     flex: 1;
-    accent-color: var(--pu-accent, #2563eb);
+    accent-color: var(--pu-accent);
     cursor: pointer;
   }
   .pu-slider-val {
     min-width: 3ch;
     text-align: right;
     font-variant-numeric: tabular-nums;
-    color: var(--pu-muted, #6b7280);
+    color: var(--pu-muted);
   }
 }

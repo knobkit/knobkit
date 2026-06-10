@@ -136,6 +136,35 @@ knobkit({ widgets: grid([a, b, c, d], { cols: 2 }) });
 `accordion({ label, open }, …children)`. Containers are themselves widgets whose state is their
 arrangement, so a handler can restructure the UI at runtime — `panel.add(chart)`, `panel.remove(sidebar)`.
 
+## Theming
+
+Two independent axes, set once at authoring or flipped at runtime:
+
+- **`theme`** — `"system"` (default; follows the OS via `prefers-color-scheme`), `"light"`, or `"dark"`.
+- **`density`** — `"xs" | "sm" | "md" | "lg" | "xl"` (default `"md"`), scaling spacing, control sizes,
+  radii, and type — `xs` for packed dashboards, `xl` for spacious forms.
+
+```ts
+knobkit({ widgets: [...], theme: "dark", density: "sm" });
+```
+
+Every widget renders from one set of CSS custom properties (`--pu-bg`, `--pu-accent`, `--pu-gap`,
+`--pu-radius`, the `--pu-series-*` chart palette, …). Theme and density just remap those tokens, so a
+single switch restyles the whole kit — including the `code` editor, `table` grid, and `chart`.
+
+Build a switcher with the runtime setters (e.g. for a settings menu or the playground toggle):
+
+```ts
+import { setTheme, setDensity } from "knobkit";
+setTheme("dark");      // or "light" / "system"
+setDensity("xs");
+```
+
+Both are just attributes on the document root, and they **inherit** — so you can scope them: put
+`data-density="xs"` on one `grid` and that panel goes compact while the rest of the page stays normal.
+To rebrand, override the tokens in your own CSS (e.g. `:root { --pu-accent: rebeccapurple }`) or define
+a named theme as a `[data-theme="brand"] { … }` block and pass `theme: "brand"`.
+
 ## Examples
 
 In [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples) — each is a single

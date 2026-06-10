@@ -2,14 +2,164 @@
 
 @layer tokens {
   :root {
+    color-scheme: light;
     --pu-bg: #f6f7f9;
     --pu-panel: #ffffff;
-    --pu-border: #e3e6ea;
+    --pu-surface-2: #f1f3f5;
+    --pu-field: #ffffff;
+    --pu-overlay: rgba(0, 0, 0, 0.05);
     --pu-text: #1c1f23;
     --pu-muted: #6b7280;
+    --pu-on-accent: #ffffff;
+    --pu-border: #e3e6ea;
+    --pu-border-strong: #cbd2da;
+    --pu-ring: rgba(37, 99, 235, 0.35);
     --pu-accent: #2563eb;
-    --pu-accent-press: #1d4ed8;
+    --pu-accent-hover: #1d4ed8;
+    --pu-accent-press: #1e40af;
+    --pu-accent-subtle: rgba(37, 99, 235, 0.08);
+    --pu-danger: #dc2626;
+    --pu-success: #16a34a;
+    --pu-warning: #d97706;
+    --pu-info: #0891b2;
+    --pu-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --pu-shadow-2: 0 10px 28px rgba(0, 0, 0, 0.06);
+    --pu-series-1: #2563eb;
+    --pu-series-2: #16a34a;
+    --pu-series-3: #d97706;
+    --pu-series-4: #7c3aed;
+    --pu-series-5: #db2777;
+    --pu-series-6: #0891b2;
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --pu-bg: #0e1116;
+    --pu-panel: #171b21;
+    --pu-surface-2: #1f242c;
+    --pu-field: #1c222b;
+    --pu-overlay: rgba(255, 255, 255, 0.06);
+    --pu-text: #e6e9ed;
+    --pu-muted: #9aa4b2;
+    --pu-on-accent: #ffffff;
+    --pu-border: #2a313b;
+    --pu-border-strong: #3a434f;
+    --pu-ring: rgba(96, 165, 250, 0.45);
+    --pu-accent: #3b82f6;
+    --pu-accent-hover: #60a5fa;
+    --pu-accent-press: #2563eb;
+    --pu-accent-subtle: rgba(96, 165, 250, 0.16);
+    --pu-danger: #f87171;
+    --pu-success: #4ade80;
+    --pu-warning: #fbbf24;
+    --pu-info: #22d3ee;
+    --pu-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --pu-shadow-2: 0 12px 30px rgba(0, 0, 0, 0.5);
+    --pu-series-1: #60a5fa;
+    --pu-series-2: #4ade80;
+    --pu-series-3: #fbbf24;
+    --pu-series-4: #a78bfa;
+    --pu-series-5: #f472b6;
+    --pu-series-6: #22d3ee;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]):not([data-theme="dark"]) {
+      color-scheme: dark;
+      --pu-bg: #0e1116;
+      --pu-panel: #171b21;
+      --pu-surface-2: #1f242c;
+      --pu-field: #1c222b;
+      --pu-overlay: rgba(255, 255, 255, 0.06);
+      --pu-text: #e6e9ed;
+      --pu-muted: #9aa4b2;
+      --pu-on-accent: #ffffff;
+      --pu-border: #2a313b;
+      --pu-border-strong: #3a434f;
+      --pu-ring: rgba(96, 165, 250, 0.45);
+      --pu-accent: #3b82f6;
+      --pu-accent-hover: #60a5fa;
+      --pu-accent-press: #2563eb;
+      --pu-accent-subtle: rgba(96, 165, 250, 0.16);
+      --pu-danger: #f87171;
+      --pu-success: #4ade80;
+      --pu-warning: #fbbf24;
+      --pu-info: #22d3ee;
+      --pu-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --pu-shadow-2: 0 12px 30px rgba(0, 0, 0, 0.5);
+      --pu-series-1: #60a5fa;
+      --pu-series-2: #4ade80;
+      --pu-series-3: #fbbf24;
+      --pu-series-4: #a78bfa;
+      --pu-series-5: #f472b6;
+      --pu-series-6: #22d3ee;
+    }
+  }
+
+  :root,
+  [data-density="md"] {
+    --pu-font: 15px;
+    --pu-font-sm: 13px;
+    --pu-h1: 24px;
+    --pu-line: 1.5;
+    --pu-gap: 18px;
+    --pu-pad: 28px;
+    --pu-cpad-y: 9px;
+    --pu-cpad-x: 12px;
+    --pu-control: 40px;
     --pu-radius: 12px;
+    --pu-radius-sm: 8px;
+  }
+  [data-density="xs"] {
+    --pu-font: 12.5px;
+    --pu-font-sm: 11px;
+    --pu-h1: 18px;
+    --pu-line: 1.4;
+    --pu-gap: 8px;
+    --pu-pad: 14px;
+    --pu-cpad-y: 4px;
+    --pu-cpad-x: 8px;
+    --pu-control: 28px;
+    --pu-radius: 7px;
+    --pu-radius-sm: 5px;
+  }
+  [data-density="sm"] {
+    --pu-font: 13.5px;
+    --pu-font-sm: 12px;
+    --pu-h1: 20px;
+    --pu-line: 1.45;
+    --pu-gap: 12px;
+    --pu-pad: 20px;
+    --pu-cpad-y: 6px;
+    --pu-cpad-x: 10px;
+    --pu-control: 33px;
+    --pu-radius: 9px;
+    --pu-radius-sm: 6px;
+  }
+  [data-density="lg"] {
+    --pu-font: 16.5px;
+    --pu-font-sm: 14px;
+    --pu-h1: 28px;
+    --pu-line: 1.55;
+    --pu-gap: 24px;
+    --pu-pad: 38px;
+    --pu-cpad-y: 12px;
+    --pu-cpad-x: 16px;
+    --pu-control: 46px;
+    --pu-radius: 14px;
+    --pu-radius-sm: 9px;
+  }
+  [data-density="xl"] {
+    --pu-font: 18px;
+    --pu-font-sm: 15px;
+    --pu-h1: 32px;
+    --pu-line: 1.6;
+    --pu-gap: 32px;
+    --pu-pad: 50px;
+    --pu-cpad-y: 15px;
+    --pu-cpad-x: 20px;
+    --pu-control: 54px;
+    --pu-radius: 18px;
+    --pu-radius-sm: 11px;
   }
 }
 
@@ -22,17 +172,18 @@
     margin: 0;
     background: var(--pu-bg);
     color: var(--pu-text);
-    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font: var(--pu-font) / var(--pu-line) -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Helvetica, Arial, sans-serif;
   }
 
   .pu-page {
     max-width: 720px;
     margin: 48px auto;
-    padding: 28px 28px 32px;
+    padding: var(--pu-pad);
     background: var(--pu-panel);
     border: 1px solid var(--pu-border);
     border-radius: var(--pu-radius);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 10px 28px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--pu-shadow-1), var(--pu-shadow-2);
   }
 
   .pu-page:has(.pu-layout-row),
@@ -42,13 +193,13 @@
 
   .pu-page h1 {
     margin: 0 0 4px;
-    font-size: 24px;
+    font-size: var(--pu-h1);
     font-weight: 650;
     letter-spacing: -0.01em;
   }
 
   .pu-desc {
-    margin: 0 0 24px;
+    margin: 0 0 var(--pu-gap);
     color: var(--pu-muted);
   }
 
@@ -61,19 +212,19 @@
     opacity: 0.5;
     pointer-events: none;
   }
-  /* a busy widget: a thin indeterminate bar across its top edge (the runtime drops its input events
+  /* a busy widget: a thin indeterminate bar across its bottom edge (the runtime drops its input events
      while busy). Doesn't dim or cover content, so a chat stays readable while it streams. */
   .pu-busy {
     position: relative;
   }
   .pu-busy-bar {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
     right: 0;
     height: 2px;
     border-radius: 2px;
-    background: rgba(37, 99, 235, 0.15);
+    background: var(--pu-accent-subtle);
     overflow: hidden;
     z-index: 2;
   }
@@ -102,7 +253,7 @@
 
   .pu-layout {
     display: flex;
-    gap: 18px;
+    gap: var(--pu-gap);
   }
   .pu-layout-col {
     flex-direction: column;
@@ -116,7 +267,7 @@
   }
   .pu-layout-grid {
     display: grid;
-    gap: 18px;
+    gap: var(--pu-gap);
   }
 
   @media (max-width: 720px) {

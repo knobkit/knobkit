@@ -1,17 +1,17 @@
 @layer components {
   .pu-submit {
-    padding: 9px 16px;
+    padding: var(--pu-cpad-y) calc(var(--pu-cpad-x) + 4px);
     border: none;
-    border-radius: 8px;
-    background: var(--pu-accent, #2563eb);
-    color: #fff;
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-accent);
+    color: var(--pu-on-accent);
     font: inherit;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.12s, transform 0.06s;
   }
   .pu-submit:hover {
-    background: var(--pu-accent-press, #1d4ed8);
+    background: var(--pu-accent-press);
   }
   .pu-submit:active {
     transform: translateY(1px);
@@ -19,7 +19,7 @@
   .pu-submit:disabled {
     opacity: 0.55;
     cursor: default;
-    background: var(--pu-accent, #2563eb);
+    background: var(--pu-accent);
     transform: none;
   }
 }

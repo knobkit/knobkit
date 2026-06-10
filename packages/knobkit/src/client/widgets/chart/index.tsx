@@ -3,8 +3,7 @@ import { ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, Legend, BarC
 import type { ReactElement } from "react";
 import type { ViewProps } from "../../view.js";
 import type { ChartWidget, Point } from "../../../lib/widgets/chart.js";
-
-const COLORS = ["#2563eb", "#16a34a", "#dc2626", "#d97706", "#7c3aed"]; // knobkit accent + a small palette
+import { seriesPalette, cssVar, useThemeVersion } from "../../theme.js";
 
 export function ChartView({ widget, state }: ViewProps<ChartWidget, { data: Point[] }>) {
   const kind = (widget.kind as string) ?? "bar";
@@ -13,9 +12,12 @@ export function ChartView({ widget, state }: ViewProps<ChartWidget, { data: Poin
   const height = (widget.maxHeight as number) ?? 300;
   const data = state.data;
 
+  useThemeVersion();
+  const COLORS = seriesPalette();
+
   const axes = (
     <>
-      <CartesianGrid strokeDasharray="3 3" stroke="var(--pu-border, #e3e6ea)" />
+      <CartesianGrid strokeDasharray="3 3" stroke={cssVar("--pu-border")} />
       <XAxis dataKey={x} tick={{ fontSize: 12 }} />
       <YAxis tick={{ fontSize: 12 }} />
       <Tooltip />

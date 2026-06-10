@@ -7,24 +7,24 @@
   .pu-tabs-bar {
     display: flex;
     gap: 4px;
-    border-bottom: 1px solid var(--pu-border, #e3e6ea);
+    border-bottom: 1px solid var(--pu-border);
   }
   .pu-tab {
     appearance: none;
     background: none;
     border: none;
-    padding: 8px 14px;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
     margin-bottom: -1px;
     font: inherit;
-    color: var(--pu-muted, #6b7280);
+    color: var(--pu-muted);
     border-bottom: 2px solid transparent;
     cursor: pointer;
   }
   .pu-tab:hover {
-    color: var(--pu-text, #1c1f23);
+    color: var(--pu-text);
   }
   .pu-tab-active {
-    color: var(--pu-accent, #2563eb);
-    border-bottom-color: var(--pu-accent, #2563eb);
+    color: var(--pu-accent);
+    border-bottom-color: var(--pu-accent);
   }
 }

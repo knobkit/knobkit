@@ -2,13 +2,13 @@
   .pu-chat {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: calc(var(--pu-gap) * 0.5);
   }
   .pu-msg {
     margin: 0;
     max-width: 85%;
-    padding: 8px 12px;
-    border-radius: 12px;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border-radius: var(--pu-radius);
     white-space: pre-wrap;
     word-break: break-word;
   }
@@ -17,19 +17,19 @@
   }
   .pu-user {
     align-self: flex-end;
-    background: var(--pu-accent, #2563eb);
-    color: #fff;
+    background: var(--pu-accent);
+    color: var(--pu-on-accent);
     border-bottom-right-radius: 4px;
   }
   .pu-assistant {
     align-self: flex-start;
-    background: #f1f3f5;
-    color: var(--pu-text, #1c1f23);
+    background: var(--pu-surface-2);
+    color: var(--pu-text);
     border-bottom-left-radius: 4px;
   }
   .pu-composer {
     display: flex;
-    gap: 8px;
+    gap: calc(var(--pu-gap) * 0.5);
     align-items: center;
     margin-top: 4px;
   }
@@ -38,25 +38,25 @@
   }
   .pu-mic {
     flex: none;
-    width: 40px;
-    height: 40px;
+    width: var(--pu-control);
+    height: var(--pu-control);
     border: none;
     border-radius: 50%;
-    background: #f1f3f5;
+    background: var(--pu-surface-2);
     cursor: pointer;
     font-size: 16px;
     line-height: 1;
   }
   .pu-mic.pu-rec {
-    background: #dc2626;
-    color: #fff;
+    background: var(--pu-danger);
+    color: var(--pu-on-accent);
   }
   .pu-msg-image {
     display: block;
     margin-top: 6px;
     max-width: 160px;
     max-height: 160px;
-    border-radius: 8px;
+    border-radius: var(--pu-radius-sm);
   }
   .pu-attachment {
     position: relative;
@@ -67,7 +67,7 @@
     width: 96px;
     height: 96px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: var(--pu-radius-sm);
   }
   .pu-attach-x {
     position: absolute;
@@ -77,19 +77,19 @@
     height: 20px;
     border: none;
     border-radius: 50%;
-    background: #1c1f23;
-    color: #fff;
+    background: var(--pu-text);
+    color: var(--pu-bg);
     cursor: pointer;
     font-size: 11px;
     line-height: 1;
   }
   .pu-attach {
     flex: none;
-    width: 40px;
-    height: 40px;
+    width: var(--pu-control);
+    height: var(--pu-control);
     border: none;
     border-radius: 50%;
-    background: #f1f3f5;
+    background: var(--pu-surface-2);
     cursor: pointer;
     font-size: 20px;
     line-height: 1;

@@ -6,6 +6,7 @@ import type { Path } from "../lib/bound.js";
 import type { Event } from "../lib/types.js";
 import type { Store } from "./runtime.js";
 import { VIEWS } from "./widgets/registry.js";
+import { setTheme, setDensity } from "../lib/theme.js";
 
 type ByKey = Record<string, WidgetDecl>;
 
@@ -58,5 +59,7 @@ export function App({ decl, store }: { decl: AppDecl; store: Store }) {
 }
 
 export function render(decl: AppDecl, store: Store, el: Element): void {
+  if (decl.theme) setTheme(decl.theme);
+  if (decl.density) setDensity(decl.density);
   createRoot(el).render(<App decl={decl} store={store} />);
 }

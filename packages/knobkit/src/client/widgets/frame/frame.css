@@ -5,7 +5,7 @@
     height: 100%;
     display: block;
     border: 1px solid var(--pu-border);
-    border-radius: 8px;
+    border-radius: var(--pu-radius-sm);
     background: var(--pu-panel);
   }
 

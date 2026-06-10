@@ -4,9 +4,33 @@ import { useEffect, useRef } from "react";
 import { EditorState, Compartment, Annotation, type Extension } from "@codemirror/state";
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
-import { syntaxHighlighting, defaultHighlightStyle, indentOnInput, bracketMatching } from "@codemirror/language";
+import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching } from "@codemirror/language";
+import { tags as t } from "@lezer/highlight";
 import type { ViewProps } from "../../view.js";
 import type { ValueWidget } from "../../../lib/widgets/value.js";
+
+const cmTheme = EditorView.theme({
+  "&": { color: "var(--pu-text)", backgroundColor: "transparent" },
+  ".cm-content": { caretColor: "var(--pu-accent)" },
+  ".cm-cursor, .cm-dropCursor": { borderLeftColor: "var(--pu-accent)" },
+  "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection": {
+    backgroundColor: "var(--pu-accent-subtle)",
+  },
+  ".cm-activeLine": { backgroundColor: "var(--pu-overlay)" },
+  ".cm-activeLineGutter": { backgroundColor: "var(--pu-overlay)", color: "var(--pu-text)" },
+});
+
+const cmHighlight = HighlightStyle.define([
+  { tag: [t.keyword, t.modifier, t.operatorKeyword, t.self], color: "var(--pu-series-4)" },
+  { tag: [t.string, t.special(t.string), t.regexp], color: "var(--pu-series-2)" },
+  { tag: [t.number, t.bool, t.null, t.atom], color: "var(--pu-series-3)" },
+  { tag: [t.comment, t.lineComment, t.blockComment], color: "var(--pu-muted)", fontStyle: "italic" },
+  { tag: [t.function(t.variableName), t.labelName, t.tagName, t.heading], color: "var(--pu-series-1)" },
+  { tag: [t.typeName, t.className, t.namespace], color: "var(--pu-series-6)" },
+  { tag: [t.propertyName, t.attributeName], color: "var(--pu-series-5)" },
+  { tag: [t.link, t.url], color: "var(--pu-accent)", textDecoration: "underline" },
+  { tag: t.invalid, color: "var(--pu-danger)" },
+]);
 
 // Each grammar is a dynamic import() so Vite splits it into its own chunk under /assets, served on
 // demand — only the languages an app actually uses are ever sent to the browser. (js/ts/jsx/tsx share
@@ -60,7 +84,8 @@ export function CodeView({ widget, state, emit, set }: ViewProps<ValueWidget<str
           history(),
           indentOnInput(),
           bracketMatching(),
-          syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+          cmTheme,
+          syntaxHighlighting(cmHighlight, { fallback: true }),
           keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
           lang.current.of([]), // grammar loads async via the [language] effect below
           edit.current.of(editOf(editable)),

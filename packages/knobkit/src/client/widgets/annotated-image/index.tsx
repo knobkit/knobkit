@@ -2,14 +2,13 @@ import "./annotated-image.css";
 import { useState } from "react";
 import type { ViewProps } from "../../view.js";
 import type { Annotation } from "../../../lib/widgets/annotated-image.js";
+import { seriesPalette, useThemeVersion } from "../../theme.js";
 
-const PALETTE = ["#2563eb", "#16a34a", "#dc2626", "#d97706", "#7c3aed", "#0891b2", "#db2777", "#65a30d"];
-
-function colorFor(label: string, colorMap: Record<string, string>): string {
+function colorFor(label: string, colorMap: Record<string, string>, palette: string[]): string {
   if (colorMap[label]) return colorMap[label];
   let h = 0;
   for (let i = 0; i < label.length; i++) h = (h * 31 + label.charCodeAt(i)) | 0;
-  return PALETTE[Math.abs(h) % PALETTE.length];
+  return palette[Math.abs(h) % palette.length];
 }
 
 export function AnnotatedImageView({
@@ -18,6 +17,8 @@ export function AnnotatedImageView({
   // The image's natural pixel size — only known once the <img> loads — turns the author's pixel boxes
   // into percentages of the (possibly resized) displayed image. Boxes wait for it.
   const [nat, setNat] = useState<{ w: number; h: number } | null>(null);
+  useThemeVersion();
+  const palette = seriesPalette();
   if (!state.src) return <div className="pu-output">—</div>;
   const annotations = state.annotations ?? [];
   const colorMap = state.colorMap ?? {};
@@ -34,7 +35,7 @@ export function AnnotatedImageView({
         />
         {nat &&
           annotations.map((a, i) => {
-            const color = colorFor(a.label, colorMap);
+            const color = colorFor(a.label, colorMap, palette);
             return (
               <span key={i}>
                 {a.mask && <img className="pu-annimg-mask" src={a.mask} alt="" />}
@@ -62,7 +63,7 @@ export function AnnotatedImageView({
         <div className="pu-annimg-legend">
           {labels.map((l) => (
             <span key={l} className="pu-annimg-chip">
-              <span className="pu-annimg-swatch" style={{ background: colorFor(l, colorMap) }} />
+              <span className="pu-annimg-swatch" style={{ background: colorFor(l, colorMap, palette) }} />
               {l}
             </span>
           ))}

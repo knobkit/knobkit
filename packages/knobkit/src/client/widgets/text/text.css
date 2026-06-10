@@ -1,18 +1,18 @@
 @layer components {
   .pu-input {
     width: 100%;
-    padding: 9px 11px;
-    border: 1px solid var(--pu-border, #e3e6ea);
-    border-radius: 8px;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
     font: inherit;
     color: inherit;
-    background: #fff;
+    background: var(--pu-field);
     outline: none;
     transition: border-color 0.12s, box-shadow 0.12s;
   }
   .pu-input:focus {
-    border-color: var(--pu-accent, #2563eb);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    border-color: var(--pu-accent);
+    box-shadow: 0 0 0 3px var(--pu-ring);
   }
   textarea.pu-input {
     resize: vertical;

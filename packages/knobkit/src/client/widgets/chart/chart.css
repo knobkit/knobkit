@@ -1,12 +1,12 @@
 @layer components {
   .pu-chart {
     width: 100%;
-    border: 1px solid var(--pu-border, #e3e6ea);
-    border-radius: 8px;
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
     padding: 12px 8px 4px;
-    background: #fff;
+    background: var(--pu-panel);
   }
   .pu-chart .recharts-cartesian-axis-tick text {
-    fill: var(--pu-muted, #6b7280);
+    fill: var(--pu-muted);
   }
 }

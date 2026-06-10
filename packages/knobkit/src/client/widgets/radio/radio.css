@@ -14,7 +14,7 @@
   .pu-radio-opt input {
     width: 16px;
     height: 16px;
-    accent-color: var(--pu-accent, #2563eb);
+    accent-color: var(--pu-accent);
     cursor: pointer;
   }
 }

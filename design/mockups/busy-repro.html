@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- Faithful reproduction: links the REAL compiled dist/client.css and uses the EXACT DOM that
+     app.tsx + ChatView produce for a single chat widget with cell.busy === true. Not a mock. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>busy-bar repro</title>
+    <link rel="stylesheet" href="../../packages/knobkit/dist/client.css" />
+    <style>
+      body { background: #e9ebef; }
+    </style>
+  </head>
+  <body>
+    <!-- app.tsx: .pu-page > h1 + .pu-desc + Field -->
+    <div class="pu-page">
+      <h1>Echo bot</h1>
+      <p class="pu-desc">Whatever you send comes back reversed.</p>
+      <!-- Field: .pu-field.pu-busy > .pu-busy-bar + ChatView(.pu-chat) -->
+      <div class="pu-field pu-busy">
+        <div class="pu-busy-bar" role="status" aria-label="Loading"></div>
+        <div class="pu-chat">
+          <p class="pu-msg pu-assistant"><b>assistant:</b> Hi! How can I help?</p>
+          <p class="pu-msg pu-user"><b>user:</b> hello</p>
+          <p class="pu-msg pu-assistant"><b>assistant:</b> olleh</p>
+          <div class="pu-composer">
+            <input class="pu-input" placeholder="Say something…" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,29 +1,29 @@
 @layer components {
   .pu-code .cm-editor {
-    border: 1px solid var(--pu-border, #e3e6ea);
-    border-radius: 8px;
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
     overflow: hidden;
-    background: #fff;
+    background: var(--pu-field);
   }
   .pu-code .cm-editor.cm-focused {
-    border-color: var(--pu-accent, #2563eb);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    border-color: var(--pu-accent);
+    box-shadow: 0 0 0 3px var(--pu-ring);
     outline: none;
   }
   .pu-code .cm-scroller {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    font-size: 13px;
+    font-size: var(--pu-font-sm);
     line-height: 1.55;
     max-height: 420px;
   }
   .pu-code .cm-gutters {
-    background: var(--pu-bg, #f6f7f9);
-    border-right: 1px solid var(--pu-border, #e3e6ea);
-    color: var(--pu-muted, #6b7280);
+    background: var(--pu-bg);
+    border-right: 1px solid var(--pu-border);
+    color: var(--pu-muted);
   }
   /* a read-only viewer: dim the gutter, hide the caret, sit on the page background */
   .pu-code-ro .cm-editor {
-    background: var(--pu-bg, #f6f7f9);
+    background: var(--pu-bg);
   }
   .pu-code-ro .cm-cursor {
     display: none;

@@ -2,11 +2,11 @@
   .pu-output {
     min-height: 42px;
     margin: 0;
-    padding: 10px 12px;
-    border: 1px solid var(--pu-border, #e3e6ea);
-    border-radius: 8px;
-    background: #fafbfc;
-    color: var(--pu-text, #1c1f23);
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-surface-2);
+    color: var(--pu-text);
     white-space: pre-wrap;
     word-break: break-word;
     font: inherit;
@@ -14,7 +14,7 @@
   pre.pu-output {
     overflow-x: auto;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 13px;
+    font-size: var(--pu-font-sm);
     line-height: 1.5;
   }
 
@@ -22,10 +22,10 @@
   .pu-md {
     min-height: 42px;
     padding: 2px 12px;
-    border: 1px solid var(--pu-border, #e3e6ea);
-    border-radius: 8px;
-    background: #fafbfc;
-    color: var(--pu-text, #1c1f23);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-surface-2);
+    color: var(--pu-text);
   }
   .pu-md > :first-child {
     margin-top: 0;
@@ -50,14 +50,14 @@
   .pu-md code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.9em;
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--pu-overlay);
     padding: 0.1em 0.35em;
     border-radius: 4px;
   }
   .pu-md pre {
-    background: rgba(0, 0, 0, 0.05);
-    padding: 10px 12px;
-    border-radius: 8px;
+    background: var(--pu-overlay);
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border-radius: var(--pu-radius-sm);
     overflow-x: auto;
   }
   .pu-md pre code {
@@ -65,11 +65,11 @@
     padding: 0;
   }
   .pu-md a {
-    color: var(--pu-accent, #2563eb);
+    color: var(--pu-accent);
   }
   .pu-md th,
   .pu-md td {
-    border: 1px solid var(--pu-border, #e3e6ea);
+    border: 1px solid var(--pu-border);
     padding: 4px 8px;
   }
 }

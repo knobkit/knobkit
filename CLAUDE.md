@@ -113,8 +113,30 @@ Wire protocol (serve):
    ...controls, <methods> }`. Getters `read(this, path)` (async), setters `edit(this, op, path, value)`.
    Export from `lib/widgets/index.ts`.
 2. `client/widgets/<x>/index.tsx` (+ `.css`) — a `WidgetView` that renders `state.<attr>`, `emit`s the
-   widget's events, and `set`s its own state locally for inputs.
+   widget's events, and `set`s its own state locally for inputs. **CSS uses only `--pu-*` tokens** — no
+   color/spacing literals (a test enforces it; see Theming). Colors that can't be CSS (SVG/inline fills,
+   e.g. chart series) read tokens via `client/theme.ts` (`seriesPalette()`/`cssVar()` + `useThemeVersion()`).
 3. Register the type → view in `client/widgets/registry.tsx`.
+
+## Theming
+
+Two orthogonal axes, each a token family defined in `client/styles.css` (`@layer tokens`) and applied
+via an attribute on the document root (so both **inherit** and can be scoped to a container):
+
+- **color** — `data-theme` = `system` (default; `prefers-color-scheme`, the absent case too) | `light` |
+  `dark`. Tokens: `--pu-bg/panel/surface-2/field/overlay/text/muted/on-accent/border/border-strong/ring/
+  accent(+hover/press/subtle)/danger/success/warning/info/shadow-1/2/series-1..6`.
+- **dimension** — `data-density` = `xs|sm|md|lg|xl` (md default). Tokens: `--pu-font/font-sm/h1/line/gap/
+  pad/cpad-y/cpad-x/control/radius/radius-sm`.
+
+The dark block is duplicated (explicit `[data-theme="dark"]` + a `prefers-color-scheme` media query for
+the non-forced case) — vanilla CSS can't share a block across a selector and a media query. Authoring:
+`knobkit({ theme, density })` → flows through the decl → applied in `app.tsx` `render()` (mount) and the
+`serve.ts` `<html>` (no FOUC). Runtime: `setTheme`/`setDensity` (`lib/theme.ts`, DOM-guarded, public).
+Lib-backed widgets: `code` (CodeMirror) and `table` (revo-grid) theme via token-valued CSS — CodeMirror
+through an `EditorView.theme`/`HighlightStyle` using `var(--pu-*)`, revo-grid by mapping its
+`--revo-grid-*` props to ours; both follow the cascade with no JS. Only JS-drawn colors (chart series,
+label palettes) need `client/theme.ts` to re-read on change.
 
 ## Gotchas
 

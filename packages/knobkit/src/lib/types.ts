@@ -1,3 +1,5 @@
+import type { Theme, Density } from "./theme.js";
+
 export interface Event<P = unknown> {
   type: string;
   payload: P;
@@ -55,6 +57,8 @@ export interface AppConfig {
   events?: EventCtor<any>[];
   widgets: Widget<any> | Widget<any>[];
   loading?: string; // raw HTML placed in #root before mount, for serve() (mount apps own index.html)
+  theme?: Theme;
+  density?: Density;
 }
 
 export interface KnobkitServer {
