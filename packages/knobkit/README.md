@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/knobkit/knobkit/main/design/logo.svg" height="28" alt="" /> knobkit
 
-[![npm version](https://img.shields.io/npm/v/knobkit.svg)](https://www.npmjs.com/package/knobkit) [![license](https://img.shields.io/npm/l/knobkit.svg)](https://github.com/knobkit/knobkit/blob/main/LICENSE)
+[![CI](https://github.com/knobkit/knobkit/actions/workflows/ci.yml/badge.svg)](https://github.com/knobkit/knobkit/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/knobkit.svg)](https://www.npmjs.com/package/knobkit) [![license](https://img.shields.io/npm/l/knobkit.svg)](https://github.com/knobkit/knobkit/blob/main/LICENSE)
 
 **[knobkit.github.io](https://knobkit.github.io)** — watch the 30-second tour, then edit a real app in the live playground (nothing to install).
 

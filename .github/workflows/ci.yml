@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # pnpm before setup-node so the node cache: pnpm step can find it.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      # Only the knobkit package — examples (heavy ML deps) are out of scope for now.
+      - run: pnpm install --frozen-lockfile --filter knobkit...
+      - run: pnpm -F knobkit typecheck
+      - run: pnpm -F knobkit test
+      - run: pnpm -F knobkit build
