@@ -11,21 +11,21 @@
        floor. !important is needed because RevoGrid injects that rule unlayered, which outranks our
        @layer styles regardless of specificity. */
     min-height: 0 !important;
-    --revo-grid-background: var(--pu-panel);
-    --revo-grid-foreground: var(--pu-text);
-    --revo-grid-text: var(--pu-text);
-    --revo-grid-border: var(--pu-border);
-    --revo-grid-cell-border: var(--pu-border);
-    --revo-grid-divider: var(--pu-border);
-    --revo-grid-header-bg: var(--pu-surface-2);
-    --revo-grid-header-color: var(--pu-muted);
-    --revo-grid-header-border: var(--pu-border-strong);
-    --revo-grid-row-headers-bg: var(--pu-surface-2);
-    --revo-grid-row-headers-color: var(--pu-muted);
-    --revo-grid-row-hover: var(--pu-overlay);
-    --revo-grid-focused-bg: var(--pu-accent-subtle);
-    --revo-grid-cell-disabled-bg: var(--pu-overlay);
-    --revo-grid-primary: var(--pu-accent);
-    --revo-grid-shadow: var(--pu-shadow-2);
+    --revo-grid-background: var(--pu-panel) !important;
+    --revo-grid-foreground: var(--pu-text) !important;
+    --revo-grid-text: var(--pu-text) !important;
+    --revo-grid-border: var(--pu-border) !important;
+    --revo-grid-cell-border: var(--pu-border) !important;
+    --revo-grid-divider: var(--pu-border) !important;
+    --revo-grid-header-bg: var(--pu-surface-2) !important;
+    --revo-grid-header-color: var(--pu-muted) !important;
+    --revo-grid-header-border: var(--pu-border-strong) !important;
+    --revo-grid-row-headers-bg: var(--pu-surface-2) !important;
+    --revo-grid-row-headers-color: var(--pu-muted) !important;
+    --revo-grid-row-hover: var(--pu-overlay) !important;
+    --revo-grid-focused-bg: var(--pu-accent-subtle) !important;
+    --revo-grid-cell-disabled-bg: var(--pu-overlay) !important;
+    --revo-grid-primary: var(--pu-accent) !important;
+    --revo-grid-shadow: var(--pu-shadow-2) !important;
   }
 }
