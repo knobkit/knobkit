@@ -2,12 +2,12 @@
 
 [![CI](https://github.com/knobkit/knobkit/actions/workflows/ci.yml/badge.svg)](https://github.com/knobkit/knobkit/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/knobkit.svg)](https://www.npmjs.com/package/knobkit) [![license](https://img.shields.io/npm/l/knobkit.svg)](https://github.com/knobkit/knobkit/blob/main/LICENSE)
 
-**[knobkit.github.io](https://knobkit.github.io)** — watch the 30-second tour, then edit a real app in the live playground (nothing to install).
+**[knobkit.dev](https://knobkit.dev)** — watch the 30-second tour, then edit a real app in the live playground (nothing to install).
 
 **Your AI app, live as you type.** Declare widgets, write event handlers — done. The same file runs
 entirely in the browser — no server at all — or with handlers on a stateless Node server. Swap one line.
 
-<a href="https://knobkit.github.io"><img src="https://knobkit.github.io/demo.gif" alt="knobkit — scaffold a project, run the dev server, edit the code, watch the browser update live" width="100%" /></a>
+<a href="https://knobkit.dev"><img src="https://knobkit.dev/demo.gif" alt="knobkit — scaffold a project, run the dev server, edit the code, watch the browser update live" width="100%" /></a>
 
 ```ts
 import { knobkit, mic, output } from "knobkit";
@@ -170,7 +170,7 @@ a named theme as a `[data-theme="brand"] { … }` block and pass `theme: "brand"
 In [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples) — each is a single
 `demo.tsx`. Run one with `pnpm -F knobkit-example-<name> dev`.
 
-The **[live playground](https://knobkit.github.io/playground/)** is an in-browser editor: a `code`
+The **[live playground](https://knobkit.dev/playground/)** is an in-browser editor: a `code`
 editor whose contents run live as a mounted knobkit app beside it, with a `dropdown` of built-in
 examples — itself a knobkit app built from `code`/`dropdown`/layout, served as static files. Its
 source lives in the [`knobkit.github.io`](https://github.com/knobkit/knobkit.github.io) repo
