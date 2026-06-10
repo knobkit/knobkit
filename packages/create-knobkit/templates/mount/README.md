@@ -9,4 +9,5 @@ npm run build    # build a static app to dist/
 ```
 
 Edit `demo.tsx` — declare widgets, register `app.on(event, handler)`, and the handlers run
-client-side. Requires Node ≥ 22.
+client-side. The entry file is whatever `"main"` in package.json points to, so rename it freely.
+Requires Node ≥ 22.

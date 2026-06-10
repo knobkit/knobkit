@@ -2,6 +2,7 @@
   "name": "knobkit-example-webcam-live-filter",
   "private": true,
   "type": "module",
+  "main": "demo.tsx",
   "scripts": {
     "dev": "knobkit dev",
     "build": "knobkit build",

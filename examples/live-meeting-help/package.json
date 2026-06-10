@@ -2,6 +2,7 @@
   "name": "knobkit-example-live-meeting-help",
   "private": true,
   "type": "module",
+  "main": "demo.tsx",
   "scripts": {
     "dev": "knobkit dev",
     "typecheck": "tsc --noEmit"

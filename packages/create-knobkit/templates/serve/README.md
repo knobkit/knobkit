@@ -10,4 +10,5 @@ npm run serve    # run the server app
 ```
 
 Edit `demo.tsx` — declare widgets, register `app.on(event, handler)`, and the handlers run on the
-server (good for large models, secrets, or native deps). Requires Node ≥ 22.
+server (good for large models, secrets, or native deps). The entry file is whatever `"main"` in
+package.json points to, so rename it freely. Requires Node ≥ 22.
