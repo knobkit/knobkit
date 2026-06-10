@@ -1,9 +1,9 @@
-# knobkit
+# <img src="https://raw.githubusercontent.com/knobkit/knobkit/main/design/logo.svg" height="28" alt="" /> knobkit
 
 [![npm version](https://img.shields.io/npm/v/knobkit.svg)](https://www.npmjs.com/package/knobkit) [![license](https://img.shields.io/npm/l/knobkit.svg)](https://github.com/knobkit/knobkit/blob/main/LICENSE)
 
-**Declare widgets, write event handlers, get a web app.** The same file runs entirely in the
-browser — no server at all — or with handlers on a stateless Node server. Swap one line.
+**Your AI app, live as you type.** Declare widgets, write event handlers — done. The same file runs
+entirely in the browser — no server at all — or with handlers on a stateless Node server. Swap one line.
 
 ```ts
 import { knobkit, chat } from "knobkit";

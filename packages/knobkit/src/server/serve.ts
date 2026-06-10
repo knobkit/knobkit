@@ -7,6 +7,7 @@ import type { KnobkitServer, Event } from "../lib/types.js";
 import type { Knobkit } from "../lib/knobkit.js";
 import { declare, type AppDecl } from "../lib/declare.js";
 import { makeBound } from "../lib/ctx.js";
+import { FAVICON_TAG } from "../lib/favicon.js";
 import { run } from "./context.js";
 
 const CLIENT_JS = fileURLToPath(new URL("../../dist/client.js", import.meta.url));
@@ -18,7 +19,7 @@ const isEvent = (x: any): x is Event => x != null && typeof x.type === "string" 
 function html(decl: AppDecl, loading: string): string {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>${decl.title ?? "knobkit"}</title><link rel="stylesheet" href="/client.css" /></head>
+<title>${decl.title ?? "knobkit"}</title>${FAVICON_TAG}<link rel="stylesheet" href="/client.css" /></head>
 <body><div id="root">${loading}</div><script type="module" src="/client.js"></script></body></html>`;
 }
 

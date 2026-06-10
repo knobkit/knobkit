@@ -2,6 +2,7 @@ import { existsSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, relative, resolve } from "node:path";
 import { searchForWorkspaceRoot, type InlineConfig, type Plugin } from "vite";
+import { FAVICON_TAG } from "../lib/favicon.js";
 
 export function ensureTsconfig(root: string): void {
   const path = resolve(root, "tsconfig.json");
@@ -41,6 +42,7 @@ export function indexHtml(entry: string): string {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>knobkit</title>
+    ${FAVICON_TAG}
   </head>
   <body>
     <div id="root"></div>

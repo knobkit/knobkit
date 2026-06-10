@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>knobkit — logo options</title>
+<style>
+  body { margin: 0; font-family: -apple-system, "Segoe UI", sans-serif; }
+  section { padding: 32px 40px; }
+  .light { background: #f6f7f9; color: #1c1f23; }
+  .dark { background: #16181c; color: #e6e8eb; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.6; }
+  .row { display: flex; gap: 56px; flex-wrap: wrap; }
+  .opt { display: flex; flex-direction: column; gap: 14px; }
+  .name { font-size: 13px; opacity: 0.7; }
+  .sizes { display: flex; align-items: flex-end; gap: 14px; }
+  .mark { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 22px; letter-spacing: -0.02em; }
+</style>
+</head>
+<body>
+<section class="light"><h2>Light</h2><div class="row" id="light"></div></section>
+<section class="dark"><h2>Dark</h2><div class="row" id="dark"></div></section>
+<script>
+  const opts = [
+    ["1-knob.svg", "1 · The Knob"],
+    ["2-k-tile.svg", "2 · K-Tile"],
+    ["3-kit.svg", "3 · The Kit"],
+    ["4-orbit.svg", "4 · Event Orbit"],
+  ];
+  for (const id of ["light", "dark"]) {
+    const row = document.getElementById(id);
+    for (const [src, name] of opts) {
+      const d = document.createElement("div");
+      d.className = "opt";
+      d.innerHTML = `
+        <div class="name">${name}</div>
+        <div class="sizes">
+          ${[16, 32, 64, 128].map((s) => `<img src="${src}" width="${s}" height="${s}" />`).join("")}
+        </div>
+        <div class="mark"><img src="${src}" width="30" height="30" /> knobkit</div>`;
+      row.appendChild(d);
+    }
+  }
+</script>
+</body>
+</html>

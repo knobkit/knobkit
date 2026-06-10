@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Option 3 — "The Kit": a widget tray — knob, slider, toggle, button -->
+  <rect x="5" y="5" width="54" height="54" rx="12" fill="#ffffff" stroke="#1c1f23" stroke-width="3"/>
+  <!-- knob -->
+  <circle cx="21" cy="21" r="8" fill="#2563eb"/>
+  <line x1="21" y1="15" x2="21" y2="19" stroke="#ffffff" stroke-width="2.5"
+        stroke-linecap="round" transform="rotate(45 21 21)"/>
+  <!-- slider -->
+  <line x1="35" y1="21" x2="51" y2="21" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="45" cy="21" r="4" fill="#1c1f23"/>
+  <!-- toggle -->
+  <rect x="13" y="38" width="17" height="10" rx="5" fill="#2563eb"/>
+  <circle cx="25" cy="43" r="3.2" fill="#ffffff"/>
+  <!-- button -->
+  <rect x="37" y="36" width="14" height="14" rx="4.5" fill="#1c1f23"/>
+</svg>

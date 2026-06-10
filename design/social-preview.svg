@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" font-family="-apple-system, 'Segoe UI', 'Helvetica Neue', sans-serif">
+  <rect width="1280" height="640" fill="#f6f7f9"/>
+  <!-- K-Tile mark -->
+  <g transform="translate(415 170) scale(2.6)">
+    <rect x="4" y="4" width="56" height="56" rx="14" fill="#2563eb"/>
+    <g stroke="#ffffff" stroke-width="7" stroke-linecap="round">
+      <line x1="23" y1="16" x2="23" y2="48"/>
+      <line x1="23" y1="33" x2="42" y2="18"/>
+      <line x1="23" y1="33" x2="42" y2="46"/>
+    </g>
+    <circle cx="23" cy="33" r="6.5" fill="#ffffff"/>
+    <circle cx="23" cy="33" r="2.8" fill="#1d4ed8"/>
+  </g>
+  <text x="610" y="288" font-size="104" font-weight="700" fill="#1c1f23" letter-spacing="-2">knobkit</text>
+  <text x="640" y="420" font-size="42" font-weight="600" fill="#374151" text-anchor="middle">Your AI app, live as you type.</text>
+  <text x="640" y="478" font-size="36" fill="#6b7280" text-anchor="middle">Declare widgets, write event handlers — done.</text>
+  <text x="640" y="535" font-size="29" fill="#94a3b8" text-anchor="middle">In the browser or on a stateless server — same file.</text>
+</svg>

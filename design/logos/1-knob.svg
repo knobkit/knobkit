@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Option 1 — "The Knob": a synth knob, sweep ticks, pointer at 2 o'clock -->
+  <g stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round">
+    <line x1="32" y1="5"  x2="32" y2="10" transform="rotate(-135 32 32)"/>
+    <line x1="32" y1="5"  x2="32" y2="10" transform="rotate(-90 32 32)"/>
+    <line x1="32" y1="5"  x2="32" y2="10" transform="rotate(-45 32 32)"/>
+    <line x1="32" y1="5"  x2="32" y2="10"/>
+    <line x1="32" y1="5"  x2="32" y2="10" transform="rotate(45 32 32)"/>
+    <line x1="32" y1="5"  x2="32" y2="10" transform="rotate(90 32 32)"/>
+    <line x1="32" y1="5"  x2="32" y2="10" transform="rotate(135 32 32)"/>
+  </g>
+  <circle cx="32" cy="32" r="18" fill="#2563eb"/>
+  <line x1="32" y1="17.5" x2="32" y2="27" stroke="#ffffff" stroke-width="4.5"
+        stroke-linecap="round" transform="rotate(45 32 32)"/>
+</svg>
