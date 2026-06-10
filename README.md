@@ -1,46 +1,59 @@
 # knobkit
 
+[![npm version](https://img.shields.io/npm/v/knobkit.svg)](https://www.npmjs.com/package/knobkit) [![license](https://img.shields.io/npm/l/knobkit.svg)](./LICENSE)
+
 Build a web app from **widgets** and **event handlers**. You declare the widgets, register
 `on(event, handler)` handlers, and choose where they run: entirely in the browser (`mount`) or on a
 stateless server with a thin browser client (`serve`). The same authored file works either way.
 
 ```ts
 import { knobkit, chat } from "knobkit";
-import { pipeline, TextStreamer } from "@huggingface/transformers";
 
-const generate = await pipeline("text-generation", "onnx-community/Qwen3.5-0.8B-ONNX");
-const conversation = chat({ placeholder: "Say something…" });
+const convo = chat({ placeholder: "Say something…" });
 
-const app = knobkit({ title: "Chatbot", widgets: [conversation] });
+const app = knobkit({
+  title: "Echo bot",
+  description: "Whatever you send comes back reversed.",
+  widgets: [convo],
+});
 
-app.on(
-  conversation.sent,
-  conversation.busy(async (said) => {
-    const history = await conversation.history(); // read: pulled from the browser on demand
-    conversation.say({ role: "user", content: said }); // write: a structured edit
-    conversation.say({ role: "assistant", content: "" });
-    const streamer = new TextStreamer(generate.tokenizer, {
-      skip_prompt: true,
-      callback_function: (t) => conversation.append(t), // stream tokens into the last message
-    });
-    await generate([...history, { role: "user", content: said }], { max_new_tokens: 512, streamer });
-  }),
-);
+app.on(convo.sent, async ({ text }) => {
+  convo.say({ role: "user", content: text });
+  convo.say({ role: "assistant", content: [...text].reverse().join("") });
+});
 
-app.serve(); // …or app.mount("#root") to run entirely in the browser
+app.serve();
 ```
+
+The same file runs either tier — swap the last line for `app.mount("#root")` to run entirely in the
+browser. For a real model-backed chatbot (streaming, history), see [`examples/`](./examples).
 
 ## Quick start
 
+Scaffold a new app:
+
 ```bash
-npm create knobkit@latest my-app   # scaffold a starter — pick mount (browser) or serve (node)
+npm create knobkit@latest my-app   # choose mount (browser) or serve (node)
 cd my-app
 npm install
-npm run dev                      # knobkit dev auto-detects mount vs serve from your demo.tsx
+npm run dev
 ```
 
-`knobkit dev` / `knobkit build` / `knobkit serve` come with the `knobkit` package; the dev server detects
-whether your `demo.tsx` ends in `mount()` or `serve()`. Requires Node ≥ 22.
+Skip the prompts with `npm create knobkit@latest my-app -- --mount` (or `--serve`). Already have a
+project? `npm install knobkit`. Requires Node ≥ 22.
+
+## CLI
+
+The `knobkit` package installs a `knobkit` command:
+
+```bash
+knobkit dev [file]     # dev server — auto-detects mount vs serve (file defaults to demo.tsx)
+knobkit build [file]   # build a browser (mount) app to dist/
+knobkit serve [file]   # run a server (serve) app
+```
+
+Flags: `--mount` / `--serve` force a mode, `--port <n>` sets the dev-server port. Otherwise `knobkit dev`
+detects the tier from whether your `demo.tsx` ends in `mount()` or `serve()`.
 
 ## Concepts
 
