@@ -1,6 +1,6 @@
 {
   "name": "knobkit",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Rapid web app development — describe inputs and a function, get a web app.",
   "keywords": [
     "widgets",

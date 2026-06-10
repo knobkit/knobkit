@@ -5,9 +5,11 @@ import { fileURLToPath } from "node:url";
 import { createInterface } from "node:readline/promises";
 import { stdin, stdout } from "node:process";
 
-const KNOBKIT_VERSION = "latest";
+const PKG_ROOT = dirname(fileURLToPath(import.meta.url));
+// Versioned in lockstep with knobkit: our own version is the knobkit the templates were built for.
+const KNOBKIT_VERSION = `^${JSON.parse(readFileSync(join(PKG_ROOT, "package.json"), "utf8")).version}`;
 
-const TEMPLATES = resolve(dirname(fileURLToPath(import.meta.url)), "templates");
+const TEMPLATES = resolve(PKG_ROOT, "templates");
 const TIERS = ["mount", "serve"];
 
 function parseArgs(argv) {
