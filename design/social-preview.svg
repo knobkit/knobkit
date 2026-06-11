@@ -12,7 +12,7 @@
     <circle cx="23" cy="33" r="2.8" fill="#1d4ed8"/>
   </g>
   <text x="610" y="288" font-size="104" font-weight="700" fill="#1c1f23" letter-spacing="-2">knobkit</text>
-  <text x="640" y="420" font-size="42" font-weight="600" fill="#374151" text-anchor="middle">Your AI app, live as you type.</text>
-  <text x="640" y="478" font-size="36" fill="#6b7280" text-anchor="middle">Declare widgets, write event handlers — done.</text>
+  <text x="640" y="420" font-size="42" font-weight="600" fill="#374151" text-anchor="middle">Create TypeScript webapps in minutes.</text>
+  <text x="640" y="478" font-size="36" fill="#6b7280" text-anchor="middle">Ship, host and share everywhere.</text>
   <text x="640" y="535" font-size="29" fill="#94a3b8" text-anchor="middle">In the browser or on a stateless server — same file.</text>
 </svg>

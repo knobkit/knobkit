@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/knobkit/knobkit/actions/workflows/ci.yml/badge.svg)](https://github.com/knobkit/knobkit/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/knobkit.svg)](https://www.npmjs.com/package/knobkit) [![license](https://img.shields.io/npm/l/knobkit.svg)](https://github.com/knobkit/knobkit/blob/main/LICENSE)
 
-**Create typescript webapps in minutes. Ship, host and share everywhere.** Declare widgets, write `on(event, handler)` functions — done. The
+**Create TypeScript webapps in minutes. Ship, host and share everywhere.** Declare widgets, write `on(event, handler)` functions — done. The
 same `demo.tsx` runs entirely in the browser (`mount`) or on a stateless Node server (`serve`); change
 the last line to swap. **The browser owns all state** — the server keeps none, so there are no sessions.
 
