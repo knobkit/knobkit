@@ -33,6 +33,7 @@ import { TabsView } from "./tabs/index.js";
 import { AccordionView } from "./accordion/index.js";
 import { TreeView } from "./tree/index.js";
 import { BreadcrumbView } from "./breadcrumb/index.js";
+import { MenuView } from "./menu/index.js";
 
 // the only place that maps a widget's `type` to its React view
 export const VIEWS: Record<string, WidgetView> = {
@@ -72,4 +73,5 @@ export const VIEWS: Record<string, WidgetView> = {
   accordion: AccordionView,
   tree: TreeView,
   breadcrumb: BreadcrumbView,
+  menu: MenuView,
 };

@@ -13,6 +13,7 @@ export type Row = Record<string, unknown>;
 
 export interface TableWidget extends Widget<{ columns: Column[]; rows: Row[] }> {
   edited: EventCtor<{ row: number; key: string; value: unknown }>; // a cell (or pasted cell) changed
+  contextmenu: EventCtor<{ item: Row; row: number; x: number; y: number }>; // right-click on a row
   editable: boolean;
   maxHeight: number; // height ceiling in px; the grid fits its rows up to this, then scrolls
   data(): Promise<Row[]>; // read all rows
@@ -33,6 +34,7 @@ export function table(opts: { columns?: Column[]; rows?: Row[]; editable?: boole
     type: "table",
     state: { columns: opts.columns ?? [], rows: opts.rows ?? [] },
     edited: event<{ row: number; key: string; value: unknown }>("table.edited"),
+    contextmenu: event<{ item: Row; row: number; x: number; y: number }>("table.contextmenu"),
     editable: opts.editable ?? false,
     maxHeight: opts.maxHeight ?? 500,
     ...controls,

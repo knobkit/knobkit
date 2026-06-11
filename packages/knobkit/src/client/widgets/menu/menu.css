@@ -1,0 +1,57 @@
+@layer components {
+  .pu-menu {
+    position: fixed;
+    z-index: 1000;
+    min-width: 168px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    background: var(--pu-panel);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    box-shadow: var(--pu-shadow-2);
+    font-size: var(--pu-font);
+  }
+  .pu-menu-item {
+    appearance: none;
+    background: none;
+    border: none;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    font: inherit;
+    color: var(--pu-text);
+    border-radius: var(--pu-radius-sm);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .pu-menu-item:hover:not(:disabled) {
+    background: var(--pu-surface-2);
+  }
+  .pu-menu-item:disabled {
+    color: var(--pu-muted);
+    cursor: default;
+  }
+  .pu-menu-item-danger {
+    color: var(--pu-danger);
+  }
+  .pu-menu-item-danger:hover:not(:disabled) {
+    background: var(--pu-danger);
+    color: var(--pu-on-accent);
+  }
+  .pu-menu-icon {
+    width: 1.1em;
+    text-align: center;
+    flex: none;
+  }
+  .pu-menu-label {
+    flex: 1;
+  }
+  .pu-menu-sep {
+    height: 1px;
+    margin: 4px 6px;
+    background: var(--pu-border);
+  }
+}

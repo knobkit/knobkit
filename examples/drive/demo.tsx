@@ -1,5 +1,5 @@
-import { knobkit, tree, breadcrumb, table, output, text, button, upload, row, col } from "knobkit";
-import type { TreeNode } from "knobkit";
+import { knobkit, tree, breadcrumb, table, output, text, button, upload, menu, file, row, col } from "knobkit";
+import type { TreeNode, MenuItem } from "knobkit";
 
 interface Item {
   id: string;
@@ -31,7 +31,7 @@ const projects = seed("Projects", "folder", "root");
 const kb = seed("knobkit", "folder", projects);
 seed("README.md", "file", kb, "# knobkit\n\nCreate TypeScript webapps in minutes.");
 seed("ideas.md", "file", projects, "- a `menu` widget for right-click actions\n- drag to move");
-seed("todo.md", "file", "root", "- [x] build drive demo\n- [ ] wire up a context menu");
+seed("todo.md", "file", "root", "- [x] build drive demo\n- [x] wire up a context menu");
 
 const byId = (id: string) => FS.get(id);
 const childrenOf = (parentId: string) =>
@@ -64,7 +64,7 @@ const rowsFor = (folderId: string) =>
 const folderSummary = (i: Item) => {
   const kids = childrenOf(i.id);
   const folders = kids.filter((k) => k.kind === "folder").length;
-  return `### ${i.name}\n\n${folders} folder(s), ${kids.length - folders} file(s).\n\nSelect a file to preview it.`;
+  return `### ${i.name}\n\n${folders} folder(s), ${kids.length - folders} file(s).\n\nRight-click anything for actions.`;
 };
 
 const folders = tree({ nodes: [toNode(byId("root")!)], expanded: ["root"], selected: "root" });
@@ -83,18 +83,22 @@ const nameInput = text({ placeholder: "New item name…" });
 const newFolder = button({ label: "New folder" });
 const newFile = button({ label: "New file" });
 const uploader = upload({ multiple: true });
+const ctx = menu();
+const downloader = file();
 
 let current = "root";
 
 const app = knobkit({
   title: "Drive",
-  description: "A file browser built from tree + breadcrumb + table. The folder tree is the nav; pick a file to preview it.",
+  description: "A file browser built from tree + breadcrumb + table + menu. Right-click any folder or file for actions.",
   fill: true,
   widgets: col(
     crumbs,
     row(nameInput, newFolder, newFile),
     uploader,
     row(folders, col(contents, preview)),
+    downloader,
+    ctx,
   ),
 });
 
@@ -110,17 +114,47 @@ function showFolder(id: string) {
   preview.set(folderSummary(byId(id)!));
 }
 
-app.on(folders.selected, ({ id }) => {
-  const item = byId(id);
-  if (!item) return;
-  if (item.kind === "folder") return showFolder(id);
+function openItem(item: Item) {
+  if (item.kind === "folder") return showFolder(item.id);
   current = item.parentId ?? "root";
   crumbs.set(trail(current));
   contents.setRows(rowsFor(current));
   preview.set(item.content ?? "*(empty file)*");
-});
+}
 
-app.on(crumbs.selected, ({ id }) => showFolder(id));
+function removeItem(id: string) {
+  if (id === "root") return;
+  const parent = byId(id)?.parentId ?? "root";
+  const stack = [id];
+  while (stack.length) {
+    const cur = stack.pop()!;
+    for (const c of childrenOf(cur)) stack.push(c.id);
+    FS.delete(cur);
+  }
+  if (!byId(current)) current = byId(parent) ? parent : "root";
+  refresh();
+  crumbs.set(trail(current));
+  preview.set(folderSummary(byId(current)!));
+}
+
+function menuItems(item: Item): MenuItem[] {
+  if (item.kind === "folder")
+    return [
+      { id: "open", label: "Open", icon: "📂" },
+      { id: "newFolder", label: "New folder", icon: "📁" },
+      { id: "newFile", label: "New file", icon: "📝" },
+      { id: "sep", label: "", separator: true },
+      { id: "rename", label: "Rename", icon: "✏️" },
+      { id: "delete", label: "Delete", icon: "🗑", danger: true, disabled: item.id === "root" },
+    ];
+  return [
+    { id: "open", label: "Open", icon: "📂" },
+    { id: "download", label: "Download", icon: "⭳" },
+    { id: "sep", label: "", separator: true },
+    { id: "rename", label: "Rename", icon: "✏️" },
+    { id: "delete", label: "Delete", icon: "🗑", danger: true },
+  ];
+}
 
 async function create(kind: Item["kind"]) {
   const name = (await nameInput.value()).trim() || (kind === "folder" ? "Untitled folder" : "untitled.md");
@@ -131,6 +165,11 @@ async function create(kind: Item["kind"]) {
   nameInput.set("");
 }
 
+app.on(folders.selected, ({ id }) => {
+  const item = byId(id);
+  if (item) openItem(item);
+});
+app.on(crumbs.selected, ({ id }) => showFolder(id));
 app.on(newFolder.clicked, () => create("folder"));
 app.on(newFile.clicked, () => create("file"));
 
@@ -143,6 +182,47 @@ app.on(uploader.changed, async (files) => {
   refresh();
   await folders.expand(current);
   uploader.clear();
+});
+
+app.on(folders.contextmenu, ({ id, x, y }) => {
+  const item = byId(id);
+  if (item) ctx.open({ x, y, target: id, items: menuItems(item) });
+});
+app.on(contents.contextmenu, ({ item, x, y }) => {
+  const it = byId(item.id as string);
+  if (it) ctx.open({ x, y, target: it.id, items: menuItems(it) });
+});
+
+app.on(folders.renamed, ({ id, name }) => {
+  const item = byId(id);
+  if (!item) return;
+  item.name = name;
+  refresh();
+});
+
+app.on(ctx.selected, async ({ action, target }) => {
+  if (!target) return;
+  const item = byId(target);
+  if (!item) return;
+  switch (action) {
+    case "open":
+      return openItem(item);
+    case "download":
+      return downloader.set({ name: item.name, url: `data:text/markdown;charset=utf-8,${encodeURIComponent(item.content ?? "")}` });
+    case "delete":
+      return removeItem(target);
+    case "newFolder":
+      showFolder(item.id);
+      return create("folder");
+    case "newFile":
+      showFolder(item.id);
+      return create("file");
+    case "rename": {
+      for (const c of trail(target)) await folders.expand(c.id);
+      folders.select(target);
+      return folders.rename(target);
+    }
+  }
 });
 
 app.serve();
