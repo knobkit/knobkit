@@ -75,10 +75,9 @@ export function TableView({ widget, state, emit, set }: ViewProps<TableWidget, {
     }
   };
 
-  const onContextMenu = async (e: React.MouseEvent): Promise<void> => {
+  const rowAt = async (e: React.MouseEvent): Promise<{ item: Row; row: number } | null> => {
     const cell = (e.target as HTMLElement).closest("[data-rgrow]");
-    if (!cell) return;
-    e.preventDefault();
+    if (!cell) return null;
     const visIndex = Number(cell.getAttribute("data-rgrow"));
     const grid = cell.closest("revo-grid") as (Element & { getVisibleSource?: () => Promise<Row[]> }) | null;
     let item: Row | undefined = state.rows[visIndex];
@@ -86,11 +85,21 @@ export function TableView({ widget, state, emit, set }: ViewProps<TableWidget, {
       const rows = await grid.getVisibleSource();
       if (rows[visIndex]) item = rows[visIndex];
     }
-    if (item) emit(widget.contextmenu({ item, row: visIndex, x: e.clientX, y: e.clientY }));
+    return item ? { item, row: visIndex } : null;
+  };
+  const onContextMenu = async (e: React.MouseEvent): Promise<void> => {
+    const hit = await rowAt(e);
+    if (!hit) return;
+    e.preventDefault();
+    emit(widget.contextmenu({ ...hit, x: e.clientX, y: e.clientY }));
+  };
+  const onDoubleClick = async (e: React.MouseEvent): Promise<void> => {
+    const hit = await rowAt(e);
+    if (hit) emit(widget.activated(hit));
   };
 
   return (
-    <div className="pu-table" onContextMenu={onContextMenu}>
+    <div className="pu-table" onContextMenu={onContextMenu} onDoubleClick={onDoubleClick}>
       <RevoGrid
         columns={columns}
         source={source}

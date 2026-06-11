@@ -6,6 +6,7 @@ export interface LayoutWidget extends Widget<{ items: string[] }> {
   children: Widget<any>[];
   add(child: Widget<any>): void;
   remove(child: Widget<any>): Promise<void>;
+  show(...children: Widget<any>[]): void;
 }
 
 function container(type: string, children: Widget<any>[], props: Record<string, unknown> = {}): LayoutWidget {
@@ -23,6 +24,10 @@ function container(type: string, children: Widget<any>[], props: Record<string, 
       const key = b.key(child);
       const items = await b.read<string[]>(this, ["items"]);
       b.edit(this, "set", ["items"], items.filter((k) => k !== key));
+    },
+    show(...children: Widget<any>[]): void {
+      const b = bound(this);
+      b.edit(this, "set", ["items"], children.map((c) => b.key(c)));
     },
     ...props,
   };

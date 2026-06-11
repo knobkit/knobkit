@@ -1,4 +1,4 @@
-import { knobkit, tree, breadcrumb, table, button, upload, menu, span, grow, row, col } from "knobkit";
+import { knobkit, tree, breadcrumb, output, button, upload, menu, span, grow, row, col } from "knobkit";
 import type { TreeNode, MenuItem } from "knobkit";
 
 interface Item {
@@ -22,16 +22,16 @@ function seed(name: string, kind: Item["kind"], parentId: string | null, content
 
 seed("My Drive", "folder", null, undefined, "root");
 const docs = seed("Documents", "folder", "root");
-seed("Resume.md", "file", docs, "# Jane Doe");
-seed("Notes.md", "file", docs, "## Standup");
+seed("Resume.md", "file", docs, "# Jane Doe\n\nSenior engineer. Builds things that ship.");
+seed("Notes.md", "file", docs, "## Standup\n\n- shipped the tree widget\n- collapsible sidebar next");
 const photos = seed("Photos", "folder", "root");
 const trip = seed("Vacation", "folder", photos);
-seed("caption.md", "file", trip, "Sunset over the bay.");
+seed("caption.md", "file", trip, "Sunset over the bay. 🌅");
 const projects = seed("Projects", "folder", "root");
 const kb = seed("knobkit", "folder", projects);
-seed("README.md", "file", kb, "# knobkit");
-seed("ideas.md", "file", projects, "- drag to move");
-seed("todo.md", "file", "root", "- [x] build drive demo");
+seed("README.md", "file", kb, "# knobkit\n\nCreate TypeScript webapps in minutes.");
+seed("ideas.md", "file", projects, "- a context menu for actions\n- drag to move");
+seed("todo.md", "file", "root", "## Todo\n\n- [x] build drive demo\n- [x] collapsible sidebar");
 
 const byId = (id: string) => FS.get(id);
 const childrenOf = (parentId: string) =>
@@ -52,62 +52,59 @@ function trail(id: string) {
   return out;
 }
 
-const rowsFor = (folderId: string) =>
-  childrenOf(folderId).map((i) => ({
-    id: i.id,
-    name: `${icon(i)}  ${i.name}`,
-    kind: i.kind === "folder" ? "Folder" : "Document",
-    size: i.kind === "file" ? `${(i.content ?? "").length} B` : "—",
-    modified: i.modified,
-  }));
+function folderSummary(i: Item) {
+  const kids = childrenOf(i.id);
+  const folders = kids.filter((k) => k.kind === "folder").length;
+  return `### ${i.name}\n\n${folders} folder(s), ${kids.length - folders} file(s).\n\nPick a file in the tree to read it.`;
+}
 
 const folders = tree({ nodes: [toNode(byId("root")!)], expanded: ["root"], selected: "root" });
 const crumbs = breadcrumb({ crumbs: trail("root") });
-const contents = table({
-  columns: [
-    { key: "name", label: "Name", width: 280 },
-    { key: "kind", label: "Kind" },
-    { key: "size", label: "Size" },
-    { key: "modified", label: "Modified" },
-  ],
-  rows: rowsFor("root"),
-  maxHeight: 4000,
-});
+const viewer = output({ format: "markdown" });
 const newFolder = button({ label: "＋ Folder" });
 const newFile = button({ label: "＋ File" });
 const uploader = upload({ multiple: true });
+const toggle = button({ label: "☰" });
 const ctx = menu();
 
+const sidebar = col(row(newFolder, newFile), uploader, grow(folders));
+const main = row(sidebar, span(viewer, 4));
+
 let current = "root";
+let collapsed = false;
 
 const app = knobkit({
   title: "Drive",
-  description: "File tree on the left, the current folder's contents on the right. Right-click any item for actions.",
+  description: "A file tree on the left; pick a file to read it. Toggle ☰ to collapse the sidebar.",
   fill: true,
   widgets: col(
-    crumbs,
     ctx,
-    grow(row(
-      col(row(newFolder, newFile), uploader, grow(folders)),
-      span(contents, 4),
-    )),
+    row(toggle, span(crumbs, 14)),
+    grow(main),
   ),
 });
 
+app.setup(() => showFolderView("root"));
+
 function refresh() {
   folders.setNodes([toNode(byId("root")!)]);
-  contents.setRows(rowsFor(current));
 }
 
-function showFolder(id: string) {
+function showFolderView(id: string) {
   current = id;
   crumbs.set(trail(id));
-  contents.setRows(rowsFor(id));
+  viewer.set(folderSummary(byId(id)!));
+}
+
+function showFileView(item: Item) {
+  current = item.parentId ?? "root";
+  crumbs.set(trail(item.id));
+  viewer.set(`### ${item.name}\n\n${item.content ?? "*(empty file)*"}`);
 }
 
 function openItem(item: Item) {
-  const folderId = item.kind === "folder" ? item.id : item.parentId ?? "root";
-  showFolder(folderId);
+  if (item.kind === "folder") return showFolderView(item.id);
+  showFileView(item);
 }
 
 function removeItem(id: string) {
@@ -121,7 +118,7 @@ function removeItem(id: string) {
   }
   if (!byId(current)) current = byId(parent) ? parent : "root";
   refresh();
-  crumbs.set(trail(current));
+  showFolderView(current);
 }
 
 function menuItems(item: Item): MenuItem[] {
@@ -152,18 +149,24 @@ async function create(kind: Item["kind"]) {
   folders.rename(id);
 }
 
+app.on(toggle.clicked, () => {
+  collapsed = !collapsed;
+  if (collapsed) main.show(viewer);
+  else main.show(sidebar, viewer);
+});
+
 app.on(folders.selected, ({ id }) => {
   const item = byId(id);
   if (item) openItem(item);
 });
-app.on(crumbs.selected, ({ id }) => showFolder(id));
+app.on(crumbs.selected, ({ id }) => showFolderView(id));
 app.on(newFolder.clicked, () => create("folder"));
 app.on(newFile.clicked, () => create("file"));
 
 app.on(uploader.changed, async (files) => {
   for (const f of files) {
     const id = `n${nextId++}`;
-    const body = f.type.startsWith("image/") ? `![${f.name}](${f.url})` : `${f.name}`;
+    const body = f.type.startsWith("image/") ? `![${f.name}](${f.url})` : `**${f.name}**`;
     FS.set(id, { id, name: f.name, kind: "file", parentId: current, content: body, modified: today });
   }
   refresh();
@@ -174,10 +177,6 @@ app.on(uploader.changed, async (files) => {
 app.on(folders.contextmenu, ({ id, x, y }) => {
   const item = byId(id);
   if (item) ctx.open({ x, y, target: id, items: menuItems(item) });
-});
-app.on(contents.contextmenu, ({ item, x, y }) => {
-  const it = byId(item.id as string);
-  if (it) ctx.open({ x, y, target: it.id, items: menuItems(it) });
 });
 
 app.on(folders.renamed, ({ id, name }) => {
@@ -197,10 +196,10 @@ app.on(ctx.selected, async ({ action, target }) => {
     case "delete":
       return removeItem(target);
     case "newFolder":
-      showFolder(item.id);
+      showFolderView(item.id);
       return create("folder");
     case "newFile":
-      showFolder(item.id);
+      showFolderView(item.id);
       return create("file");
     case "rename": {
       for (const c of trail(target)) await folders.expand(c.id);
