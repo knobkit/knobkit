@@ -34,7 +34,7 @@ async function describe(img: RawImage, push: (text: string) => void): Promise<vo
   await model.generate({ ...inputs, max_new_tokens: 256, streamer });
 }
 
-const photo = upload();
+const photo = upload({ accept: "image/*" });
 const size = dropdown({ choices: ["256", "512", "768", "1024", "Original"], value: "768" });
 const go = button({ label: "Describe" });
 const caption = output();
@@ -48,9 +48,9 @@ const app = knobkit({
 app.on(
   go.clicked,
   go.busy(async () => {
-    const img = await photo.value();
-    if (!img) return void caption.set("(upload an image first)");
-    const m = /^data:([^;]+);base64,(.*)$/s.exec(img)!;
+    const file = await photo.value();
+    if (!file) return void caption.set("(upload an image first)");
+    const m = /^data:([^;]+);base64,(.*)$/s.exec(file.url)!;
     const raw = await RawImage.fromBlob(new Blob([Buffer.from(m[2], "base64")], { type: m[1] }));
     const size_ = await size.value();
     const maxSize = size_ === "Original" ? null : Number(size_);

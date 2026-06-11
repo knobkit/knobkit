@@ -1,4 +1,4 @@
-import { knobkit, tree, breadcrumb, table, output, text, button, row, col } from "knobkit";
+import { knobkit, tree, breadcrumb, table, output, text, button, upload, row, col } from "knobkit";
 import type { TreeNode } from "knobkit";
 
 interface Item {
@@ -82,6 +82,7 @@ const preview = output({ format: "markdown" });
 const nameInput = text({ placeholder: "New item name…" });
 const newFolder = button({ label: "New folder" });
 const newFile = button({ label: "New file" });
+const uploader = upload({ multiple: true });
 
 let current = "root";
 
@@ -92,9 +93,15 @@ const app = knobkit({
   widgets: col(
     crumbs,
     row(nameInput, newFolder, newFile),
+    uploader,
     row(folders, col(contents, preview)),
   ),
 });
+
+function refresh() {
+  folders.setNodes([toNode(byId("root")!)]);
+  contents.setRows(rowsFor(current));
+}
 
 function showFolder(id: string) {
   current = id;
@@ -119,13 +126,23 @@ async function create(kind: Item["kind"]) {
   const name = (await nameInput.value()).trim() || (kind === "folder" ? "Untitled folder" : "untitled.md");
   const id = `n${nextId++}`;
   FS.set(id, { id, name, kind, parentId: current, content: kind === "file" ? `# ${name}\n` : undefined, modified: today });
-  folders.setNodes([toNode(byId("root")!)]);
+  refresh();
   await folders.expand(current);
-  contents.setRows(rowsFor(current));
   nameInput.set("");
 }
 
 app.on(newFolder.clicked, () => create("folder"));
 app.on(newFile.clicked, () => create("file"));
+
+app.on(uploader.changed, async (files) => {
+  for (const f of files) {
+    const id = `n${nextId++}`;
+    const body = f.type.startsWith("image/") ? `![${f.name}](${f.url})` : `**${f.name}** — ${f.type || "file"}, ${f.size} bytes`;
+    FS.set(id, { id, name: f.name, kind: "file", parentId: current, content: body, modified: today });
+  }
+  refresh();
+  await folders.expand(current);
+  uploader.clear();
+});
 
 app.serve();

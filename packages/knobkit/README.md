@@ -93,7 +93,7 @@ and methods are identical across both — only the last line changes.
 | `checkbox({ label?, value? })` | `boolean` | single toggle |
 | `checkboxGroup({ choices, value? })` | `string[]` | multi-select |
 | `radio({ choices, value? })` | `string` | single-select |
-| `upload({ accept? })` | `string \| null` | value is a data URL; `accept` default `image/*` |
+| `upload({ accept?, multiple? })` | `{ files: UploadFile[] }` | each `UploadFile` is `{ name, type, size, url }` (`url` is a data URL); `value()` is the first file, `files()` all; `accept` default `*/*` |
 
 **Other inputs:**
 
