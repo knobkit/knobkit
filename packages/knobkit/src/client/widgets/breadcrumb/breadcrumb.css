@@ -1,0 +1,36 @@
+@layer components {
+  .pu-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    font-size: var(--pu-font);
+  }
+  .pu-breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .pu-breadcrumb-link {
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 2px 6px;
+    font: inherit;
+    color: var(--pu-muted);
+    border-radius: var(--pu-radius-sm);
+    cursor: pointer;
+  }
+  .pu-breadcrumb-link:hover {
+    color: var(--pu-text);
+    background: var(--pu-surface-2);
+  }
+  .pu-breadcrumb-current {
+    padding: 2px 6px;
+    color: var(--pu-text);
+    font-weight: 600;
+  }
+  .pu-breadcrumb-sep {
+    color: var(--pu-muted);
+  }
+}

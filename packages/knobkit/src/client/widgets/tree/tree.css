@@ -1,0 +1,53 @@
+@layer components {
+  .pu-tree {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: var(--pu-font);
+    user-select: none;
+  }
+  .pu-tree ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .pu-tree-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: var(--pu-cpad-y);
+    padding-bottom: var(--pu-cpad-y);
+    padding-right: var(--pu-cpad-x);
+    border-radius: var(--pu-radius-sm);
+    cursor: pointer;
+    color: var(--pu-text);
+    white-space: nowrap;
+  }
+  .pu-tree-row:hover {
+    background: var(--pu-surface-2);
+  }
+  .pu-tree-row-selected,
+  .pu-tree-row-selected:hover {
+    background: var(--pu-accent-subtle);
+    color: var(--pu-accent);
+  }
+  .pu-tree-twist {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    flex: none;
+    color: var(--pu-muted);
+    font-size: 0.85em;
+  }
+  .pu-tree-twist-leaf {
+    visibility: hidden;
+  }
+  .pu-tree-icon {
+    flex: none;
+  }
+  .pu-tree-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

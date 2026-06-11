@@ -28,4 +28,6 @@ export * from "./log.js";
 export * from "./audio.js";
 export * from "./webcam.js";
 export * from "./layout.js";
+export * from "./tree.js";
+export * from "./breadcrumb.js";
 export { embed } from "./embed.js";
