@@ -1,0 +1,19 @@
+{
+  "name": "knobkit-example-electron-chat",
+  "private": true,
+  "type": "module",
+  "main": "demo.tsx",
+  "scripts": {
+    "dev": "concurrently -k -s first \"knobkit dev --port 5180\" \"wait-on http://localhost:5180 && KNOBKIT_PORT=5180 electron main.cjs\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "knobkit": "workspace:*"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "electron": "^42.4.0",
+    "wait-on": "^9.0.10"
+  }
+}
