@@ -1,4 +1,4 @@
-import { knobkit, tree, breadcrumb, table, output, text, button, upload, menu, file, row, col } from "knobkit";
+import { knobkit, tree, breadcrumb, table, button, upload, menu, span, grow, row, col } from "knobkit";
 import type { TreeNode, MenuItem } from "knobkit";
 
 interface Item {
@@ -22,16 +22,16 @@ function seed(name: string, kind: Item["kind"], parentId: string | null, content
 
 seed("My Drive", "folder", null, undefined, "root");
 const docs = seed("Documents", "folder", "root");
-seed("Resume.md", "file", docs, "# Jane Doe\n\nSenior engineer. Builds things that ship.");
-seed("Notes.md", "file", docs, "## Standup\n\n- shipped the tree widget\n- breadcrumb next");
+seed("Resume.md", "file", docs, "# Jane Doe");
+seed("Notes.md", "file", docs, "## Standup");
 const photos = seed("Photos", "folder", "root");
 const trip = seed("Vacation", "folder", photos);
-seed("caption.md", "file", trip, "Sunset over the bay. 🌅");
+seed("caption.md", "file", trip, "Sunset over the bay.");
 const projects = seed("Projects", "folder", "root");
 const kb = seed("knobkit", "folder", projects);
-seed("README.md", "file", kb, "# knobkit\n\nCreate TypeScript webapps in minutes.");
-seed("ideas.md", "file", projects, "- a `menu` widget for right-click actions\n- drag to move");
-seed("todo.md", "file", "root", "- [x] build drive demo\n- [x] wire up a context menu");
+seed("README.md", "file", kb, "# knobkit");
+seed("ideas.md", "file", projects, "- drag to move");
+seed("todo.md", "file", "root", "- [x] build drive demo");
 
 const byId = (id: string) => FS.get(id);
 const childrenOf = (parentId: string) =>
@@ -61,44 +61,36 @@ const rowsFor = (folderId: string) =>
     modified: i.modified,
   }));
 
-const folderSummary = (i: Item) => {
-  const kids = childrenOf(i.id);
-  const folders = kids.filter((k) => k.kind === "folder").length;
-  return `### ${i.name}\n\n${folders} folder(s), ${kids.length - folders} file(s).\n\nRight-click anything for actions.`;
-};
-
 const folders = tree({ nodes: [toNode(byId("root")!)], expanded: ["root"], selected: "root" });
 const crumbs = breadcrumb({ crumbs: trail("root") });
 const contents = table({
   columns: [
-    { key: "name", label: "Name" },
+    { key: "name", label: "Name", width: 280 },
     { key: "kind", label: "Kind" },
     { key: "size", label: "Size" },
     { key: "modified", label: "Modified" },
   ],
   rows: rowsFor("root"),
+  maxHeight: 4000,
 });
-const preview = output({ format: "markdown" });
-const nameInput = text({ placeholder: "New item name…" });
-const newFolder = button({ label: "New folder" });
-const newFile = button({ label: "New file" });
+const newFolder = button({ label: "＋ Folder" });
+const newFile = button({ label: "＋ File" });
 const uploader = upload({ multiple: true });
 const ctx = menu();
-const downloader = file();
 
 let current = "root";
 
 const app = knobkit({
   title: "Drive",
-  description: "A file browser built from tree + breadcrumb + table + menu. Right-click any folder or file for actions.",
+  description: "File tree on the left, the current folder's contents on the right. Right-click any item for actions.",
   fill: true,
   widgets: col(
     crumbs,
-    row(nameInput, newFolder, newFile),
-    uploader,
-    row(folders, col(contents, preview)),
-    downloader,
     ctx,
+    grow(row(
+      col(row(newFolder, newFile), uploader, grow(folders)),
+      span(contents, 4),
+    )),
   ),
 });
 
@@ -111,15 +103,11 @@ function showFolder(id: string) {
   current = id;
   crumbs.set(trail(id));
   contents.setRows(rowsFor(id));
-  preview.set(folderSummary(byId(id)!));
 }
 
 function openItem(item: Item) {
-  if (item.kind === "folder") return showFolder(item.id);
-  current = item.parentId ?? "root";
-  crumbs.set(trail(current));
-  contents.setRows(rowsFor(current));
-  preview.set(item.content ?? "*(empty file)*");
+  const folderId = item.kind === "folder" ? item.id : item.parentId ?? "root";
+  showFolder(folderId);
 }
 
 function removeItem(id: string) {
@@ -134,7 +122,6 @@ function removeItem(id: string) {
   if (!byId(current)) current = byId(parent) ? parent : "root";
   refresh();
   crumbs.set(trail(current));
-  preview.set(folderSummary(byId(current)!));
 }
 
 function menuItems(item: Item): MenuItem[] {
@@ -149,7 +136,6 @@ function menuItems(item: Item): MenuItem[] {
     ];
   return [
     { id: "open", label: "Open", icon: "📂" },
-    { id: "download", label: "Download", icon: "⭳" },
     { id: "sep", label: "", separator: true },
     { id: "rename", label: "Rename", icon: "✏️" },
     { id: "delete", label: "Delete", icon: "🗑", danger: true },
@@ -157,12 +143,13 @@ function menuItems(item: Item): MenuItem[] {
 }
 
 async function create(kind: Item["kind"]) {
-  const name = (await nameInput.value()).trim() || (kind === "folder" ? "Untitled folder" : "untitled.md");
   const id = `n${nextId++}`;
+  const name = kind === "folder" ? "Untitled folder" : "Untitled file";
   FS.set(id, { id, name, kind, parentId: current, content: kind === "file" ? `# ${name}\n` : undefined, modified: today });
   refresh();
   await folders.expand(current);
-  nameInput.set("");
+  folders.select(id);
+  folders.rename(id);
 }
 
 app.on(folders.selected, ({ id }) => {
@@ -176,7 +163,7 @@ app.on(newFile.clicked, () => create("file"));
 app.on(uploader.changed, async (files) => {
   for (const f of files) {
     const id = `n${nextId++}`;
-    const body = f.type.startsWith("image/") ? `![${f.name}](${f.url})` : `**${f.name}** — ${f.type || "file"}, ${f.size} bytes`;
+    const body = f.type.startsWith("image/") ? `![${f.name}](${f.url})` : `${f.name}`;
     FS.set(id, { id, name: f.name, kind: "file", parentId: current, content: body, modified: today });
   }
   refresh();
@@ -207,8 +194,6 @@ app.on(ctx.selected, async ({ action, target }) => {
   switch (action) {
     case "open":
       return openItem(item);
-    case "download":
-      return downloader.set({ name: item.name, url: `data:text/markdown;charset=utf-8,${encodeURIComponent(item.content ?? "")}` });
     case "delete":
       return removeItem(target);
     case "newFolder":

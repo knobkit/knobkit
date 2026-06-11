@@ -28,6 +28,19 @@ function container(type: string, children: Widget<any>[], props: Record<string, 
   };
 }
 
+export function span<W extends Widget<any>>(widget: W, amount: number | { cols?: number; rows?: number }): W {
+  const spec = typeof amount === "number" ? { cols: amount } : amount;
+  const w = widget as Widget<any>;
+  if (spec.cols && spec.cols > 1) w.colspan = spec.cols;
+  if (spec.rows && spec.rows > 1) w.rowspan = spec.rows;
+  return widget;
+}
+
+export function grow<W extends Widget<any>>(widget: W): W {
+  (widget as Widget<any>).grow = true;
+  return widget;
+}
+
 export const row = (...children: Widget<any>[]): LayoutWidget => container("row", children);
 export const col = (...children: Widget<any>[]): LayoutWidget => container("col", children);
 export const grid = (children: Widget<any>[], opts: { cols?: number } = {}): LayoutWidget =>

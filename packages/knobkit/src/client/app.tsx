@@ -1,5 +1,5 @@
 import "./styles.css";
-import { createElement, useCallback, useMemo, useSyncExternalStore, type ReactNode } from "react";
+import { createElement, useCallback, useMemo, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import type { AppDecl, WidgetDecl } from "../lib/declare.js";
 import type { Path } from "../lib/bound.js";
@@ -37,8 +37,15 @@ function Field({ wd, byKey, store, emit }: { wd: WidgetDecl; byKey: ByKey; store
   );
   const View = VIEWS[wd.type];
   if (!View) return null;
+  const colspan = typeof wd.props.colspan === "number" ? wd.props.colspan : 1;
+  const rowspan = typeof wd.props.rowspan === "number" ? wd.props.rowspan : 1;
+  const spanStyle: CSSProperties | undefined =
+    colspan > 1 || rowspan > 1
+      ? { gridColumn: colspan > 1 ? `span ${colspan}` : undefined, gridRow: rowspan > 1 ? `span ${rowspan}` : undefined }
+      : undefined;
+  const grow = wd.props.grow ? " pu-field-grow" : "";
   return (
-    <div className={`pu-field${cell.enabled ? "" : " pu-disabled"}${cell.busy ? " pu-busy" : ""}`}>
+    <div className={`pu-field${cell.enabled ? "" : " pu-disabled"}${cell.busy ? " pu-busy" : ""}${grow}`} style={spanStyle}>
       {cell.busy && <div className="pu-busy-bar" role="status" aria-label="Loading" />}
       {createElement(View, { widget, state: cell.state, enabled: cell.enabled, emit, set, slot })}
     </div>

@@ -1,4 +1,4 @@
-import { knobkit, code, frame, dropdown, row, col, bound, type Bound } from "../lib/index.js";
+import { knobkit, code, frame, dropdown, row, col, grow, bound, type Bound } from "../lib/index.js";
 import { readFileSync, writeFileSync, watch, readdirSync, type FSWatcher } from "node:fs";
 import { relative, resolve, dirname, extname, join } from "node:path";
 
@@ -65,7 +65,7 @@ const picker = dropdown({ choices: files });
 const editor = code({ language: langOf(activeRel), value: read(activeRel), wrap: true });
 const preview = frame({ src: PREVIEW, title: "preview" });
 
-const left = files.length > 1 ? col(picker, editor) : editor;
+const left = files.length > 1 ? col(picker, grow(editor)) : editor;
 const app = knobkit({
   title: "knobkit playground",
   description:
