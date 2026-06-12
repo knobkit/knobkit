@@ -1,4 +1,4 @@
-import { knobkit, tree, breadcrumb, output, button, upload, menu, span, grow, row, col } from "knobkit";
+import { knobkit, tree, breadcrumb, output, button, upload, menu, grow, row, col, sidebar } from "knobkit";
 import type { TreeNode, MenuItem } from "knobkit";
 
 interface Item {
@@ -64,23 +64,20 @@ const viewer = output({ format: "markdown" });
 const newFolder = button({ label: "＋ Folder" });
 const newFile = button({ label: "＋ File" });
 const uploader = upload({ multiple: true });
-const toggle = button({ label: "☰" });
 const ctx = menu();
 
-const sidebar = col(row(newFolder, newFile), uploader, grow(folders));
-const main = row(sidebar, span(viewer, 4));
+const navPanel = col(row(newFolder, newFile), uploader, grow(folders));
 
 let current = "root";
-let collapsed = false;
 
 const app = knobkit({
   title: "Drive",
-  description: "A file tree on the left; pick a file to read it. Toggle ☰ to collapse the sidebar.",
+  description: "A file tree on the left; pick a file to read it. Collapse the sidebar with the toggle.",
   fill: true,
   widgets: col(
     ctx,
-    row(toggle, span(crumbs, 14)),
-    grow(main),
+    crumbs,
+    grow(sidebar(navPanel, viewer)),
   ),
 });
 
@@ -148,12 +145,6 @@ async function create(kind: Item["kind"]) {
   folders.select(id);
   folders.rename(id);
 }
-
-app.on(toggle.clicked, () => {
-  collapsed = !collapsed;
-  if (collapsed) main.show(viewer);
-  else main.show(sidebar, viewer);
-});
 
 app.on(folders.selected, ({ id }) => {
   const item = byId(id);

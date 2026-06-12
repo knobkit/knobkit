@@ -1,0 +1,69 @@
+@layer components {
+  .pu-sidebar {
+    display: grid;
+    grid-template-columns: var(--pu-sidebar) minmax(0, 1fr);
+    gap: var(--pu-gap);
+  }
+  .pu-sidebar-collapsed {
+    grid-template-columns: var(--pu-rail) minmax(0, 1fr);
+  }
+  .pu-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pu-gap);
+    min-width: 0;
+    overflow: hidden;
+  }
+  .pu-sidebar-toggle {
+    appearance: none;
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--pu-surface-2);
+    color: var(--pu-muted);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    font: inherit;
+    cursor: pointer;
+  }
+  .pu-sidebar-toggle:hover {
+    color: var(--pu-text);
+    background: var(--pu-overlay);
+  }
+  .pu-sidebar-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+  }
+  .pu-sidebar-main {
+    min-width: 0;
+    overflow: hidden;
+  }
+  [data-fill] .pu-sidebar {
+    height: 100%;
+    grid-template-rows: minmax(0, 1fr);
+  }
+  [data-fill] .pu-sidebar-main {
+    display: flex;
+    min-height: 0;
+  }
+  [data-fill] .pu-sidebar-main > * {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+  }
+  [data-fill] .pu-sidebar-body > .pu-field {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+  }
+  [data-fill] .pu-sidebar-body > .pu-field > * {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+  }
+}

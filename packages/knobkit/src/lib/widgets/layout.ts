@@ -1,6 +1,7 @@
 import { bound } from "../bound.js";
 import { controls } from "../controls.js";
 import type { Widget } from "../types.js";
+import type { Density, Theme } from "../theme.js";
 
 export interface LayoutWidget extends Widget<{ items: string[] }> {
   children: Widget<any>[];
@@ -46,6 +47,16 @@ export function grow<W extends Widget<any>>(widget: W): W {
   return widget;
 }
 
+export function density<W extends Widget<any>>(widget: W, level: Density): W {
+  (widget as Widget<any>).density = level;
+  return widget;
+}
+
+export function theme<W extends Widget<any>>(widget: W, mode: Theme): W {
+  (widget as Widget<any>).theme = mode;
+  return widget;
+}
+
 export const row = (...children: Widget<any>[]): LayoutWidget => container("row", children);
 export const col = (...children: Widget<any>[]): LayoutWidget => container("col", children);
 export const grid = (children: Widget<any>[], opts: { cols?: number } = {}): LayoutWidget =>
@@ -63,3 +74,6 @@ export const tabs = (panels: { label: string; content: Widget<any> }[]): LayoutW
 // A single collapsible section. `open` is the initial state; toggling it is view-local.
 export const accordion = (opts: { label: string; open?: boolean }, ...children: Widget<any>[]): LayoutWidget =>
   container("accordion", children, { label: opts.label, open: opts.open ?? true });
+
+export const sidebar = (nav: Widget<any>, main: Widget<any>, opts: { open?: boolean } = {}): LayoutWidget =>
+  container("sidebar", [nav, main], { open: opts.open ?? true });

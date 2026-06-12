@@ -44,8 +44,15 @@ function Field({ wd, byKey, store, emit }: { wd: WidgetDecl; byKey: ByKey; store
       ? { gridColumn: colspan > 1 ? `span ${colspan}` : undefined, gridRow: rowspan > 1 ? `span ${rowspan}` : undefined }
       : undefined;
   const grow = wd.props.grow ? " pu-field-grow" : "";
+  const density = typeof wd.props.density === "string" ? wd.props.density : undefined;
+  const theme = typeof wd.props.theme === "string" ? wd.props.theme : undefined;
   return (
-    <div className={`pu-field${cell.enabled ? "" : " pu-disabled"}${cell.busy ? " pu-busy" : ""}${grow}`} style={spanStyle}>
+    <div
+      className={`pu-field${cell.enabled ? "" : " pu-disabled"}${cell.busy ? " pu-busy" : ""}${grow}`}
+      style={spanStyle}
+      data-density={density}
+      data-theme={theme}
+    >
       {cell.busy && <div className="pu-busy-bar" role="status" aria-label="Loading" />}
       {createElement(View, { widget, state: cell.state, enabled: cell.enabled, emit, set, slot })}
     </div>

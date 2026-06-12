@@ -108,6 +108,8 @@
     --pu-control: 40px;
     --pu-radius: 12px;
     --pu-radius-sm: 8px;
+    --pu-sidebar: 232px;
+    --pu-rail: 48px;
   }
   [data-density="xs"] {
     --pu-font: 12.5px;
@@ -121,6 +123,8 @@
     --pu-control: 28px;
     --pu-radius: 7px;
     --pu-radius-sm: 5px;
+    --pu-sidebar: 168px;
+    --pu-rail: 40px;
   }
   [data-density="sm"] {
     --pu-font: 13.5px;
@@ -134,6 +138,8 @@
     --pu-control: 33px;
     --pu-radius: 9px;
     --pu-radius-sm: 6px;
+    --pu-sidebar: 200px;
+    --pu-rail: 44px;
   }
   [data-density="lg"] {
     --pu-font: 16.5px;
@@ -147,6 +153,8 @@
     --pu-control: 46px;
     --pu-radius: 14px;
     --pu-radius-sm: 9px;
+    --pu-sidebar: 272px;
+    --pu-rail: 56px;
   }
   [data-density="xl"] {
     --pu-font: 18px;
@@ -160,6 +168,8 @@
     --pu-control: 54px;
     --pu-radius: 18px;
     --pu-radius-sm: 11px;
+    --pu-sidebar: 312px;
+    --pu-rail: 64px;
   }
 }
 
