@@ -33,7 +33,7 @@ app.serve(); // runs Whisper on Node — change to app.mount("#root") to run it 
 ```
 
 See [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples) — chatbots, image captioning,
-live transcription, webcam filters; each a single `demo.tsx`.
+live transcription, webcam filters, a Drive-style file manager; each a single `demo.tsx`.
 
 ## Quick start
 
@@ -104,6 +104,14 @@ and methods are identical across both — only the last line changes.
 | `webcam({ every?, control?, preview?, facing? })` | `frame` (data URL), `toggled` | same controls. `every` ms emits a frame every N ms (0 = preview only); `facing` `"user"`/`"environment"` |
 | `chat({ placeholder?, voice?, images?, markdown? })` | `sent` (`{ text, image? }`), `recorded` | `await history()`, `say(msg)`, `append(token)`. `markdown` renders assistant replies; `images`/`voice` add attach/talk buttons |
 
+**Navigation:**
+
+| Factory (defaults) | Events | Methods |
+|---|---|---|
+| `tree({ nodes?, expanded?, selected? })` | `selected`, `activated`, `expanded`, `collapsed`, `contextmenu` (`{ id, x, y }`), `renamed` (`{ id, name }`) | `await nodes()`, `await selection()`, `setNodes`, `select(id)`, `expand(id)`, `collapse(id)`, `setChildren(id, kids)`, `rename(id)` (inline edit). `TreeNode: { id, label, icon?, children?, hasChildren? }` |
+| `breadcrumb({ crumbs? })` | `selected` (`{ id }`) | `await path()`, `set(crumbs)`, `push(crumb)`. `Crumb: { id, label }` |
+| `menu()` | `selected` (`{ action, target }`) | `open({ x, y, items, target? })`, `close()`. `MenuItem: { id, label, icon?, danger?, disabled?, separator? }` — pair with a widget's `contextmenu` event for right-click |
+
 **Outputs** (write-only; `set(...)` replaces the value):
 
 | Factory (defaults) | Write / methods | Notes |
@@ -142,10 +150,25 @@ knobkit({ widgets: col(photo, row(size, go), caption) });
 grid([a, b, c, d], { cols: 2 });
 tabs([{ label: "One", content: a }, { label: "Two", content: b }]);
 accordion({ label: "Advanced", open: false }, x, y);
+sidebar(nav, main, { open: true }); // collapsible fixed-width nav + content pane
+```
+
+`row` lays its children out in equal slots; reshape the split without pixels:
+
+```ts
+row(span(table, 2), detail);   // table takes 2 slots, detail 1
+grow(editor);                  // flex-fill the remaining space (great under fill: true)
+```
+
+Scope theme/density to one subtree — they're per-widget overrides of the app-level setting:
+
+```ts
+density(sidebar(nav, main), "sm"); // a tighter nav; the rest of the app stays md
+theme(preview, "dark");
 ```
 
 Containers are widgets whose state is their arrangement, so a handler can restructure the UI at
-runtime — `panel.add(chart)`, `await panel.remove(sidebar)`.
+runtime — `panel.add(chart)`, `await panel.remove(old)`, `panel.show(a, b)` (replace its children).
 
 ## Theming
 
