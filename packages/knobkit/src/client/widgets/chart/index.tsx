@@ -9,7 +9,6 @@ export function ChartView({ widget, state }: ViewProps<ChartWidget, { data: Poin
   const kind = (widget.kind as string) ?? "bar";
   const x = widget.x as string;
   const series = Array.isArray(widget.y) ? (widget.y as string[]) : [widget.y as string];
-  const height = (widget.maxHeight as number) ?? 300;
   const data = state.data;
 
   useThemeVersion();
@@ -61,7 +60,7 @@ export function ChartView({ widget, state }: ViewProps<ChartWidget, { data: Poin
 
   return (
     <div className="pu-chart">
-      <ResponsiveContainer width="100%" height={height}>
+      <ResponsiveContainer width="100%" height="100%">
         {inner}
       </ResponsiveContainer>
     </div>

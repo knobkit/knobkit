@@ -1,12 +1,13 @@
 // table.css is imported by ./lazy.tsx (the static entry wrapper) so it lands in client.css, not a
 // split css chunk serve() wouldn't route.
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { RevoGrid, type AfterEditEvent, type ColumnRegular, type DataType } from "@revolist/react-datagrid";
 import type { ViewProps } from "../../view.js";
-import type { TableWidget, Column, Row } from "../../../lib/widgets/table.js";
+import type { TableWidget, Column, Row, Size } from "../../../lib/widgets/table.js";
+import { cssVar, useThemeVersion } from "../../theme.js";
 
 // "compact" theme metrics (from revo-grid-style.css): header row 45px, data row 32px. Used to fit the
-// grid to its content up to maxHeight, then scroll — matching Gradio's max_height behavior.
+// grid to its content up to the --pu-pane token height, then scroll.
 const HEADER_PX = 45;
 const ROW_PX = 32;
 
@@ -30,12 +31,23 @@ function headerWidth(label: string): number {
   return Math.max(MIN_COL, Math.min(MAX_COL, Math.ceil(w) + COL_PAD));
 }
 
+function colWidth(size: Size): number {
+  const v = parseInt(cssVar(`--pu-col-${size}`), 10);
+  return Number.isFinite(v) && v > 0 ? v : MIN_COL;
+}
+
 export function TableView({ widget, state, emit, set }: ViewProps<TableWidget, { columns: Column[]; rows: Row[] }>) {
   const editable = (widget.editable as boolean) ?? false;
-  const maxHeight = (widget.maxHeight as number) ?? 500;
-  // fit to content (header + rows), capped at maxHeight; +2 leaves room for a horizontal scrollbar so
-  // a fitting grid doesn't sprout a vertical one
-  const height = Math.min(maxHeight, HEADER_PX + state.rows.length * ROW_PX + 2);
+  const ref = useRef<HTMLDivElement>(null);
+  const ver = useThemeVersion();
+  const [pane, setPane] = useState(440);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const v = parseInt(getComputedStyle(el).getPropertyValue("--pu-pane"), 10);
+    if (Number.isFinite(v) && v > 0) setPane(v);
+  }, [ver]);
+  const height = Math.min(pane, HEADER_PX + state.rows.length * ROW_PX + 2);
 
   // RevoGrid warns that columns/source need stable references; the store hands us a fresh state object
   // only on a real edit (edits are immutable), so memoizing on those references is both stable and correct.
@@ -46,7 +58,7 @@ export function TableView({ widget, state, emit, set }: ViewProps<TableWidget, {
         name: c.label ?? c.key,
         sortable: true,
         readonly: !editable,
-        size: c.width ?? headerWidth(c.label ?? c.key),
+        size: c.width ? colWidth(c.width) : headerWidth(c.label ?? c.key),
       })),
     [state.columns, editable],
   );
@@ -99,7 +111,7 @@ export function TableView({ widget, state, emit, set }: ViewProps<TableWidget, {
   };
 
   return (
-    <div className="pu-table" onContextMenu={onContextMenu} onDoubleClick={onDoubleClick}>
+    <div className="pu-table" ref={ref} onContextMenu={onContextMenu} onDoubleClick={onDoubleClick}>
       <RevoGrid
         columns={columns}
         source={source}

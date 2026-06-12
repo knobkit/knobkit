@@ -6,9 +6,8 @@ import type { ViewProps } from "../../view.js";
 const Impl = lazy(async () => ({ default: (await import("./index.js")).ChartView as unknown as ComponentType<ViewProps> }));
 
 export function ChartView(props: ViewProps) {
-  const height = ((props.widget as { maxHeight?: number }).maxHeight ?? 300) + 16; // + container padding
   return (
-    <Suspense fallback={<div className="pu-chart" style={{ height }} />}>
+    <Suspense fallback={<div className="pu-chart" />}>
       <Impl {...props} />
     </Suspense>
   );

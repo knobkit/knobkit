@@ -3,11 +3,13 @@ import { bound } from "../bound.js";
 import { controls } from "../controls.js";
 import type { EventCtor, Widget } from "../types.js";
 
+export type Size = "xs" | "sm" | "md" | "lg" | "xl";
+
 export interface Column {
   key: string; // maps a column to the per-row object key (RevoGrid `prop`)
   label?: string; // header text; defaults to `key`
   type?: "text" | "number"; // cell editor/parsing hint
-  width?: number;
+  width?: Size; // a size bucket; defaults to fitting the header
 }
 export type Row = Record<string, unknown>;
 
@@ -16,7 +18,6 @@ export interface TableWidget extends Widget<{ columns: Column[]; rows: Row[] }> 
   contextmenu: EventCtor<{ item: Row; row: number; x: number; y: number }>; // right-click on a row
   activated: EventCtor<{ item: Row; row: number }>; // a row was double-clicked (opened)
   editable: boolean;
-  maxHeight: number; // height ceiling in px; the grid fits its rows up to this, then scrolls
   data(): Promise<Row[]>; // read all rows
   columnsOf(): Promise<Column[]>; // read the column defs
   setRows(rows: Row[]): void; // replace all rows
@@ -30,7 +31,7 @@ export interface TableWidget extends Widget<{ columns: Column[]; rows: Row[] }> 
 // cell edit is `set ["rows", r, key]` and a new row is `append ["rows"]`; the grid stays controlled by
 // the store on both tiers. Defaults to read-only (a display table); pass `editable: true` to let the
 // user edit cells.
-export function table(opts: { columns?: Column[]; rows?: Row[]; editable?: boolean; maxHeight?: number } = {}): TableWidget {
+export function table(opts: { columns?: Column[]; rows?: Row[]; editable?: boolean } = {}): TableWidget {
   return {
     type: "table",
     state: { columns: opts.columns ?? [], rows: opts.rows ?? [] },
@@ -38,7 +39,6 @@ export function table(opts: { columns?: Column[]; rows?: Row[]; editable?: boole
     contextmenu: event<{ item: Row; row: number; x: number; y: number }>("table.contextmenu"),
     activated: event<{ item: Row; row: number }>("table.activated"),
     editable: opts.editable ?? false,
-    maxHeight: opts.maxHeight ?? 500,
     ...controls,
     data(): Promise<Row[]> {
       return bound(this).read<Row[]>(this, ["rows"]);

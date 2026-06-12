@@ -3,6 +3,11 @@
 @layer tokens {
   :root {
     color-scheme: light;
+    --pu-col-xs: 80px;
+    --pu-col-sm: 120px;
+    --pu-col-md: 160px;
+    --pu-col-lg: 220px;
+    --pu-col-xl: 300px;
     --pu-bg: #f6f7f9;
     --pu-panel: #ffffff;
     --pu-surface-2: #f1f3f5;
@@ -110,6 +115,7 @@
     --pu-radius-sm: 8px;
     --pu-sidebar: 232px;
     --pu-rail: 48px;
+    --pu-pane: 440px;
   }
   [data-density="xs"] {
     --pu-font: 12.5px;
@@ -125,6 +131,7 @@
     --pu-radius-sm: 5px;
     --pu-sidebar: 168px;
     --pu-rail: 40px;
+    --pu-pane: 280px;
   }
   [data-density="sm"] {
     --pu-font: 13.5px;
@@ -140,6 +147,7 @@
     --pu-radius-sm: 6px;
     --pu-sidebar: 200px;
     --pu-rail: 44px;
+    --pu-pane: 360px;
   }
   [data-density="lg"] {
     --pu-font: 16.5px;
@@ -155,6 +163,7 @@
     --pu-radius-sm: 9px;
     --pu-sidebar: 272px;
     --pu-rail: 56px;
+    --pu-pane: 540px;
   }
   [data-density="xl"] {
     --pu-font: 18px;
@@ -170,6 +179,7 @@
     --pu-radius-sm: 11px;
     --pu-sidebar: 312px;
     --pu-rail: 64px;
+    --pu-pane: 640px;
   }
 }
 

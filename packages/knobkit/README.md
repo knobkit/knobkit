@@ -120,7 +120,7 @@ and methods are identical across both — only the last line changes.
 | `file()` | `set({ name?, url } \| url)` | offer a download |
 | `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
 | `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain) |
-| `chart({ x, y, kind?, data?, maxHeight? })` | `await data()`, `setData(rows)`, `push(point)` | `x` = category key; `y` = key or `string[]`; `kind` bar/line/area |
+| `chart({ x, y, kind?, data? })` | `await data()`, `setData(rows)`, `push(point)` | `x` = category key; `y` = key or `string[]`; `kind` bar/line/area; height follows density |
 | `frame({ src?, doc?, sandbox?, title? })` | `load(url)`, `show(doc)`, `clear()` | iframe; event `loaded` |
 
 **Editable or read-only:**
@@ -128,7 +128,7 @@ and methods are identical across both — only the last line changes.
 | Factory (defaults) | Events | Methods |
 |---|---|---|
 | `code({ value?, language?, editable?, wrap? })` | `changed` (string) | `await value()`, `set(src)`, `setLanguage(lang)`. `editable: false` = viewer; `wrap` soft-wraps |
-| `table({ columns?, rows?, editable?, maxHeight? })` | `edited` (`{ row, key, value }`) | `await data()`, `setRows`, `setColumns`, `addRow`, `setCell`. `Column: { key, label?, type?, width? }` |
+| `table({ columns?, rows?, editable? })` | `edited`, `activated`, `contextmenu` | `await data()`, `setRows`, `setColumns`, `addRow`, `setCell`. `Column: { key, label?, type?, width?: xs..xl }`; height follows density |
 
 **Custom:** `widget({ state, view, fold?, behavior? })` builds a widget from scratch — `state` is its
 data, `view(state, emit)` renders it, `fold` applies events to state.

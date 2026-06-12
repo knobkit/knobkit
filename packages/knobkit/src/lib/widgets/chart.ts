@@ -8,7 +8,6 @@ export interface ChartWidget extends Widget<{ data: Point[] }> {
   kind: "bar" | "line" | "area";
   x: string; // key for the category/x axis
   y: string | string[]; // one or more series keys to plot
-  maxHeight: number;
   data(): Promise<Point[]>;
   setData(data: Point[]): void; // replace the plotted data
   push(point: Point): void; // append one data point (append ["data"])
@@ -21,7 +20,6 @@ export function chart(opts: {
   y: string | string[];
   kind?: "bar" | "line" | "area";
   data?: Point[];
-  maxHeight?: number;
 }): ChartWidget {
   return {
     type: "chart",
@@ -29,7 +27,6 @@ export function chart(opts: {
     kind: opts.kind ?? "bar",
     x: opts.x,
     y: opts.y,
-    maxHeight: opts.maxHeight ?? 300,
     ...controls,
     data(): Promise<Point[]> {
       return bound(this).read<Point[]>(this, ["data"]);

@@ -1,10 +1,14 @@
 @layer components {
   .pu-chart {
     width: 100%;
+    height: var(--pu-pane);
     border: 1px solid var(--pu-border);
     border-radius: var(--pu-radius-sm);
     padding: 12px 8px 4px;
     background: var(--pu-panel);
+  }
+  [data-fill] .pu-chart {
+    height: 100%;
   }
   .pu-chart .recharts-cartesian-axis-tick text {
     fill: var(--pu-muted);
