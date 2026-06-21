@@ -1,0 +1,53 @@
+@layer components {
+  .pu-toast-container {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  .pu-toast {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 240px;
+    max-width: 400px;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    background: var(--pu-panel);
+    border: 1px solid var(--pu-border);
+    border-left: 4px solid var(--pu-info);
+    border-radius: var(--pu-radius-sm);
+    box-shadow: var(--pu-shadow-2);
+    font-size: var(--pu-font-sm);
+    color: var(--pu-text);
+    pointer-events: auto;
+    animation: pu-toast-slide-up 0.25s ease-out;
+  }
+  .pu-toast--info { border-left-color: var(--pu-info); }
+  .pu-toast--success { border-left-color: var(--pu-success); }
+  .pu-toast--warning { border-left-color: var(--pu-warning); }
+  .pu-toast--error { border-left-color: var(--pu-danger); }
+  .pu-toast-text {
+    flex: 1;
+  }
+  .pu-toast-close {
+    background: none;
+    border: none;
+    color: var(--pu-muted);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 2px;
+    flex-shrink: 0;
+  }
+  .pu-toast-close:hover {
+    color: var(--pu-text);
+  }
+  @keyframes pu-toast-slide-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}

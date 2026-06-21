@@ -1,0 +1,35 @@
+@layer components {
+  .pu-terminal {
+    width: 100%;
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    overflow: hidden;
+    background: var(--pu-field);
+    padding: 4px;
+  }
+  .pu-terminal:focus-within {
+    border-color: var(--pu-accent);
+    box-shadow: 0 0 0 3px var(--pu-ring);
+  }
+  .pu-terminal .xterm {
+    padding: 4px;
+  }
+  .pu-terminal .xterm-viewport {
+    overflow-y: auto;
+  }
+  .pu-terminal .xterm-viewport::-webkit-scrollbar {
+    width: 6px;
+  }
+  .pu-terminal .xterm-viewport::-webkit-scrollbar-thumb {
+    background: var(--pu-muted);
+    border-radius: 3px;
+  }
+  .pu-terminal-disabled {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  [data-fill] .pu-terminal {
+    height: 100%;
+  }
+}

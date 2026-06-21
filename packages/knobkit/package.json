@@ -77,6 +77,8 @@
     "@codemirror/view": "^6.43.0",
     "@lezer/highlight": "^1.2.0",
     "@revolist/react-datagrid": "^4.23.13",
+    "@xterm/xterm": "^5.5.0",
+    "@xterm/addon-fit": "^0.10.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-markdown": "^10.1.0",

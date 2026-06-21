@@ -1,0 +1,254 @@
+@layer components {
+  /* ── layout ────────────────────────────────────────────────────────── */
+  .pu-diff {
+    display: flex;
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius);
+    overflow: hidden;
+    background: var(--pu-bg);
+    min-height: 240px;
+    max-height: 600px;
+  }
+
+  /* ── file list sidebar ─────────────────────────────────────────────── */
+  .pu-diff-sidebar {
+    flex: 0 0 220px;
+    border-right: 1px solid var(--pu-border);
+    background: var(--pu-surface-2);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .pu-diff-sidebar-title {
+    padding: 8px 12px;
+    font-size: var(--pu-font-sm);
+    font-weight: 600;
+    color: var(--pu-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--pu-border);
+  }
+  .pu-diff-file {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: var(--pu-font-sm);
+    color: var(--pu-text);
+    cursor: pointer;
+    border: none;
+    background: none;
+    text-align: left;
+    width: 100%;
+    transition: background 0.12s ease;
+  }
+  .pu-diff-file:hover {
+    background: var(--pu-overlay);
+  }
+  .pu-diff-file[aria-selected="true"] {
+    background: var(--pu-accent-subtle);
+    color: var(--pu-accent);
+    font-weight: 500;
+  }
+  .pu-diff-file-icon {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .pu-diff-file-icon--added {
+    background: var(--pu-success);
+  }
+  .pu-diff-file-icon--modified {
+    background: var(--pu-warning);
+  }
+  .pu-diff-file-icon--deleted {
+    background: var(--pu-danger);
+  }
+  .pu-diff-file-icon--renamed {
+    background: var(--pu-accent);
+  }
+  .pu-diff-file-path {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── main content area ─────────────────────────────────────────────── */
+  .pu-diff-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── toolbar ───────────────────────────────────────────────────────── */
+  .pu-diff-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--pu-border);
+    background: var(--pu-field);
+    flex-wrap: wrap;
+  }
+  .pu-diff-toolbar-path {
+    flex: 1;
+    font-size: var(--pu-font-sm);
+    font-weight: 500;
+    color: var(--pu-text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pu-diff-mode-group {
+    display: flex;
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    overflow: hidden;
+  }
+  .pu-diff-mode-btn {
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    border: none;
+    background: var(--pu-bg);
+    color: var(--pu-muted);
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  .pu-diff-mode-btn + .pu-diff-mode-btn {
+    border-left: 1px solid var(--pu-border);
+  }
+  .pu-diff-mode-btn[aria-pressed="true"] {
+    background: var(--pu-accent);
+    color: var(--pu-on-accent);
+  }
+  .pu-diff-action {
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--pu-radius-sm);
+    cursor: pointer;
+    transition: opacity 0.12s ease;
+  }
+  .pu-diff-action:hover {
+    opacity: 0.85;
+  }
+  .pu-diff-accept {
+    background: var(--pu-success);
+    color: var(--pu-on-accent);
+  }
+  .pu-diff-reject {
+    background: var(--pu-danger);
+    color: var(--pu-on-accent);
+  }
+
+  /* ── diff content scroll area ──────────────────────────────────────── */
+  .pu-diff-content {
+    flex: 1;
+    overflow: auto;
+  }
+
+  /* ── unified diff table ────────────────────────────────────────────── */
+  .pu-diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: var(--pu-font-sm);
+    line-height: 1.55;
+    table-layout: fixed;
+  }
+  .pu-diff-table td {
+    padding: 0 8px;
+    vertical-align: top;
+    white-space: pre;
+    overflow: hidden;
+  }
+
+  /* line number gutters */
+  .pu-diff-ln {
+    width: 48px;
+    min-width: 48px;
+    text-align: right;
+    color: var(--pu-muted);
+    user-select: none;
+    opacity: 0.6;
+    font-size: 11px;
+    padding-right: 6px;
+    border-right: 1px solid var(--pu-border);
+  }
+  .pu-diff-ln + .pu-diff-ln {
+    border-right: none;
+    border-left: 1px solid var(--pu-border);
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  /* sign column (+/-/space) */
+  .pu-diff-sign {
+    width: 20px;
+    min-width: 20px;
+    text-align: center;
+    color: var(--pu-muted);
+    user-select: none;
+    font-weight: 600;
+  }
+
+  /* code cell */
+  .pu-diff-code {
+    width: auto;
+  }
+
+  /* row backgrounds */
+  .pu-diff-row--add {
+    background: color-mix(in srgb, var(--pu-success) 8%, transparent);
+  }
+  .pu-diff-row--add .pu-diff-sign {
+    color: var(--pu-success);
+  }
+  .pu-diff-row--remove {
+    background: color-mix(in srgb, var(--pu-danger) 8%, transparent);
+  }
+  .pu-diff-row--remove .pu-diff-sign {
+    color: var(--pu-danger);
+  }
+
+  /* ── split view ────────────────────────────────────────────────────── */
+  .pu-diff-split {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  .pu-diff-split-pane {
+    flex: 1;
+    overflow: auto;
+  }
+  .pu-diff-split-pane + .pu-diff-split-pane {
+    border-left: 1px solid var(--pu-border);
+  }
+  .pu-diff-split-header {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--pu-muted);
+    background: var(--pu-field);
+    border-bottom: 1px solid var(--pu-border);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── empty state ───────────────────────────────────────────────────── */
+  .pu-diff-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: var(--pu-muted);
+    font-size: var(--pu-font-sm);
+    padding: 40px 20px;
+    text-align: center;
+  }
+}

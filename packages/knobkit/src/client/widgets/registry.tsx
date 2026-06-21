@@ -31,6 +31,14 @@ import { WebcamView } from "./webcam/index.js";
 import { LayoutView } from "./layout/index.js";
 import { TabsView } from "./tabs/index.js";
 import { AccordionView } from "./accordion/index.js";
+import { TerminalView } from "./terminal/lazy.js";
+import { DiffView } from "./diff/index.js";
+import { StatusBadgeView } from "./status-badge/index.js";
+import { ToolbarView } from "./toolbar/index.js";
+import { SplitPaneView } from "./split-pane/index.js";
+import { ToastView } from "./toast/index.js";
+import { TreeView } from "./tree/index.js";
+import { SidebarView } from "./sidebar/index.js";
 
 // the only place that maps a widget's `type` to its React view
 export const VIEWS: Record<string, WidgetView> = {
@@ -68,4 +76,13 @@ export const VIEWS: Record<string, WidgetView> = {
   grid: LayoutView,
   tabs: TabsView,
   accordion: AccordionView,
+  terminal: TerminalView,
+  diff: DiffView,
+  statusBadge: StatusBadgeView,
+  toolbar: ToolbarView,
+  splitPane: SplitPaneView,
+  toast: ToastView,
+  tree: TreeView,
+  sidebar: SidebarView,
 };
+

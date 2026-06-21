@@ -1,0 +1,100 @@
+@layer components {
+  .pu-sidebar {
+    width: 240px;
+    background: var(--pu-panel);
+    border-right: 1px solid var(--pu-border);
+    display: flex;
+    flex-direction: column;
+    padding: var(--pu-pad) 0;
+    overflow-y: auto;
+    flex-shrink: 0;
+    transition: width 0.15s ease;
+  }
+  .pu-sidebar--collapsed {
+    width: 48px;
+    align-items: center;
+  }
+  .pu-sidebar-toggle {
+    background: none;
+    border: none;
+    color: var(--pu-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    margin: 0 8px 8px;
+    font-size: var(--pu-font-sm);
+    text-align: right;
+    align-self: flex-end;
+  }
+  .pu-sidebar--collapsed .pu-sidebar-toggle {
+    align-self: center;
+    text-align: center;
+    margin: 0 0 8px;
+  }
+  .pu-sidebar-toggle:hover {
+    color: var(--pu-text);
+  }
+  .pu-sidebar-section {
+    margin-bottom: 8px;
+  }
+  .pu-sidebar-section-label {
+    padding: 4px 16px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pu-muted);
+  }
+  .pu-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 16px;
+    border: none;
+    background: none;
+    color: var(--pu-text);
+    font: inherit;
+    font-size: var(--pu-font-sm);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.1s;
+  }
+  .pu-sidebar--collapsed .pu-sidebar-item {
+    justify-content: center;
+    padding: 8px;
+  }
+  .pu-sidebar-item:hover {
+    background: var(--pu-surface-2);
+  }
+  .pu-sidebar-item--selected {
+    background: var(--pu-accent-subtle);
+  }
+  .pu-sidebar-item--selected:hover {
+    background: var(--pu-accent-subtle);
+  }
+  .pu-sidebar-icon {
+    font-size: 1em;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .pu-sidebar-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pu-sidebar-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: var(--pu-surface-2);
+    color: var(--pu-muted);
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+  .pu-sidebar-badge--info { background: var(--pu-info); color: var(--pu-on-accent); }
+  .pu-sidebar-badge--success { background: var(--pu-success); color: var(--pu-on-accent); }
+  .pu-sidebar-badge--warning { background: var(--pu-warning); color: var(--pu-on-accent); }
+  .pu-sidebar-badge--danger { background: var(--pu-danger); color: var(--pu-on-accent); }
+}

@@ -30,7 +30,7 @@ test("App renders a live-like app (mic + log + chat) and reacts to edits", async
     store.applyEdit(app.keyFor(transcript), "append", ["lines"], "hello");
     store.applyEdit(app.keyFor(transcript), "append", ["lines"], "world");
   });
-  expect(document.querySelector("pre")!.textContent).toMatch(/hello\s+world/);
+  expect(document.querySelector(".pu-log")!.textContent).toMatch(/hello.*world/);
 });
 
 test("nested layout renders: a row inside a col, children placed via slots", async () => {

@@ -1,0 +1,46 @@
+@layer components {
+  .pu-tree {
+    font-size: var(--pu-font-sm);
+    color: var(--pu-text);
+    user-select: none;
+  }
+  .pu-tree-node {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: var(--pu-radius-sm);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .pu-tree-node:hover {
+    background: var(--pu-surface-2);
+  }
+  .pu-tree-node--selected {
+    background: var(--pu-accent-subtle);
+  }
+  .pu-tree-node--selected:hover {
+    background: var(--pu-accent-subtle);
+  }
+  .pu-tree-toggle {
+    width: 16px;
+    text-align: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    color: var(--pu-muted);
+  }
+  .pu-tree-toggle--leaf {
+    visibility: hidden;
+  }
+  .pu-tree-icon {
+    flex-shrink: 0;
+    font-size: 1em;
+    line-height: 1;
+  }
+  .pu-tree-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

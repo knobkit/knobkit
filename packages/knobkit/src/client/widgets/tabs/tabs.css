@@ -8,6 +8,10 @@
     display: flex;
     gap: 4px;
     border-bottom: 1px solid var(--pu-border);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
   }
   .pu-tab {
     appearance: none;
@@ -19,6 +23,11 @@
     color: var(--pu-muted);
     border-bottom: 2px solid transparent;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .pu-tab:hover {
     color: var(--pu-text);
@@ -26,5 +35,45 @@
   .pu-tab-active {
     color: var(--pu-accent);
     border-bottom-color: var(--pu-accent);
+  }
+
+  /* Tab label */
+  .pu-tab-label {
+    pointer-events: none;
+  }
+
+  /* Badge */
+  .pu-tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 9px;
+    background: var(--pu-accent);
+    color: var(--pu-on-accent);
+  }
+
+  /* Close button */
+  .pu-tab-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    line-height: 1;
+    opacity: 0.5;
+    transition: opacity 0.15s, background 0.15s;
+    cursor: pointer;
+  }
+  .pu-tab-close:hover {
+    opacity: 1;
+    background: var(--pu-border);
   }
 }
