@@ -1,0 +1,14 @@
+{
+  "name": "knobkit-example-agent-dashboard",
+  "private": true,
+  "type": "module",
+  "main": "demo.tsx",
+  "scripts": {
+    "dev": "knobkit dev",
+    "build": "knobkit build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "knobkit": "workspace:*"
+  }
+}
