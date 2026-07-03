@@ -19,5 +19,6 @@ jobs:
       # Only the knobkit package — examples (heavy ML deps) are out of scope for now.
       - run: pnpm install --frozen-lockfile --filter knobkit...
       - run: pnpm -F knobkit typecheck
-      - run: pnpm -F knobkit test
+      # Build before testing so the dist/browser smoke test exercises the release artifact.
       - run: pnpm -F knobkit build
+      - run: pnpm -F knobkit test

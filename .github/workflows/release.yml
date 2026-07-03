@@ -43,10 +43,11 @@ jobs:
       # publish on the same checks here rather than trusting the tagged commit
       # already went green on main.
       - run: pnpm -F knobkit typecheck
-      - run: pnpm -F knobkit test
       # Build up front so a broken build fails the job before any publish, rather
       # than mid-way through `prepublishOnly` with one package already pushed.
+      # Tests run after this so the dist/browser smoke test exercises the release artifact.
       - run: pnpm -F knobkit build
+      - run: pnpm -F knobkit test
       - name: Publish knobkit
         working-directory: packages/knobkit
         run: npm publish --access public
