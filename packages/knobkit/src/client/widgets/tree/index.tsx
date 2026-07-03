@@ -1,9 +1,7 @@
 import "./tree.css";
-import { useRef, type ReactNode } from "react";
+import { useRef, type MouseEvent, type ReactNode } from "react";
 import type { ViewProps } from "../../view.js";
-import type { TreeWidget, TreeNode } from "../../../lib/widgets/tree.js";
-
-type S = { nodes: TreeNode[]; expanded: string[]; selected: string | null; editing: string | null };
+import type { TreeWidget, TreeNode, TreeState } from "../../../lib/widgets/tree.js";
 
 function RenameInput({ value, onCommit, onCancel }: { value: string; onCommit: (v: string) => void; onCancel: () => void }) {
   const done = useRef(false);
@@ -29,7 +27,7 @@ function RenameInput({ value, onCommit, onCancel }: { value: string; onCommit: (
   );
 }
 
-export function TreeView({ widget, state, emit, set }: ViewProps<TreeWidget, S>) {
+export function TreeView({ widget, state, emit, set }: ViewProps<TreeWidget, TreeState>) {
   const expanded = new Set(state.expanded ?? []);
   const selected = state.selected ?? null;
   const editing = state.editing ?? null;
@@ -40,14 +38,14 @@ export function TreeView({ widget, state, emit, set }: ViewProps<TreeWidget, S>)
     set(["expanded"], next);
     emit(open ? widget.collapsed({ id }) : widget.expanded({ id }));
   };
-  const choose = (id: string) => {
-    set(["selected"], id);
-    emit(widget.selected({ id }));
+  const choose = (node: TreeNode) => {
+    set(["selected"], node.id);
+    emit(widget.selected({ id: node.id, data: node.data }));
   };
-  const contextmenu = (id: string, e: React.MouseEvent) => {
+  const contextmenu = (node: TreeNode, e: MouseEvent) => {
     e.preventDefault();
-    set(["selected"], id);
-    emit(widget.contextmenu({ id, x: e.clientX, y: e.clientY }));
+    set(["selected"], node.id);
+    emit(widget.contextmenu({ id: node.id, x: e.clientX, y: e.clientY, data: node.data }));
   };
   const commitRename = (id: string, value: string) => {
     set(["editing"], null);
@@ -64,9 +62,9 @@ export function TreeView({ widget, state, emit, set }: ViewProps<TreeWidget, S>)
         <div
           className={`pu-tree-row${node.id === selected ? " pu-tree-row-selected" : ""}`}
           style={{ paddingLeft: `calc(${depth} * var(--pu-gap) + var(--pu-cpad-x))` }}
-          onClick={() => choose(node.id)}
-          onDoubleClick={() => emit(widget.activated({ id: node.id }))}
-          onContextMenu={(e) => contextmenu(node.id, e)}
+          onClick={() => choose(node)}
+          onDoubleClick={() => emit(widget.activated({ id: node.id, data: node.data }))}
+          onContextMenu={(e) => contextmenu(node, e)}
         >
           <span
             className={`pu-tree-twist${folder ? "" : " pu-tree-twist-leaf"}`}

@@ -1,0 +1,59 @@
+@layer components {
+  .pu-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    background: var(--pu-panel);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius);
+  }
+  .pu-toolbar-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--pu-border);
+    margin: 0 4px;
+    flex-shrink: 0;
+  }
+  .pu-toolbar-btn {
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-field);
+    color: var(--pu-text);
+    font: inherit;
+    font-size: var(--pu-font-sm);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .pu-toolbar-btn:hover:not(:disabled) {
+    background: var(--pu-surface-2);
+  }
+  .pu-toolbar-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .pu-toolbar-btn--primary {
+    background: var(--pu-accent);
+    color: var(--pu-on-accent);
+    border-color: var(--pu-accent);
+  }
+  .pu-toolbar-btn--primary:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+  .pu-toolbar-btn--danger {
+    background: var(--pu-danger);
+    color: var(--pu-on-accent);
+    border-color: var(--pu-danger);
+  }
+  .pu-toolbar-btn--danger:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+  .pu-toolbar-icon {
+    font-size: 1em;
+    line-height: 1;
+  }
+}

@@ -31,6 +31,11 @@ import { WebcamView } from "./webcam/index.js";
 import { LayoutView } from "./layout/index.js";
 import { TabsView } from "./tabs/index.js";
 import { AccordionView } from "./accordion/index.js";
+import { DiffView } from "./diff/index.js";
+import { StatusBadgeView } from "./status-badge/index.js";
+import { ToolbarView } from "./toolbar/index.js";
+import { SplitPaneView } from "./split-pane/index.js";
+import { ToastView } from "./toast/index.js";
 import { TreeView } from "./tree/index.js";
 import { BreadcrumbView } from "./breadcrumb/index.js";
 import { MenuView } from "./menu/index.js";
@@ -72,6 +77,11 @@ export const VIEWS: Record<string, WidgetView> = {
   grid: LayoutView,
   tabs: TabsView,
   accordion: AccordionView,
+  diff: DiffView,
+  statusBadge: StatusBadgeView,
+  toolbar: ToolbarView,
+  splitPane: SplitPaneView,
+  toast: ToastView,
   tree: TreeView,
   breadcrumb: BreadcrumbView,
   menu: MenuView,

@@ -9,26 +9,30 @@ export interface TreeNode {
   icon?: string;
   children?: TreeNode[];
   hasChildren?: boolean;
+  data?: unknown;
 }
 
-type TreeState = { nodes: TreeNode[]; expanded: string[]; selected: string | null; editing: string | null };
+export type TreeState = { nodes: TreeNode[]; expanded: string[]; selected: string | null; editing: string | null };
 
 export interface TreeWidget extends Widget<TreeState> {
-  selected: EventCtor<{ id: string }>;
-  activated: EventCtor<{ id: string }>;
+  selected: EventCtor<{ id: string; data?: unknown }>;
+  activated: EventCtor<{ id: string; data?: unknown }>;
   expanded: EventCtor<{ id: string }>;
   collapsed: EventCtor<{ id: string }>;
-  contextmenu: EventCtor<{ id: string; x: number; y: number }>;
+  contextmenu: EventCtor<{ id: string; x: number; y: number; data?: unknown }>;
   renamed: EventCtor<{ id: string; name: string }>;
   nodes(): Promise<TreeNode[]>;
   selection(): Promise<string | null>;
   setNodes(nodes: TreeNode[]): void;
   select(id: string | null): void;
+  setSelected(id: string | null): void;
   expand(id: string): Promise<void>;
   collapse(id: string): Promise<void>;
   setChildren(id: string, children: TreeNode[]): Promise<void>;
   rename(id: string): void;
 }
+
+export type TreeOptions = { nodes?: TreeNode[]; expanded?: string[]; selected?: string | null };
 
 function mapNode(nodes: TreeNode[], id: string, fn: (n: TreeNode) => TreeNode): TreeNode[] {
   return nodes.map((n) =>
@@ -36,15 +40,25 @@ function mapNode(nodes: TreeNode[], id: string, fn: (n: TreeNode) => TreeNode): 
   );
 }
 
-export function tree(opts: { nodes?: TreeNode[]; expanded?: string[]; selected?: string | null } = {}): TreeWidget {
+function normalizeOptions(opts: TreeOptions | TreeNode[]): TreeOptions {
+  return Array.isArray(opts) ? { nodes: opts } : opts;
+}
+
+export function tree(opts: TreeOptions | TreeNode[] = {}): TreeWidget {
+  const normalized = normalizeOptions(opts);
   return {
     type: "tree",
-    state: { nodes: opts.nodes ?? [], expanded: opts.expanded ?? [], selected: opts.selected ?? null, editing: null },
-    selected: event<{ id: string }>("tree.selected"),
-    activated: event<{ id: string }>("tree.activated"),
+    state: {
+      nodes: normalized.nodes ?? [],
+      expanded: normalized.expanded ?? [],
+      selected: normalized.selected ?? null,
+      editing: null,
+    },
+    selected: event<{ id: string; data?: unknown }>("tree.selected"),
+    activated: event<{ id: string; data?: unknown }>("tree.activated"),
     expanded: event<{ id: string }>("tree.expanded"),
     collapsed: event<{ id: string }>("tree.collapsed"),
-    contextmenu: event<{ id: string; x: number; y: number }>("tree.contextmenu"),
+    contextmenu: event<{ id: string; x: number; y: number; data?: unknown }>("tree.contextmenu"),
     renamed: event<{ id: string; name: string }>("tree.renamed"),
     ...controls,
     nodes(): Promise<TreeNode[]> {
@@ -57,6 +71,9 @@ export function tree(opts: { nodes?: TreeNode[]; expanded?: string[]; selected?:
       bound(this).edit(this, "set", ["nodes"], nodes);
     },
     select(id: string | null): void {
+      bound(this).edit(this, "set", ["selected"], id);
+    },
+    setSelected(id: string | null): void {
       bound(this).edit(this, "set", ["selected"], id);
     },
     async expand(id: string): Promise<void> {

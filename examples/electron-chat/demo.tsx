@@ -1,4 +1,5 @@
 import { knobkit, chat } from "knobkit";
+// @ts-expect-error Transformers.js exposes these at runtime, but 4.2.0's barrel types omit them under bundler resolution.
 import { AutoProcessor, Qwen3_5ForConditionalGeneration, RawImage, TextStreamer } from "@huggingface/transformers";
 
 const MODEL = "onnx-community/Qwen3.5-0.8B-ONNX";

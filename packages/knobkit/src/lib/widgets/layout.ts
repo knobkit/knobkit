@@ -64,11 +64,27 @@ export const grid = (children: Widget<any>[], opts: { cols?: number } = {}): Lay
 
 // Tabbed container: each panel is a labelled child. `labels` rides alongside `items` (the child keys)
 // in the same order; the active tab is view-local state, so switching tabs never round-trips.
-export const tabs = (panels: { label: string; content: Widget<any> }[]): LayoutWidget =>
+// Per-panel options: `closable` (show × button), `badge` (counter/status next to label).
+export interface TabPanel {
+  label: string;
+  content: Widget<any>;
+  closable?: boolean;
+  badge?: string;
+}
+
+export interface TabsOpts {
+  defaultClosable?: boolean;
+}
+
+export const tabs = (panels: TabPanel[], opts: TabsOpts = {}): LayoutWidget =>
   container(
     "tabs",
     panels.map((p) => p.content),
-    { labels: panels.map((p) => p.label) },
+    {
+      labels: panels.map((p) => p.label),
+      closable: panels.map((p) => p.closable ?? opts.defaultClosable ?? false),
+      badges: panels.map((p) => p.badge ?? null),
+    },
   );
 
 // A single collapsible section. `open` is the initial state; toggling it is view-local.

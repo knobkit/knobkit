@@ -1,0 +1,68 @@
+@layer components {
+  .pu-log {
+    display: flex;
+    flex-direction: column;
+    font-family: "SF Mono", "Cascadia Code", "Fira Code", "Menlo", monospace;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius, 6px);
+    background: var(--pu-surface-2);
+    overflow: hidden;
+  }
+
+  .pu-log-lines {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: auto;
+    padding: 8px 10px;
+    scroll-behavior: smooth;
+  }
+
+  .pu-log-line {
+    white-space: pre;
+    padding: 1px 0;
+  }
+
+  /* Severity coloring */
+  .pu-log-line--info {
+    color: var(--pu-text);
+  }
+  .pu-log-line--warn {
+    color: var(--pu-warning);
+  }
+  .pu-log-line--error {
+    color: var(--pu-danger);
+  }
+  .pu-log-line--debug {
+    color: var(--pu-muted);
+  }
+
+  /* ANSI color spans */
+  .pu-ansi-bold {
+    font-weight: 700;
+  }
+  .pu-ansi-red {
+    color: var(--pu-danger);
+  }
+  .pu-ansi-green {
+    color: var(--pu-success);
+  }
+  .pu-ansi-yellow {
+    color: var(--pu-warning);
+  }
+  .pu-ansi-blue {
+    color: var(--pu-info);
+  }
+
+  /* Footer */
+  .pu-log-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    color: var(--pu-muted);
+    border-top: 1px solid var(--pu-border);
+    user-select: none;
+  }
+}

@@ -3,7 +3,8 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    font-size: var(--pu-font);
+    color: var(--pu-text);
+    font-size: var(--pu-font-sm);
     user-select: none;
   }
   .pu-tree ul {
@@ -45,8 +46,11 @@
   }
   .pu-tree-icon {
     flex: none;
+    line-height: 1;
   }
   .pu-tree-label {
+    flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
   }
