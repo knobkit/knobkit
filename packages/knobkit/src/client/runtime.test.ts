@@ -1,64 +1,154 @@
-import { test, expect } from "vitest";
-import { knobkit } from "../lib/knobkit.js";
-import { chat, log, text } from "../lib/widgets/index.js";
-import { declare } from "../lib/declare.js";
-import { createStore, type Transport } from "./runtime.js";
-import type { Knobkit } from "../lib/knobkit.js";
+import { expect, test } from "vitest";
+import { knobkit, type Knobkit } from "../lib/knobkit.js";
+import { declare, type AppDecl } from "../lib/declare.js";
+import { button, chat, log, text } from "../lib/widgets/index.js";
+import { createStore, type Store, type Transport } from "./runtime.js";
 
-function storeFor(app: Knobkit) {
+function storeFor(app: Knobkit): { store: Store; routed: { type: string; payload: unknown }[] } {
   const routed: { type: string; payload: unknown }[] = [];
   const transport: Transport = (type, payload) => routed.push({ type, payload });
   return { store: createStore(declare(app.config, app.serverEvents()), transport), routed };
 }
 
-test("applyEdit set/append/appendText mutate structured state by path", () => {
-  const convo = chat();
+test("structured edits update only the targeted widget and preserve immutable cell snapshots", () => {
+  const box = text();
   const lines = log();
-  const box = text();
-  const app = knobkit({ widgets: [convo, lines, box] });
-  const { store } = storeFor(app);
-
-  store.applyEdit(app.keyFor(box), "set", ["value"], "hi");
-  expect(store.read(app.keyFor(box), ["value"])).toBe("hi");
-
-  store.applyEdit(app.keyFor(lines), "append", ["lines"], "a");
-  store.applyEdit(app.keyFor(lines), "append", ["lines"], "b");
-  expect(store.read(app.keyFor(lines), ["lines"])).toEqual(["a", "b"]);
-
-  store.applyEdit(app.keyFor(convo), "append", ["messages"], { role: "assistant", content: "" });
-  store.applyEdit(app.keyFor(convo), "appendText", ["messages", -1, "content"], "hel");
-  store.applyEdit(app.keyFor(convo), "appendText", ["messages", -1, "content"], "lo");
-  expect(store.read(app.keyFor(convo), ["messages"])).toEqual([{ role: "assistant", content: "hello" }]);
-});
-
-test("an event routes to the transport only if it has a handler", () => {
   const convo = chat();
-  const app = knobkit({ widgets: [convo] }).on(convo.sent, () => {});
-  const { store, routed } = storeFor(app);
-  store.emit(convo.sent.type, "hi");
-  expect(routed).toEqual([{ type: convo.sent.type, payload: "hi" }]);
-  store.emit(convo.recorded.type, new Float32Array()); // no handler registered
-  expect(routed).toHaveLength(1);
+  const app = knobkit({ widgets: [box, lines, convo] });
+  const { store } = storeFor(app);
+  const boxKey = app.keyFor(box);
+  const linesKey = app.keyFor(lines);
+  const convoKey = app.keyFor(convo);
+  const beforeBox = store.cell(boxKey);
+  const beforeLines = store.cell(linesKey);
+
+  store.applyEdit(boxKey, "set", ["value"], "hello");
+  expect(store.read(boxKey, ["value"])).toBe("hello");
+  expect(beforeBox.state).toEqual({ value: "" });
+  expect(store.cell(boxKey)).not.toBe(beforeBox);
+  expect(store.cell(linesKey)).toBe(beforeLines);
+
+  store.applyEdit(linesKey, "append", ["lines"], "first");
+  store.applyEdit(linesKey, "append", ["lines"], "second");
+  expect(store.read(linesKey, ["lines"])).toEqual(["first", "second"]);
+
+  store.applyEdit(convoKey, "append", ["messages"], { role: "assistant", content: "" });
+  store.applyEdit(convoKey, "appendText", ["messages", -1, "content"], "hel");
+  store.applyEdit(convoKey, "appendText", ["messages", -1, "content"], "lo");
+  expect(store.read(convoKey, ["messages", -1, "content"])).toBe("hello");
+
+  store.applyEdit(boxKey, "set", ["meta", "dirty"], true);
+  expect(store.read(boxKey, [])).toEqual({ value: "hello", meta: { dirty: true } });
 });
 
-test("a disabled widget drops its own input events; enabling restores them", () => {
+test("subscriptions are key-scoped, unsubscribe cleanly, and no-op flag changes do not notify", () => {
   const box = text();
-  const app = knobkit({ widgets: [box] }).on(box.changed, () => {});
-  const { store, routed } = storeFor(app);
-  const key = app.keyFor(box);
-  store.setEnabled(key, false);
-  expect(store.enabled(key)).toBe(false);
-  store.emit(box.changed.type, "x");
-  expect(routed).toHaveLength(0); // dropped: authoritative
-  store.setEnabled(key, true);
-  store.emit(box.changed.type, "y");
-  expect(routed).toEqual([{ type: box.changed.type, payload: "y" }]);
+  const other = text();
+  const app = knobkit({ widgets: [box, other] });
+  const { store } = storeFor(app);
+  const boxKey = app.keyFor(box);
+  const otherKey = app.keyFor(other);
+  let boxNotifications = 0;
+  let otherNotifications = 0;
+  const unsubscribeBox = store.subscribe(boxKey, () => {
+    boxNotifications++;
+  });
+  store.subscribe(otherKey, () => {
+    otherNotifications++;
+  });
+
+  store.applyEdit(boxKey, "set", ["value"], "a");
+  expect(boxNotifications).toBe(1);
+  expect(otherNotifications).toBe(0);
+
+  store.setEnabled(boxKey, false);
+  store.setEnabled(boxKey, false);
+  expect(boxNotifications).toBe(2);
+  expect(store.enabled(boxKey)).toBe(false);
+  expect(store.cell(boxKey).enabled).toBe(false);
+
+  store.setBusy(otherKey, true);
+  store.setBusy(otherKey, true);
+  expect(otherNotifications).toBe(1);
+  expect(store.cell(otherKey).busy).toBe(true);
+
+  unsubscribeBox();
+  store.applyEdit(boxKey, "set", ["value"], "b");
+  store.setEnabled("missing", false);
+  store.applyEdit("missing", "set", ["value"], "ignored");
+  expect(boxNotifications).toBe(2);
+  expect(otherNotifications).toBe(1);
 });
 
-test("read walks a path and returns undefined for a missing one", () => {
+test("events route only for registered handlers and are gated by their source widget state", () => {
+  const box = text();
+  const run = button({ label: "Run" });
+  const app = knobkit({ widgets: [box, run] }).on(box.changed, () => {});
+  const { store, routed } = storeFor(app);
+  const boxKey = app.keyFor(box);
+
+  store.emit(run.clicked.type, undefined);
+  expect(routed).toEqual([]);
+
+  store.emit(box.changed.type, "a");
+  expect(routed).toEqual([{ type: box.changed.type, payload: "a" }]);
+
+  store.setBusy(boxKey, true);
+  store.emit(box.changed.type, "busy");
+  expect(routed).toHaveLength(1);
+
+  store.setBusy(boxKey, false);
+  store.setEnabled(boxKey, false);
+  store.emit(box.changed.type, "disabled");
+  expect(routed).toHaveLength(1);
+
+  store.setEnabled(boxKey, true);
+  store.emit(box.changed.type, "b");
+  expect(routed).toEqual([
+    { type: box.changed.type, payload: "a" },
+    { type: box.changed.type, payload: "b" },
+  ]);
+});
+
+test("server events without a widget owner still route through the transport", () => {
+  const decl: AppDecl = {
+    widgets: [
+      {
+        key: "plain-0",
+        type: "plain",
+        state: { value: "local" },
+        enabled: true,
+        props: {},
+        events: {},
+      },
+    ],
+    root: "plain-0",
+    serverEvents: ["external.event"],
+  };
+  const routed: { type: string; payload: unknown }[] = [];
+  const store = createStore(decl, (type, payload) => routed.push({ type, payload }));
+
+  store.emit("external.event", { id: 1 });
+  store.setBusy("plain-0", true);
+  store.setEnabled("plain-0", false);
+  store.emit("external.event", { id: 2 });
+
+  expect(routed).toEqual([
+    { type: "external.event", payload: { id: 1 } },
+    { type: "external.event", payload: { id: 2 } },
+  ]);
+});
+
+test("reads return undefined for missing paths without mutating state", () => {
   const convo = chat();
   const app = knobkit({ widgets: [convo] });
   const { store } = storeFor(app);
-  expect(store.read(app.keyFor(convo), ["messages"])).toEqual([]);
-  expect(store.read(app.keyFor(convo), ["nope"])).toBeUndefined();
+  const key = app.keyFor(convo);
+  const before = store.cell(key);
+
+  expect(store.read(key, ["messages"])).toEqual([]);
+  expect(store.read(key, ["messages", -1, "content"])).toBeUndefined();
+  expect(store.read(key, ["nope", "nested"])).toBeUndefined();
+  expect(store.read("missing", ["anything"])).toBeUndefined();
+  expect(store.cell(key)).toBe(before);
 });
