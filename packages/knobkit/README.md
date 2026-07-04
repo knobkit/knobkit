@@ -194,8 +194,9 @@ pnpm -F knobkit test    # vitest
 pnpm typecheck          # all packages
 ```
 
-See [CLAUDE.md](https://github.com/knobkit/knobkit/blob/main/CLAUDE.md) for the architecture and how to
-add a widget.
+See [docs/architecture.md](https://github.com/knobkit/knobkit/blob/main/docs/architecture.md) for the
+internal design and [docs/contributing.md](https://github.com/knobkit/knobkit/blob/main/docs/contributing.md)
+for maintenance workflow and how to add a widget.
 
 ## License
 
