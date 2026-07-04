@@ -8,9 +8,10 @@ the last line to swap. **The browser owns all state** — the server keeps none,
 
 **[knobkit.dev](https://knobkit.dev)** — 30-second tour + a live playground (nothing to install).
 
-> 🛠️ **Building with an AI agent?** The **[knobkit-skills](https://github.com/knobkit/knobkit-skills)**
-> Agent Skill is the recommended way to scaffold and build a knobkit app fast — works in Claude Code
-> or any [Agent Skills](https://agentskills.io)–compatible agent.
+> 🛠️ **Building with an AI agent?** The **[knobkit Agent Skill](https://github.com/knobkit/knobkit/tree/main/skills/knobkit)**
+> is versioned with this repo and is the recommended way to scaffold and build a knobkit app fast —
+> works in Claude Code or any [Agent Skills](https://agentskills.io)–compatible agent.
+> In Claude Code: `/plugin marketplace add knobkit/knobkit`, then `/plugin install knobkit@knobkit`.
 
 <a href="https://knobkit.dev"><img src="https://knobkit.dev/demo.gif" alt="knobkit — scaffold, run the dev server, edit, watch the browser update live" width="100%" /></a>
 

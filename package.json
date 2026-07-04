@@ -11,7 +11,8 @@
   "scripts": {
     "build": "pnpm -F knobkit build",
     "test": "pnpm -F knobkit test",
-    "typecheck": "pnpm -r --if-present run typecheck"
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "verify:skill": "node skills/knobkit/references/verify.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Knobkit"
+  short_description: "Build runnable knobkit apps"
+  default_prompt: "Use $knobkit to build a runnable knobkit demo app."

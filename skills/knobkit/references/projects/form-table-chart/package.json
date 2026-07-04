@@ -1,0 +1,17 @@
+{
+  "name": "knobkit-ref-form-table-chart",
+  "private": true,
+  "type": "module",
+  "main": "demo.tsx",
+  "scripts": {
+    "dev": "knobkit dev",
+    "build": "knobkit build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "knobkit": "^0.0.8"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}
