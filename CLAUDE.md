@@ -4,178 +4,164 @@ Guidance for working in this repo. Pairs with [README.md](./README.md) (user-fac
 
 ## What knobkit is
 
-A widget + event framework. The **browser owns all state**; `on(event, handler)` handlers run either in
-the browser (`mount`) or on a **stateless** Node server (`serve`) that pulls the state it reads on
-demand and writes by sending structured edits. The same authored `demo.tsx` runs either tier — only the
-final `mount()`/`serve()` call differs.
+A widget + event framework. The **browser owns all state** as one structured document; `on(event,
+handler)` handlers run either in the browser (`mount`) or on a **stateless** Node server (`serve`)
+that pulls the state it reads on demand and writes by sending structured edits. The same authored
+`demo.tsx` runs either tier — only the final `mount()`/`serve()` call differs.
 
 ## Layout
 
-Monorepo (pnpm): one package `packages/knobkit`, examples in `examples/*`.
+Monorepo (pnpm): kernel `packages/core` (`@knobkit/core`), standard library `packages/knobkit` (`knobkit`),
+examples in `examples/*`.
 
 ```
-packages/knobkit/src/
-  lib/        isomorphic: knobkit.ts (authoring + handler registry + setup()), declare.ts (the decl),
-              bound.ts (ambient context resolver + Bound: read/edit/enable/busy), ctx.ts (makeBound
-              from transport fns), controls.ts (enable/disable/setEnabled/busy/busyStart/busyEnd),
-              stream.ts (push -> AsyncGenerator), event.ts, on.ts, types.ts, widget.ts,
-              widgets/*.ts (structure + read/edit methods)
-  client/     browser: runtime.ts (the store), app.tsx (render), entry.tsx (serve bootstrap),
-              mount.tsx, context.ts (browser ctx), widgets/<name>/index.tsx + .css (views),
-              widgets/registry.tsx (type -> view)
-  server/     node: serve.ts (http + socket.io), context.ts (AsyncLocalStorage ctx)
-  cli/        `knobkit` bin: index.ts (parse + dispatch), config.ts (vite mount config), mount.ts
-              (dev/build), serve.ts (runServe via `tsx watch`), playground.ts + playground-app.ts
-              (`knobkit playground`)
+packages/core/src/          @knobkit/core — the kernel, isomorphic, dependency-free at runtime
+  types.ts                  Doc/Instance/MediaRef/Path; ids: declared #0…#n, spawned #s<n>, root #app
+  ops.ts, doc.ts, path.ts   Edit tuples, coalescing (set-absorption, append merge…), pure reducer
+  codec.ts                  CBOR: TypedArrays (RFC 8746), undefined, Date; no base64 anywhere
+  protocol.ts               frames {seq, ack, kind…}; Link = resume buffer/ack-prune/replay/dedup
+  outbox.ts                 outbound scheduler: microtask flush-if-idle, 16ms pacing under streams,
+                            channel policies buffer/latest/drop/throttle; flush() = the read barrier
+  schema.ts                 Standard Schema v1 (type-only) + t<T>() phantom payload typing
+  widget.ts                 defineWidget/Handle/registry/viewRef/instantiate/spawnTree
+  lens.ts                   typed paths; get() = RYOW read, everything else = one op
+  app.ts                    knobkit(): App (on/watch/setup/use/dispose), declare walk → initial Doc
+  dispatch.ts               tier-shared engine: policies serial/concurrent/latest/queue, validation,
+                            snapshots, gate → note{drop}, re-dispatch of returned events (same corr)
+  context.ts                ambient Bound; browser = module slot, node = ALS (server/context.ts)
+  modifiers.ts, media.ts    latest/queue/debounce/throttle; media store slot (toMedia/mediaBytes/…)
+  client/                   store (rAF dirty-set notify), Field renderer, registry, mount runtime,
+                            WS client (hello/welcome/resume), blob store, note overlay, styles.css
+  server/                   serveApp: WS /__pu, session table (the only server state), heartbeat,
+                            media LRU + /__media, vite dev middleware over a *generated* entry
+packages/knobkit/src/       knobkit — the standard library; re-exports the core authoring surface
+  widgets/<name>/           def.ts (defineWidget) + view.tsx (default export) + <name>.css
+  media.ts                  knobkit/media: dataUrlToBytes, bytesToDataUrl, pcmToWav (+ core re-exports)
+  cli/                      knobkit bin: dev/build/serve/playground, mount vite config,
+                            view-transform.ts (viewRef → lazy import thunk), playground-app.ts
+  browser.ts                knobkit/browser prebuilt (no-bundler runtime; serve() stubbed)
 ```
 
 ## Commands
 
 ```bash
-pnpm -F knobkit build      # build:lib (tsc -> dist/lib) + build:client (vite -> dist/client.js/.css) + typecheck
-pnpm -F knobkit test       # vitest
-pnpm -F knobkit typecheck  # tsc --noEmit (whole src incl. tests)
-pnpm typecheck         # all packages incl. examples
+pnpm build                  # core (tsc + css copy) then knobkit (tsc + css + browser bundle)
+pnpm test                   # core vitest (67 tests) + knobkit vitest (token CSS rule)
+pnpm typecheck              # all packages incl. examples
+pnpm check:examples         # example LOC ≤ pre-rewrite baselines (API-regression tripwire)
 pnpm -F knobkit-example-<name> dev
 ```
 
-`serve()` reads `dist/client.js` / `dist/client.css`, so run `build:client` before serving (and after
-any client change — a stale bundle is a classic "it broke" cause). It also serves code-split chunks
-from `dist/assets/*.js`, so client code **may use lazy `import()`** — a heavy widget (e.g. `code`'s
-CodeMirror) loads only when rendered. ESM with `NodeNext`: imports use `.js` extensions even for
-`.ts`/`.tsx` sources.
-
-`build:client` runs vite twice: the serve client (`client/entry.tsx` → `dist/client.js`, the
-socket+render bootstrap) and the **standalone browser runtime** (`client/browser.ts` →
-`dist/knobkit.browser.js` + `.css`, via `vite.browser.config.ts`, exported as `knobkit/browser`). The
-latter bundles the authoring + mount API with React/CSS inlined and `serve()` stubbed out
-(`client/serve-stub.ts`) — a self-contained runtime a page can load with **no bundler**, for the cases
-that have no build step: running app code authored at runtime, or injecting knobkit into a sandboxed
-`frame`. Normal apps don't need it (`knobkit dev`/`build` bundle knobkit for you).
-
-`knobkit playground` (`cli/playground.ts`) is **itself a knobkit serve app** (`cli/playground-app.ts`):
-a `code` editor + a `frame` iframing the target's own dev server, `fill: true` for the split layout. It
-starts the dev server (`devMount`/`runServe`, silenced via `quiet`/`KNOBKIT_PORT`/`KNOBKIT_QUIET`), then
-on `code.changed` writes the file to disk (the dev watcher reloads the preview) and on an external file
-change pushes back into the editor via a captured `Bound`. Dogfooding — no bespoke editor.
+Workspace dev needs `packages/core/dist` + `packages/knobkit/dist` built (install `prepare` does it);
+the **CLI aliases both packages to `src/` inside vite**, so example dev picks up source edits without
+rebuilds — but the *server side* of a serve app runs from `dist`, so rebuild core/knobkit after
+editing kernel/server code. ESM with `NodeNext`: imports use `.js` extensions even for `.ts`/`.tsx`.
 
 ## State model
 
-Widget state is **uniform structured JSON** — an attribute map per widget: `chat { messages }`,
-`text { value }`, `mic { live }`, `audio { src }`, `button { label }`, `log { lines }`. No bespoke
-per-widget state shapes. Reads and writes address an attribute by **path** (`["messages"]`,
-`["messages", -1, "content"]` — `-1` is the last array element). Layout containers (`row`/`col`/`grid`,
-`lib/widgets/layout.ts`) are widgets too — their state is `{ items }`, the keys of their children, so a
-handler restructures the UI with the same edits as any other state (`panel.add(w)` appends to `items`).
+The client owns one **doc**: `instances: Map<Id, { type, props, state }>`. `#app` is an ordinary
+instance (`state = { root, title, theme, … }` — runtime-editable). UI structure is state: containers
+hold `state.items: Id[]`; dynamic UI = `instanceAdd` + an `items` edit (`panel.add(w)`).
 
-## Architecture: a decl + a generic store
+Mutations are **Edit tuples** `[id, op, path, ...args]` with ops `set/append/appendN/appendText/
+insert/removeAt/move/inc/patch/instanceAdd/instanceRemove`; `-1` = last array index. The reducer is
+pure; the outbox coalesces adjacent edits (property-tested equivalent to the uncoalesced sequence).
 
-- **decl** (`lib/declare.ts`) is pure data: `{ widgets: [{ key, type, state, enabled, props, events }],
-  root, serverEvents }`. Structure + wiring only. `serverEvents` = event types that have an `on(...)`
-  handler. The authored `widgets` is a **tree of widget objects** (a single widget, an array = implicit
-  `col`, or nested `row`/`col`/`grid`); `declare()` walks it, generates each widget's `key` (keys are an
-  internal detail — never authored), and lowers a container's child objects to key refs in its `items`
-  state. `root` is the key to render from; the browser recurses via the view `slot(key)` prop. `keyFor`
-  (object→key) comes from the same deterministic walk, so handlers address widgets by object.
-- **store** (`client/runtime.ts`) = the browser, owning one cell `{ state, enabled, busy }` per widget.
-  `enabled` (persistent disable) and `busy` (transient working state) are orthogonal flags; **both** gate
-  out the widget's input events. It has **no per-widget logic** — only generic operations:
-  - `emit(type, payload)` — the local bus: drop the event if its owning widget is disabled **or busy**
-    (the gate), else route to the transport if it has a handler.
-  - `applyEdit(key, op, path, value)` — apply a structured edit (`set` / `append` / `appendText`) by path.
-  - `setEnabled(key, value)`, `setBusy(key, value)`, `read(key, path)`.
-  - per-key subscription: a change notifies only that key's listeners.
+Reserved attrs on every instance: `$enabled`, `$busy`. The **gate**: input events/channel frames from
+a disabled-or-busy instance are dropped with an observable `note{level:"drop"}` (per-subscription
+override `{ gate: false }`). Re-dispatched (handler-returned) events bypass the gate — that's what
+lets `busy(fn)` spans chain across handlers sharing a corr.
 
-The only widget-specific client code is the **view** (`client/widgets/*`). Views render `state.<attr>`,
-`emit` events, and `set(path, value)` their own state locally (e.g. a controlled input reflecting typing
-— no round-trip).
+**MediaRef** `{ $m, mime, size }`: bytes never live in state. `toMedia()` registers bytes in the
+tier's store; refs cross the wire as data; bytes transfer lazily (server→client via GET /__media,
+client→server via eager POST when a ref first crosses). The reducer refcounts refs entering/leaving
+state; the client pins/unpins its blob store off that.
 
-## How one file runs on two tiers
+## Protocol & scheduling
 
-Widget methods resolve their data through an **ambient context** (`lib/bound.ts` resolver →
-`lib/ctx.ts` `makeBound`). The `Bound` is: `read(widget, path) → Promise` (pull one attribute),
-`edit(widget, op, path, value)`, `enable(widget, value)`, `busy(widget, value)`. **Reads are async** —
-getters like `history()` / `value()` / `all()` return Promises; handlers `await` them. Setters
-(`say`/`append`/`set`/`push`) send edits.
+One sequenced log per direction; every frame `{ seq, ack, … }`. Kinds: `event` (with optional
+emit-time `snap`), `chan`, `edit`, `read`/`result`, `watch`, `note`, `sys` (hello/welcome/resume/
+ping/pong). Sessions resume: the server buffers unacked frames, `hello{session, cursor}` replays the
+tail; unknown/expired session → fresh `welcome{doc, subs}`; `setup()` runs once per **session**.
+Heartbeat ping every 15s, close after 2 missed pongs. Session GC 5 min after disconnect.
 
-**`setup(fn)`** (`knobkit.ts`) registers startup fns that run once per session inside a live context — in the
-browser on `mount`, per connection on `serve` — so async startup (load weights, fetch user data) that
-has no `bound()` at module scope happens there. Non-blocking: the page renders first. `serve()` injects
-`knobkit({ loading })` HTML into `#root` (empty by default); mount apps own their `index.html`.
+Scheduler (both tiers): edits/chans queue and coalesce; singleton after idle flushes end-of-microtask,
+streams pace to ~16ms so frames and React commits are **O(flushes), not O(tokens)**. Issuing a read
+flushes the queue first (**read barrier**) — that's the read-your-own-writes invariant. The client
+applies inbound edits immediately and notifies per-id subscribers once per animation frame.
 
-Wire protocol (serve):
-- client → server: `request { type, payload }` — just the event, **no state**.
-- server → client: `edit`, `enable`, `busy`, `emit` (re-emit a produced event), and `read` via socket
-  **ack** (`socket.emitWithAck("read", { key, path })` → client answers `store.read(key, path)`).
-
-- **serve** (`server/serve.ts` + `server/context.ts`): per `request`, run the handlers inside
-  `AsyncLocalStorage.run(bound, …)` (concurrency-safe). `read` = `emitWithAck`; `edit`/`enable`/`busy`
-  = `socket.emit`; a returned event = `socket.emit("emit", …)`. No server state. `setup` fns run once
-  per connection in the same bound.
-- **mount** (`client/mount.tsx` + `client/context.ts`): same store; the transport runs handlers
-  in-process with a `Bound` whose `read` resolves from the local store and `edit`/`enable` apply to it.
-  Context bound via a module global.
+Handler state access: `lens.get()` calls batch per microtask into one `read`; `on(…, { snap: [lens] })`
+attaches emit-time snapshots (zero-RTT, consistent-at-emit reads); `app.watch(lens, handler)` makes
+the client push watched-path changes back as C→S edit frames (throttleable).
 
 ## Adding a widget
 
-1. `lib/widgets/<x>.ts` — factory returning `{ type, state: { …attrs }, <events via event()>, <props>,
-   ...controls, <methods> }`. Getters `read(this, path)` (async), setters `edit(this, op, path, value)`.
-   Export from `lib/widgets/index.ts`.
-2. `client/widgets/<x>/index.tsx` (+ `.css`) — a `WidgetView` that renders `state.<attr>`, `emit`s the
-   widget's events, and `set`s its own state locally for inputs. **CSS uses only `--pu-*` tokens** — no
-   color/spacing literals (a test enforces it; see Theming). Colors that can't be CSS (SVG/inline fills,
-   e.g. chart series) read tokens via `client/theme.ts` (`seriesPalette()`/`cssVar()` + `useThemeVersion()`).
-3. Register the type → view in `client/widgets/registry.tsx`.
+One artifact: `src/widgets/<x>/def.ts` in the standard library (or any npm package — third-party types must be
+namespaced `"<pkg>/<name>"`):
+
+```ts
+export const thing = defineWidget({
+  type: "thing",
+  state: { value: { initial: "" } },              // runtime-changing attrs (uniform seeding:
+  props: { placeholder: { default: "" } },        //   thing({ value, placeholder }) both work)
+  events: { changed: { payload: t<string>() } },  // or a Standard Schema for real validation
+  channels: { clip: { policy: "latest", data: t<Float32Array>() } },
+  ops: (at) => ({ set: at("value").op("set"), clear: at("value").op("set", "") }),
+  methods: (self) => ({ value: () => self.at("value").get() }),
+  view: viewRef(import.meta.url, "./view.js"),    // literally this shape — the CLI transform and the
+});                                               // serve bundler both key off it
+```
+
+`view.tsx` **default-exports** a React component over `ViewProps` (`@knobkit/core/client`):
+`{ id, props, state, emit(name, payload), send(chan, data), set(path, v), slot(id) }`. `set` is a
+local-only edit (transported only if watched). Export the factory from `src/index.ts`. CSS next to
+the view, **only `--pu-*` tokens** (test-enforced; see Theming).
+
+View delivery: serve builds a **generated entry** (one `register(type, () => import(<view path>))`
+per registered def) via vite middleware (dev, `KNOBKIT_DEV=1`) or `knobkit build` → `dist/client`;
+mount bundles the app itself and the CLI's `viewRef` transform makes view imports statically
+analyzable. Views are always lazy chunks — heavy deps (CodeMirror, xterm, revo-grid, recharts,
+markdown) load only when rendered; `chat` and `output` share one markdown chunk.
 
 ## Theming
 
-Two orthogonal axes, each a token family defined in `client/styles.css` (`@layer tokens`) and applied
-via an attribute on the document root (so both **inherit** and can be scoped to a container):
-
-- **color** — `data-theme` = `system` (default; `prefers-color-scheme`, the absent case too) | `light` |
-  `dark`. Tokens: `--pu-bg/panel/surface-2/field/overlay/text/muted/on-accent/border/border-strong/ring/
-  accent(+hover/press/subtle)/danger/success/warning/info/shadow-1/2/series-1..6`.
-- **dimension** — `data-density` = `xs|sm|md|lg|xl` (md default). Tokens: `--pu-font/font-sm/h1/line/gap/
-  pad/cpad-y/cpad-x/control/radius/radius-sm`.
-
-Plus a layout toggle (not a token family): `data-fill` — `knobkit({ fill: true })` → a full-bleed app
-shell (the page fills the viewport; the root row becomes a CSS grid) instead of the centered card.
-Rules live in `styles.css @layer base`; `knobkit playground` uses it.
-
-The dark block is duplicated (explicit `[data-theme="dark"]` + a `prefers-color-scheme` media query for
-the non-forced case) — vanilla CSS can't share a block across a selector and a media query. Authoring:
-`knobkit({ theme, density, fill })` → flows through the decl → applied in `app.tsx` `render()` (mount)
-and the `serve.ts` `<html>` (no FOUC). Runtime: `setTheme`/`setDensity` (`lib/theme.ts`, DOM-guarded, public).
-Lib-backed widgets: `code` (CodeMirror) and `table` (revo-grid) theme via token-valued CSS — CodeMirror
-through an `EditorView.theme`/`HighlightStyle` using `var(--pu-*)`, revo-grid by mapping its
-`--revo-grid-*` props to ours; both follow the cascade with no JS. Only JS-drawn colors (chart series,
-label palettes) need `client/theme.ts` to re-read on change.
+Carried over verbatim from the old engine: two token families in `core/src/client/styles.css`
+(`@layer tokens`) applied via document-root attributes — **color** `data-theme` (`system`/`light`/
+`dark`, dark block duplicated for the media query + forced cases) and **dimension** `data-density`
+(`xs…xl`), plus the `data-fill` full-bleed layout toggle. Authoring: `knobkit({ theme, density,
+fill })` rides in `#app` state (serve pre-applies attrs in the HTML — no FOUC) and is runtime-editable.
+JS-drawn colors (chart series) read tokens via `seriesPalette()`/`cssVar()` + `useThemeVersion()`
+from `@knobkit/core/client`.
 
 ## Gotchas
 
-- `bound(this)` only resolves **inside a running handler**. Don't call widget methods at module scope.
-- **Reads are async** (a real round-trip in serve): `await convo.history()`. A read reflects edits sent
-  before it (socket order is preserved), but prefer read-then-write to avoid depending on that.
-- The mount browser context is a module global → correct for one in-flight handler; overlapping async
-  handlers would share it.
-- `busy(fn)` marks a transient working span (its own flag, separate from `enabled`) which **drops the
-  input events the widget emits** — like `enabled`, but shown as a loading bar and meant to be temporary.
-  Good for `chat` (no re-send mid-generation); don't wrap a handler for a widget that drives its own
-  state via its own events. `busyStart()`/`busyEnd()` bracket a span by hand (e.g. a `setup()` load).
-- Event payloads cross the socket as JSON; the one binary case is mic PCM (`Float32Array`), which
-  `serve.ts` restores from a `Buffer`. A `read` ack can be large (e.g. an uploaded image), so
-  `maxHttpBufferSize` is lifted — that's for legitimate large reads, not a workaround.
-- Rendering is **per-key** via `useSyncExternalStore` (`app.tsx` `Field`). No global "something changed"
-  broadcast — don't add one.
-- Widget config is normally a **static prop** (in the decl, never changes). The exception: `code`'s
-  `language` lives in **state**, so it's runtime-switchable via `setLanguage()` (the playground's file
-  picker swaps grammar this way). `chat({ markdown })` renders assistant messages through the same lazy
-  markdown chunk as `output({ format: "markdown" })` — reuse `client/widgets/output/markdown.tsx`, don't
-  fork it.
+- Widget methods and lenses resolve the ambient `Bound` **inside a running handler/setup** — module
+  scope throws. To write from outside a dispatch (fs watcher, timer callback captured long-term),
+  capture `bound()` in a setup and use `b.edit([idOf(w), …])` (see `cli/playground-app.ts`).
+- **Reads are async** and batched; a read observes every write issued before it (read barrier), so
+  write-then-read is safe within a handler. No atomicity across handlers.
+- `busy(fn)` drops the widget's *input* while working (loading bar); handler-returned events bypass
+  the gate and extend the span (same corr). Don't wrap a handler for a widget that drives its own
+  state via its own events. `busyStart()/busyEnd()` bracket by hand inside one dispatch.
+- Channel policies do the backpressure: `latest` (mic/webcam) replaces unsent frames sender-side AND
+  skips frames arriving while the handler runs — no hand-rolled drop-if-busy guards.
+- The mount browser context is a module slot set at dispatch start — exact on node (ALS), best-effort
+  across interleaved awaits in the browser until AsyncContext ships.
+- Media bytes never ride in state, payloads, or reads — always `toMedia`/`mediaBytes`/`mediaUrl`.
+  The server media cache is a bounded LRU; a `mediaBytes` on a not-yet-POSTed ref waits for it.
+- Rendering is per-id (`useSyncExternalStore` in `Field`); the store batches notifies per animation
+  frame. No global "something changed" broadcast — don't add one.
+- Widget config is a **prop** if static, **state** if runtime-changing: `code`'s `language` is state
+  (`setLanguage`), `terminal({ echo })` is a prop the view honors locally.
+- `serve()` in dev needs `KNOBKIT_DEV=1` (the CLI sets it); without it, it serves `dist/client` and
+  errors at startup if `knobkit build` hasn't produced one.
 
 ## Conventions
 
 - TypeScript strict, ESM, React 19 for views. Comments are sparse and explain **why** at non-obvious
   seams, not what — match the surrounding density.
-- Examples only use the public authored API (`knobkit`, widget factories, `on`, widget methods,
-  `mount`/`serve`). If a core change forces an example edit, the API surface probably regressed.
+- Examples only use the public authored API. Each example must stay ≤ its LOC baseline
+  (`pnpm check:examples`) — if a core change makes an example longer or uglier, the API surface
+  regressed; fix the API, not the example.
+- `@knobkit/core` never imports from `knobkit` (test-enforced). Built-in widgets use only the public
+  core API — a third-party widget package has exactly the same powers.

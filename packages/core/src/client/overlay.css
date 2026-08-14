@@ -1,0 +1,65 @@
+@layer components {
+  .pu-view-error {
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border: 1px dashed var(--pu-danger);
+    border-radius: var(--pu-radius-sm);
+    color: var(--pu-danger);
+    font-size: var(--pu-font-sm);
+  }
+  .pu-notes {
+    position: fixed;
+    bottom: var(--pu-gap);
+    right: var(--pu-gap);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: min(440px, calc(100vw - 2 * var(--pu-gap)));
+    z-index: 1000;
+  }
+  .pu-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    background: var(--pu-panel);
+    color: var(--pu-text);
+    border: 1px solid var(--pu-border-strong);
+    border-left: 3px solid var(--pu-muted);
+    border-radius: var(--pu-radius-sm);
+    box-shadow: var(--pu-shadow-2);
+    font-size: var(--pu-font-sm);
+  }
+  .pu-note-error {
+    border-left-color: var(--pu-danger);
+  }
+  .pu-note-warn {
+    border-left-color: var(--pu-warning);
+  }
+  .pu-note-drop {
+    border-left-color: var(--pu-info);
+  }
+  .pu-note-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .pu-note-stack {
+    margin: 6px 0 0;
+    max-height: 160px;
+    overflow: auto;
+    font-size: 11px;
+    color: var(--pu-muted);
+    white-space: pre-wrap;
+  }
+  .pu-note-x {
+    border: none;
+    background: none;
+    color: var(--pu-muted);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+  }
+  .pu-note-x:hover {
+    color: var(--pu-text);
+  }
+}

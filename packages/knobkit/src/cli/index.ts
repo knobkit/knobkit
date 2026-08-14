@@ -3,14 +3,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ensureTsconfig } from "./config.js";
 import { buildMount, devMount } from "./mount.js";
-import { runServe } from "./serve.js";
-import { runPlayground } from "./playground.js";
+import { buildServe, runServe } from "./serve.js";
 
 const HELP = `knobkit — build a web app from widgets and event handlers
 
 Usage:
   knobkit dev         Start a dev server (auto-detects mount vs serve)
-  knobkit build       Build a browser (mount) app to dist/
+  knobkit build       Build the app (mount: static site to dist/; serve: client bundle to dist/client/)
   knobkit serve       Run a server (serve) app    (same as: knobkit dev --serve)
   knobkit playground  Edit-and-preview REPL: editor left, live app right
 
@@ -19,7 +18,7 @@ Usage:
 Flags:
   --mount      Force browser (mount) mode
   --serve      Force server (serve) mode
-  --port <n>   Dev server port (mount); playground port for \`playground\`
+  --port <n>   Dev server port (mount/serve); playground port for \`playground\`
 `;
 
 interface Args {
@@ -32,7 +31,7 @@ interface Args {
 function parse(argv: string[]): Args {
   const out: Args = { mount: false, serve: false };
   for (let i = 0; i < argv.length; i++) {
-    const a = argv[i];
+    const a = argv[i]!;
     if (a === "--mount") out.mount = true;
     else if (a === "--serve") out.serve = true;
     else if (a === "--port") out.port = Number(argv[++i]);
@@ -91,10 +90,15 @@ async function main(): Promise<void> {
   const file = entry(root, args);
   ensureTsconfig(root);
 
-  if (cmd === "build") return buildMount(root, file);
-  if (cmd === "serve") return runServe(file);
-  if (cmd === "playground") return runPlayground(root, file, mode(file, args), { port: args.port });
-  if (mode(file, args) === "serve") return runServe(file);
+  if (cmd === "build") {
+    return mode(file, args) === "serve" ? buildServe(file) : buildMount(root, file);
+  }
+  if (cmd === "serve") return runServe(file, { port: args.port });
+  if (cmd === "playground") {
+    const { runPlayground } = await import("./playground.js");
+    return runPlayground(root, file, mode(file, args), { port: args.port });
+  }
+  if (mode(file, args) === "serve") return runServe(file, { port: args.port });
   await devMount(root, file, { port: args.port });
 }
 

@@ -22,7 +22,7 @@ app.on(audio.clip, async (samples) => {
 
 app.on(
   convo.sent,
-  convo.busy(async ({ text }: { text: string }) => {
+  convo.busy(async ({ text }) => {
     const lines = await transcript.all();
     const history = await convo.history();
     convo.say({ role: "user", content: text });

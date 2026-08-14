@@ -1,0 +1,53 @@
+@layer components {
+  .pu-webcam {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .pu-webcam-stage {
+    position: relative;
+    width: 480px;
+    max-width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--pu-surface-2);
+    border-radius: var(--pu-radius);
+    overflow: hidden;
+  }
+  .pu-webcam-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pu-webcam-mirror {
+    transform: scaleX(-1);
+  }
+  .pu-webcam-offscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .pu-webcam-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pu-muted);
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+  /* duplicated from mic.css: this view must not depend on the mic chunk's css being loaded */
+  .pu-submit.pu-rec {
+    background: var(--pu-danger);
+  }
+  .pu-submit.pu-rec:hover {
+    background: var(--pu-danger);
+  }
+}

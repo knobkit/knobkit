@@ -18,10 +18,10 @@ export async function runPlayground(
     preview = `http://localhost:${appPort}/`;
   }
 
-  process.env.KNOBKIT_PG_FILE = file;
-  process.env.KNOBKIT_PG_PREVIEW = preview;
-  process.env.KNOBKIT_PG_PORT = String(pgPort);
-  process.env.KNOBKIT_PG_TIER = tier;
+  process.env["KNOBKIT_PG_FILE"] = file;
+  process.env["KNOBKIT_PG_PREVIEW"] = preview;
+  process.env["KNOBKIT_PG_PORT"] = String(pgPort);
+  process.env["KNOBKIT_PG_TIER"] = tier;
 
   console.log(`\n  knobkit playground  →  http://localhost:${pgPort}/\n`);
   await import("./playground-app.js");

@@ -5,6 +5,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [
     {
+      // NodeNext sources import "./x.js" for "./x.ts"; vite needs the mapping spelled out.
       name: "ts-source",
       enforce: "pre",
       resolveId(source, importer) {

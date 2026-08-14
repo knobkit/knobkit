@@ -9,9 +9,10 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm -F knobkit build",
-    "test": "pnpm -F knobkit test",
-    "typecheck": "pnpm -r --if-present run typecheck"
+    "build": "pnpm -F @knobkit/core build && pnpm -F knobkit build",
+    "test": "pnpm -F @knobkit/core test && pnpm -F knobkit test",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "check:examples": "node scripts/check-example-loc.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

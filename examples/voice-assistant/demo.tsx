@@ -1,4 +1,4 @@
-import { knobkit, chat, audio } from "knobkit";
+import { knobkit, chat, audio, toMedia } from "knobkit";
 import { pipeline } from "@huggingface/transformers";
 import { KokoroTTS } from "kokoro-js";
 
@@ -33,12 +33,12 @@ app.on(conversation.recorded, async (samples) => {
 
 app.on(
   conversation.sent,
-  conversation.busy(async ({ text: said }: { text: string }) => {
+  conversation.busy(async ({ text: said }) => {
     conversation.say({ role: "user", content: said });
     const text = await answer(said);
     conversation.say({ role: "assistant", content: text });
     const out = await tts.generate(text, { voice: "af_heart" });
-    spoken.set(`data:audio/wav;base64,${Buffer.from(out.toWav()).toString("base64")}`);
+    spoken.set(toMedia(new Uint8Array(out.toWav()), "audio/wav"));
   }),
 );
 

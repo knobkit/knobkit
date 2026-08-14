@@ -6,13 +6,6 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "include": [
-    "src/lib",
-    "src/server",
-    "src/cli",
-    "src/css.d.ts"
-  ],
-  "exclude": [
-    "src/**/*.test.ts"
-  ]
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/browser.ts"]
 }

@@ -27,12 +27,16 @@ const fileTree = tree([
   { id: "package.json", label: "package.json" }
 ]);
 
-const fileToolbar = toolbar();
-// Setup toolbar items (setItems should be called in setup or directly if available synchronously, but let's do it in setup)
+const fileToolbar = toolbar({
+  items: [
+    { id: "new-file", label: "New File" },
+    { id: "refresh", label: "Refresh" }
+  ]
+});
 
 const explorerPane = col(fileToolbar, fileTree);
 
-const term = terminal();
+const term = terminal({ echo: true });
 const diffView = diff();
 const agentLog = log();
 const agentChat = chat();
@@ -53,11 +57,6 @@ const app = knobkit({
 });
 
 app.setup(() => {
-  fileToolbar.setItems([
-    { id: "new-file", label: "New File" },
-    { id: "refresh", label: "Refresh" }
-  ]);
-
   term.writeln("\x1b[1;32mAgent session started\x1b[0m");
   term.writeln("$ Waiting for commands...");
 
@@ -74,19 +73,14 @@ app.setup(() => {
   agentLog.pushStyled("Watching workspace...", "debug");
 
   agentChat.say({ role: "assistant", content: "Hello! I am ready to help you code. What would you like to build?" });
-  
-  notifications.show("Dashboard loaded successfully", "success");
-});
 
-app.on(term.data, async (data) => {
-  // Simple local echo for placeholder
-  term.write(data === "\r" ? "\r\n" : data);
+  notifications.show("Dashboard loaded successfully", "success");
 });
 
 app.on(agentChat.sent, async ({ text }) => {
   agentChat.say({ role: "user", content: text });
   agentLog.pushStyled(`User requested: ${text}`, "info");
-  
+
   // mock thinking delay
   setTimeout(() => {
     term.writeln(`\r\n$ executing: ${text}`);

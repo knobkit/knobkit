@@ -1,6 +1,6 @@
 {
   "name": "knobkit",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "Create TypeScript webapps in minutes. Ship, host and share everywhere — declare widgets, write event handlers, done. The same file runs in the browser or on a stateless Node server.",
   "keywords": [
     "widgets",
@@ -28,17 +28,25 @@
     "node": ">=22"
   },
   "type": "module",
-  "types": "./dist/lib/index.d.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/lib/index.d.ts",
-      "default": "./dist/lib/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./media": {
+      "types": "./dist/media.d.ts",
+      "default": "./dist/media.js"
     },
     "./browser": {
-      "types": "./dist/lib/index.d.ts",
+      "types": "./dist/index.d.ts",
       "default": "./dist/knobkit.browser.js"
     },
     "./browser.css": "./dist/knobkit.browser.css",
+    "./vite": {
+      "types": "./dist/cli/view-transform.d.ts",
+      "default": "./dist/cli/view-transform.js"
+    },
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./package.json": "./package.json"
   },
@@ -51,16 +59,17 @@
     "tsconfig.base.json"
   ],
   "scripts": {
-    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
-    "build": "pnpm run clean && pnpm run build:lib && pnpm run build:client && pnpm run typecheck",
-    "build:lib": "tsc -p tsconfig.build.json",
-    "build:client": "vite build && vite build --config vite.browser.config.ts",
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"",
+    "build": "pnpm run clean && pnpm run build:lib && pnpm run build:browser && pnpm run typecheck",
+    "build:lib": "tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
+    "build:browser": "vite build --config vite.browser.config.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "prepare": "pnpm run build:lib && pnpm run build:client",
+    "prepare": "pnpm run build:lib && pnpm run build:browser",
     "prepublishOnly": "pnpm run build",
     "test": "vitest run"
   },
   "dependencies": {
+    "@knobkit/core": "workspace:*",
     "@codemirror/commands": "^6.10.3",
     "@codemirror/lang-cpp": "^6.0.3",
     "@codemirror/lang-css": "^6.3.1",
@@ -84,8 +93,6 @@
     "react-markdown": "^10.1.0",
     "recharts": "^3.8.1",
     "remark-gfm": "^4.0.1",
-    "socket.io": "^4.8.3",
-    "socket.io-client": "^4.8.3",
     "tsx": "^4.19.0",
     "vite": "^8.0.16"
   },

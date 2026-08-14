@@ -1,4 +1,4 @@
-import { knobkit, upload, dropdown, button, output, row, col } from "knobkit";
+import { knobkit, upload, dropdown, button, output, row, col, mediaBytes } from "knobkit";
 import {
   AutoProcessor,
   Qwen2VLForConditionalGeneration,
@@ -25,11 +25,10 @@ async function describe(img: RawImage, push: (text: string) => void): Promise<vo
   ] as unknown as Parameters<typeof processor.apply_chat_template>[0];
   const text = processor.apply_chat_template(messages, { add_generation_prompt: true });
   const inputs = await processor(text, img);
-  let answer = "";
   const streamer = new TextStreamer(processor.tokenizer!, {
     skip_prompt: true,
     skip_special_tokens: true,
-    callback_function: (token: string) => push((answer += token).trim()),
+    callback_function: (token: string) => push(token),
   });
   await model.generate({ ...inputs, max_new_tokens: 256, streamer });
 }
@@ -50,11 +49,11 @@ app.on(
   go.busy(async () => {
     const img = await photo.value();
     if (!img) return void caption.set("(upload an image first)");
-    const m = /^data:([^;]+);base64,(.*)$/s.exec(img)!;
-    const raw = await RawImage.fromBlob(new Blob([Buffer.from(m[2], "base64")], { type: m[1] }));
+    const raw = await RawImage.fromBlob(new Blob([await mediaBytes(img)], { type: img.mime }));
     const size_ = await size.value();
     const maxSize = size_ === "Original" ? null : Number(size_);
-    await describe(await downscale(raw, maxSize), (text) => caption.set(text));
+    caption.clear();
+    await describe(await downscale(raw, maxSize), (text) => caption.append(text));
   }),
 );
 

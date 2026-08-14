@@ -1,4 +1,4 @@
-import { knobkit, webcam, image } from "knobkit";
+import { knobkit, webcam, image, mediaUrl } from "knobkit";
 import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 
 const WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm";
@@ -43,34 +43,28 @@ app.setup(async () => {
   camera.busyEnd();
 });
 
-let processing = false;
-app.on(camera.frame, async (dataUrl: string) => {
-  if (processing) return; // drop frames we can't keep up with
-  processing = true;
-  try {
-    const img = await loadImage(dataUrl);
-    stage.width = img.naturalWidth;
-    stage.height = img.naturalHeight;
-    ctx.drawImage(img, 0, 0);
-    const face = landmarker.detectForVideo(img, performance.now()).faceLandmarks?.[0];
-    if (face) {
-      const px = (i: number) => ({ x: face[i]!.x * stage.width, y: face[i]!.y * stage.height });
-      const head = px(FOREHEAD);
-      const faceW = Math.hypot(px(CHEEK_L).x - px(CHEEK_R).x, px(CHEEK_L).y - px(CHEEK_R).y);
-      const roll = Math.atan2(px(EYE_L).y - px(EYE_R).y, px(EYE_L).x - px(EYE_R).x);
-      ctx.save();
-      ctx.translate(head.x, head.y);
-      ctx.rotate(roll);
-      ctx.font = `${faceW * 1.6}px serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "bottom";
-      ctx.fillText(HAT, 0, faceW * 0.25);
-      ctx.restore();
-    }
-    result.set(stage.toDataURL("image/jpeg", 0.85));
-  } finally {
-    processing = false;
+// frame is a latest-policy channel: frames arriving mid-handler are dropped, so no guard needed
+app.on(camera.frame, async (ref) => {
+  const img = await loadImage(mediaUrl(ref));
+  stage.width = img.naturalWidth;
+  stage.height = img.naturalHeight;
+  ctx.drawImage(img, 0, 0);
+  const face = landmarker.detectForVideo(img, performance.now()).faceLandmarks?.[0];
+  if (face) {
+    const px = (i: number) => ({ x: face[i]!.x * stage.width, y: face[i]!.y * stage.height });
+    const head = px(FOREHEAD);
+    const faceW = Math.hypot(px(CHEEK_L).x - px(CHEEK_R).x, px(CHEEK_L).y - px(CHEEK_R).y);
+    const roll = Math.atan2(px(EYE_L).y - px(EYE_R).y, px(EYE_L).x - px(EYE_R).x);
+    ctx.save();
+    ctx.translate(head.x, head.y);
+    ctx.rotate(roll);
+    ctx.font = `${faceW * 1.6}px serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText(HAT, 0, faceW * 0.25);
+    ctx.restore();
   }
+  result.show(stage.toDataURL("image/jpeg", 0.85));
 });
 
 app.mount("#root");

@@ -1,4 +1,4 @@
-import { knobkit, chat } from "knobkit";
+import { knobkit, chat, mediaUrl } from "knobkit";
 import { AutoProcessor, Qwen3_5ForConditionalGeneration, RawImage, TextStreamer } from "@huggingface/transformers";
 
 const MODEL = "onnx-community/Qwen3.5-0.8B-ONNX";
@@ -37,7 +37,7 @@ app.on(
       { role: "user", content: image ? [{ type: "image" }, { type: "text", text }] : [{ type: "text", text }] },
     ] as unknown as Parameters<typeof processor.apply_chat_template>[0];
     const prompt = processor.apply_chat_template(messages, { add_generation_prompt: true });
-    const img = image ? await (await RawImage.read(image)).resize(448, 448) : null;
+    const img = image ? await (await RawImage.read(mediaUrl(image))).resize(448, 448) : null;
     const inputs = img ? await processor(prompt, img) : await processor(prompt);
 
     const streamer = new TextStreamer(processor.tokenizer!, {

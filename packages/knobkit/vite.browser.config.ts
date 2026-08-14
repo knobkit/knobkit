@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
+import { viewRefTransform } from "./src/cli/view-transform.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -18,32 +19,27 @@ const tsSource: Plugin = {
   },
 };
 
-const stubServe: Plugin = {
-  name: "stub-serve",
-  enforce: "pre",
-  resolveId(source) {
-    return /\/server\/serve(\.js)?$/.test(source) ? resolve(here, "src/client/serve-stub.ts") : null;
-  },
-};
-
 export default defineConfig({
-  plugins: [stubServe, tsSource],
+  plugins: [viewRefTransform(), tsSource],
   esbuild: { jsx: "automatic" },
+  resolve: {
+    alias: [
+      { find: /^@knobkit\/core\/client$/, replacement: resolve(here, "../core/src/client/index.ts") },
+      { find: /^@knobkit\/core\/server$/, replacement: resolve(here, "../core/src/server/stub.ts") },
+      { find: /^@knobkit\/core$/, replacement: resolve(here, "../core/src/index.ts") },
+    ],
+  },
   build: {
     outDir: "dist",
     emptyOutDir: false,
     cssCodeSplit: false,
     chunkSizeWarningLimit: 3000,
     rollupOptions: {
-      input: resolve(here, "src/client/browser.ts"),
+      input: resolve(here, "src/browser.ts"),
       preserveEntrySignatures: "strict",
-      onwarn(warning, warn) {
-        if (warning.code === "INEFFECTIVE_DYNAMIC_IMPORT") return;
-        warn(warning);
-      },
       output: {
-        codeSplitting: false,
         entryFileNames: "knobkit.browser.js",
+        chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: "knobkit.browser.[ext]",
       },
     },

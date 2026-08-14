@@ -4,7 +4,8 @@
 
 **Create TypeScript webapps in minutes. Ship, host and share everywhere.** Declare widgets, write `on(event, handler)` functions — done. The
 same `demo.tsx` runs entirely in the browser (`mount`) or on a stateless Node server (`serve`); change
-the last line to swap. **The browser owns all state** — the server keeps none, so there are no sessions.
+the last line to swap. **The browser owns all state** — the server holds none of your app's data, so
+restarts and reconnects are free.
 
 **[knobkit.dev](https://knobkit.dev)** — 30-second tour + a live playground (nothing to install).
 
@@ -33,7 +34,7 @@ app.serve(); // runs Whisper on Node — change to app.mount("#root") to run it 
 ```
 
 See [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples) — chatbots, image captioning,
-live transcription, webcam filters; each a single `demo.tsx`.
+live transcription, webcam filters, an agent dashboard; each a single `demo.tsx`.
 
 ## Quick start
 
@@ -62,8 +63,11 @@ A handler is a plain `on(event, async fn)`. Inside it you do exactly three thing
 
 - **read** widget state with async getters — `await box.value()`, `await convo.history()` (a real
   round-trip on serve);
-- **write** with structured setters — `out.set(v)`, `convo.say(m)`, `log.push(line)`;
+- **write** with structured setters — `out.set(v)`, `convo.say(m)`, `logw.push(line)`;
 - **produce** by `return`ing an event from the handler (re-emitted, like a user action).
+
+Streams (mic clips, webcam frames) arrive on **channels**, handled with the same `on(...)`; the
+`latest` policy drops stale frames automatically while a handler is busy — no hand-rolled guards.
 
 `setup(fn)` runs once per session for async startup (load weights, fetch data). `widget.busy(fn)` wraps
 a handler in a transient working span (a bar; drops the widget's input while running); `disable()` /
@@ -72,66 +76,67 @@ a handler in a transient working span (a bar; drops the widget's input while run
 | | `mount("#root")` | `serve()` |
 |---|---|---|
 | `on(...)` handlers | run in the browser | run on a stateless Node server |
-| transport | local call | socket.io |
+| transport | local call | WebSocket (auto-resume on reconnect) |
 | use when | fits client-side (incl. WebGPU models) | needs the server (large models, secrets, native deps) |
 
-`mount` builds to static files you can host anywhere; `serve` adds no session state. Widgets, handlers,
-and methods are identical across both — only the last line changes.
+`mount` builds to static files you can host anywhere; `serve` keeps no app state on the server. Widgets,
+handlers, and methods are identical across both — only the last line changes.
+
+Binary data (images, audio) travels as a **MediaRef** — an opaque handle you get from
+`toMedia(bytes, mime)` and turn back with `await mediaBytes(ref)` or `mediaUrl(ref)`; the bytes
+themselves stay out of app state and cross the wire lazily. `knobkit/media` adds `dataUrlToBytes`,
+`bytesToDataUrl`, `pcmToWav`.
 
 ## Widgets
 
-**Value inputs** all share one shape: a `changed` event whose **payload is the value**, plus
-`await w.value()` and `w.set(v)`. (No `.submitted`/`.uploaded` — listen on `changed`, or use a
-`button`'s `.clicked` and read `await input.value()`.)
+**Value inputs** share one shape: a `changed` event whose **payload is the value**, plus
+`await w.value()` and `w.set(v)`.
 
 | Factory (defaults) | `changed` value | Notes |
 |---|---|---|
 | `text({ placeholder?, lines? })` | `string` | `lines` = textarea rows (default 1) |
-| `number({ value?, min?, max? })` | `number` | numeric stepper (init 0) |
-| `slider({ value?, min?, max?, step? })` | `number` | `min` 0, `max` 100, `step` 1 |
-| `dropdown({ choices, value? })` | `string` | `choices: string[]`; `value` defaults to `choices[0]` |
-| `checkbox({ label?, value? })` | `boolean` | single toggle |
-| `checkboxGroup({ choices, value? })` | `string[]` | multi-select |
-| `radio({ choices, value? })` | `string` | single-select |
-| `upload({ accept? })` | `string \| null` | value is a data URL; `accept` default `image/*` |
+| `number({ value?, min?, max?, step? })` | `number` | numeric stepper (init 0) |
+| `dropdown({ choices, value? })` | `string` | `choices: (string \| { value, label? })[]`; `value` defaults to the first choice |
 
 **Other inputs:**
 
-| Factory (defaults) | Events | Methods |
+| Factory (defaults) | Events / channels | Methods |
 |---|---|---|
-| `button({ label })` | `clicked` | `set({ label })` |
-| `mic({ every?, control?, hold? })` | `clip` (Float32Array), `toggled` | `start()`, `stop()`, `await toggle()`, `await live()`. `every` ms emits a clip every N ms (0 = hold/toggle only) |
-| `webcam({ every?, control?, preview?, facing? })` | `frame` (data URL), `toggled` | same controls. `every` ms emits a frame every N ms (0 = preview only); `facing` `"user"`/`"environment"` |
-| `chat({ placeholder?, voice?, images?, markdown? })` | `sent` (`{ text, image? }`), `recorded` | `await history()`, `say(msg)`, `append(token)`. `markdown` renders assistant replies; `images`/`voice` add attach/talk buttons |
+| `button({ label })` | `clicked` | |
+| `upload({ label? })` | `picked` (`MediaRef`) | `await value()`, `clear()` |
+| `mic({ every?, control?, hold? })` | `clip` channel (`Float32Array`, 16 kHz mono PCM) | `start()`, `stop()`, `await toggle()`, `await live()`. `every` ms emits a clip every N ms (0 = one clip per recording) |
+| `webcam({ every?, preview? })` | `frame` channel (`MediaRef`, JPEG) | `start()`, `stop()`. `every` ms emits a frame every N ms (0 = preview only) |
+| `chat({ placeholder?, voice?, images?, markdown? })` | `sent` (`{ text, image? }`), `recorded` channel (`Float32Array`) | `await history()`, `say(msg)`, `append(token)`, `clear()`. `markdown` renders assistant replies; `images`/`voice` add attach/talk buttons |
 
-**Outputs** (write-only; `set(...)` replaces the value):
+**Outputs** (write-only):
 
 | Factory (defaults) | Write / methods | Notes |
 |---|---|---|
-| `output({ format? })` | `set(text)` | `format: "markdown"` renders GFM |
-| `json()` | `set(value)` | pretty-printed JSON |
-| `log()` | `push(line)`, `await all()` | append-only lines |
-| `label()` | `set(string \| { label?, confidences? })` | classifier result; `confidences: { label, score }[]` → bars |
-| `html({ value? })` | `set(markup)` | raw HTML |
-| `image()` | `set(urlOrDataUrl)` | one image |
-| `gallery()` | `set(items)`, `add(item)` | `item: { src, caption? }` |
-| `audio({ autoplay? })` / `video({ autoplay?, loop? })` | `set(src)` | URL or data URL |
-| `progress({ label? })` | `set(value, label?)` | `value` is 0..1 |
-| `file()` | `set({ name?, url } \| url)` | offer a download |
-| `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
-| `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain) |
-| `chart({ x, y, kind?, data?, maxHeight? })` | `await data()`, `setData(rows)`, `push(point)` | `x` = category key; `y` = key or `string[]`; `kind` bar/line/area |
-| `frame({ src?, doc?, sandbox?, title? })` | `load(url)`, `show(doc)`, `clear()` | iframe; event `loaded` |
+| `output({ format? })` | `set(text)`, `append(text)`, `clear()` | `format: "markdown"` renders GFM; `append` streams tokens |
+| `log({ maxLines? })` | `push(line)`, `pushStyled(line, level?)`, `setFilter(q)`, `clear()`, `await all()` | append-only lines; levels color-code |
+| `image()` | `show(srcOrRef)`, `clear()` | `MediaRef` or URL |
+| `audio({ autoplay? })` | `set(srcOrRef)` | `MediaRef` or URL |
+| `frame({ src? })` | `set(url)` | iframe |
+| `chart({ x, y, kind?, data? })` | `setData(rows)` | `x` = category key; `y` = key or `string[]`; `kind` bar/line/area |
+| `diff()` | `setFiles(files)` | `FileDiff: { path, oldContent, newContent, language?, status? }` |
+| `statusBadge(status?, { variants? })` | `set(status)` | dot + label; `variants` maps custom statuses to idle/running/waiting/completed/failed/error |
+| `toast()` | `show(message, variant?)` | transient notifications; `variant` info/success/warning/error |
 
 **Editable or read-only:**
 
 | Factory (defaults) | Events | Methods |
 |---|---|---|
-| `code({ value?, language?, editable?, wrap? })` | `changed` (string) | `await value()`, `set(src)`, `setLanguage(lang)`. `editable: false` = viewer; `wrap` soft-wraps |
+| `code({ value?, language?, readOnly? })` | `changed` (string) | `await value()`, `set(src)`, `setLanguage(lang)` |
 | `table({ columns?, rows?, editable?, maxHeight? })` | `edited` (`{ row, key, value }`) | `await data()`, `setRows`, `setColumns`, `addRow`, `setCell`. `Column: { key, label?, type?, width? }` |
+| `terminal({ rows?, cols?, scrollback?, echo? })` | `data` (string), `resized` | `write(text)`, `writeln(line)`, `clear()`. `echo` echoes typed input locally |
 
-**Custom:** `widget({ state, view, fold?, behavior? })` builds a widget from scratch — `state` is its
-data, `view(state, emit)` renders it, `fold` applies events to state.
+**Navigation:**
+
+| Factory (defaults) | Events | Methods |
+|---|---|---|
+| `toolbar(items?)` | `clicked` (`{ id }`) | `setItems(items)`. `ToolbarItem: { id, label, icon?, disabled?, variant?, separator? }` |
+| `tree(nodes?)` | `selected` (`{ id, data? }`) | `setNodes(nodes)`. `TreeNode: { id, label, icon?, children?, data? }` |
+| `sidebar(sections?)` | `selected` (`{ id }`) | `setSections(sections)`. Section: `{ label, items: { id, label, icon?, badge? }[] }` |
 
 ## Layout
 
@@ -141,11 +146,47 @@ data, `view(state, emit)` renders it, `fold` applies events to state.
 knobkit({ widgets: col(photo, row(size, go), caption) });
 grid([a, b, c, d], { cols: 2 });
 tabs([{ label: "One", content: a }, { label: "Two", content: b }]);
+splitPane(editor, preview, { direction: "horizontal", ratio: 0.5 });
 accordion({ label: "Advanced", open: false }, x, y);
 ```
 
 Containers are widgets whose state is their arrangement, so a handler can restructure the UI at
-runtime — `panel.add(chart)`, `await panel.remove(sidebar)`.
+runtime — `panel.add(chart)`, `await panel.removeChild(chart)`.
+
+## Build your own widget
+
+Widgets aren't privileged — every built-in is written against the same public API. A widget is one
+`defineWidget` call plus a React view:
+
+```ts
+// counter/def.ts
+import { defineWidget, t, viewRef } from "knobkit";
+
+export const counter = defineWidget({
+  type: "counter",
+  state: { count: { initial: 0 } },                // runtime-changing attrs
+  props: { step: { default: 1 } },                 // static config
+  events: { changed: { payload: t<number>() } },   // or a Standard Schema for real validation
+  ops: (at) => ({ add: at("count").op("inc"), reset: at("count").op("set", 0) }),
+  methods: (self) => ({ value: () => self.at("count").get() }),
+  view: viewRef(import.meta.url, "./view.js"),
+});
+```
+
+```tsx
+// counter/view.tsx
+import type { ViewProps } from "@knobkit/core/client";
+
+export default function CounterView({ props, state, emit }: ViewProps<{ count: number }, { step: number }>) {
+  return <button onClick={() => emit("changed", state.count + props.step)}>{state.count}</button>;
+}
+```
+
+Drop it straight into your app (`widgets: [counter(), …]`), or publish it: a widget package depends
+only on **`@knobkit/core`** (the engine kernel — as a peer dependency, no widget-library baggage),
+namespaces its type `"<pkg>/<name>"`, and gets exactly the powers of the built-ins. Views load as
+lazy chunks, so heavy dependencies cost nothing until rendered. See
+[CLAUDE.md](https://github.com/knobkit/knobkit/blob/main/CLAUDE.md) for the full recipe.
 
 ## Theming
 
@@ -163,11 +204,14 @@ rebrand, override the tokens in your CSS (e.g. `:root { --pu-accent: rebeccapurp
 
 ## Develop
 
+Monorepo: `packages/core` is the engine (`@knobkit/core`), `packages/knobkit` the widget kit + CLI.
+
 ```bash
 pnpm install
-pnpm -F knobkit build   # library + browser client bundle
-pnpm -F knobkit test    # vitest
-pnpm typecheck          # all packages
+pnpm build            # core, then knobkit (library + browser bundle)
+pnpm test             # vitest, both packages
+pnpm typecheck        # all packages incl. examples
+pnpm check:examples   # examples stay ≤ their LOC baselines
 ```
 
 See [CLAUDE.md](https://github.com/knobkit/knobkit/blob/main/CLAUDE.md) for the architecture and how to

@@ -1,0 +1,75 @@
+import "./chart.css";
+import { ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, Legend, BarChart, Bar, LineChart, Line, AreaChart, Area } from "recharts";
+import type { ReactElement } from "react";
+import type { ViewProps } from "@knobkit/core/client";
+import { seriesPalette, cssVar, useThemeVersion } from "@knobkit/core/client";
+import type { Row } from "./def.js";
+
+const HEIGHT = 300;
+
+interface Props {
+  kind: "bar" | "line" | "area";
+  x: string;
+  y: string | string[];
+}
+
+export default function ChartView({ props, state }: ViewProps<{ data: Row[] }, Props>) {
+  const { kind, x } = props;
+  const series = Array.isArray(props.y) ? props.y : [props.y];
+  const data = state.data;
+
+  useThemeVersion();
+  const COLORS = seriesPalette();
+
+  const axes = (
+    <>
+      <CartesianGrid strokeDasharray="3 3" stroke={cssVar("--pu-border")} />
+      <XAxis dataKey={x} tick={{ fontSize: 12 }} />
+      <YAxis tick={{ fontSize: 12 }} />
+      <Tooltip
+        contentStyle={{ background: cssVar("--pu-panel"), border: `1px solid ${cssVar("--pu-border")}`, borderRadius: 8, color: cssVar("--pu-text") }}
+        labelStyle={{ color: cssVar("--pu-text") }}
+        cursor={{ fill: cssVar("--pu-overlay") }}
+      />
+      {series.length > 1 && <Legend />}
+    </>
+  );
+
+  let inner: ReactElement;
+  if (kind === "line") {
+    inner = (
+      <LineChart data={data}>
+        {axes}
+        {series.map((k, i) => (
+          <Line key={k} type="monotone" dataKey={k} stroke={COLORS[i % COLORS.length]} dot={false} />
+        ))}
+      </LineChart>
+    );
+  } else if (kind === "area") {
+    inner = (
+      <AreaChart data={data}>
+        {axes}
+        {series.map((k, i) => (
+          <Area key={k} type="monotone" dataKey={k} stroke={COLORS[i % COLORS.length]} fill={COLORS[i % COLORS.length]} fillOpacity={0.2} />
+        ))}
+      </AreaChart>
+    );
+  } else {
+    inner = (
+      <BarChart data={data}>
+        {axes}
+        {series.map((k, i) => (
+          <Bar key={k} dataKey={k} fill={COLORS[i % COLORS.length]} />
+        ))}
+      </BarChart>
+    );
+  }
+
+  return (
+    <div className="pu-chart">
+      <ResponsiveContainer width="100%" height={HEIGHT}>
+        {inner}
+      </ResponsiveContainer>
+    </div>
+  );
+}

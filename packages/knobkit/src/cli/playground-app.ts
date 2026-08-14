@@ -1,11 +1,12 @@
-import { knobkit, code, frame, dropdown, row, col, bound, type Bound } from "../lib/index.js";
+import { knobkit, bound, idOf, type Bound } from "../index.js";
+import { code, dropdown, frame, row, col } from "../index.js";
 import { readFileSync, writeFileSync, watch, readdirSync, type FSWatcher } from "node:fs";
 import { relative, resolve, dirname, extname, join } from "node:path";
 
-const ENTRY = process.env.KNOBKIT_PG_FILE ?? "";
-const PREVIEW = process.env.KNOBKIT_PG_PREVIEW ?? "";
-const PORT = Number(process.env.KNOBKIT_PG_PORT ?? 4317);
-const TIER = process.env.KNOBKIT_PG_TIER === "serve" ? "serve" : "mount";
+const ENTRY = process.env["KNOBKIT_PG_FILE"] ?? "";
+const PREVIEW = process.env["KNOBKIT_PG_PREVIEW"] ?? "";
+const PORT = Number(process.env["KNOBKIT_PG_PORT"] ?? 4317);
+const TIER = process.env["KNOBKIT_PG_TIER"] === "serve" ? "serve" : "mount";
 const ROOT = ENTRY ? dirname(ENTRY) : process.cwd();
 
 const LANGS: Record<string, string> = {
@@ -62,8 +63,8 @@ const read = (rel: string): string => {
 };
 
 const picker = dropdown({ choices: files });
-const editor = code({ language: langOf(activeRel), value: read(activeRel), wrap: true });
-const preview = frame({ src: PREVIEW, title: "preview" });
+const editor = code({ language: langOf(activeRel), value: read(activeRel) });
+const preview = frame({ src: PREVIEW });
 
 const left = files.length > 1 ? col(picker, editor) : editor;
 const app = knobkit({
@@ -89,24 +90,25 @@ function rearm(): void {
     const next = read(activeRel);
     if (next === lastWritten || !conn) return;
     lastWritten = next;
-    conn.edit(editor, "set", ["value"], next);
+    conn.edit([idOf(editor), "set", ["value"], next]);
   });
 }
 
+// fs-watcher callbacks run outside any dispatch — capture the Bound in setup and use it directly
 app.setup(async () => {
-  conn = bound(editor);
+  conn = bound();
   rearm();
 });
 
-app.on(picker.changed, async (name: string) => {
-  if (!files.includes(name) || !conn) return;
+app.on(picker.changed, async (name) => {
+  if (!files.includes(name)) return;
   activeRel = name;
   rearm();
-  conn.edit(editor, "set", ["language"], langOf(activeRel));
-  conn.edit(editor, "set", ["value"], read(activeRel));
+  editor.setLanguage(langOf(activeRel));
+  editor.set(read(activeRel));
 });
 
-app.on(editor.changed, async (value: string) => {
+app.on(editor.changed, async (value) => {
   if (writeTimer) clearTimeout(writeTimer);
   writeTimer = setTimeout(() => {
     lastWritten = value;
@@ -119,8 +121,8 @@ app.on(editor.changed, async (value: string) => {
     if (TIER === "serve" && conn) {
       if (reloadTimer) clearTimeout(reloadTimer);
       reloadTimer = setTimeout(() => {
-        conn!.edit(preview, "set", ["src"], "");
-        conn!.edit(preview, "set", ["src"], PREVIEW);
+        conn!.edit([idOf(preview), "set", ["src"], ""]);
+        conn!.edit([idOf(preview), "set", ["src"], PREVIEW]);
       }, 900);
     }
   }, 400);
