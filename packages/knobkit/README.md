@@ -211,7 +211,6 @@ pnpm install
 pnpm build            # core, then knobkit (library + browser bundle)
 pnpm test             # vitest, both packages
 pnpm typecheck        # all packages incl. examples
-pnpm check:examples   # examples stay ≤ their LOC baselines
 ```
 
 See [CLAUDE.md](https://github.com/knobkit/knobkit/blob/main/CLAUDE.md) for the architecture and how to

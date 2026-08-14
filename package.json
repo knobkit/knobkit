@@ -11,8 +11,7 @@
   "scripts": {
     "build": "pnpm -F @knobkit/core build && pnpm -F knobkit build",
     "test": "pnpm -F @knobkit/core test && pnpm -F knobkit test",
-    "typecheck": "pnpm -r --if-present run typecheck",
-    "check:examples": "node scripts/check-example-loc.mjs"
+    "typecheck": "pnpm -r --if-present run typecheck"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

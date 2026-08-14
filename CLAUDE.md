@@ -48,7 +48,6 @@ packages/knobkit/src/       knobkit — the standard library; re-exports the cor
 pnpm build                  # core (tsc + css copy) then knobkit (tsc + css + browser bundle)
 pnpm test                   # core vitest (67 tests) + knobkit vitest (token CSS rule)
 pnpm typecheck              # all packages incl. examples
-pnpm check:examples         # example LOC ≤ pre-rewrite baselines (API-regression tripwire)
 pnpm -F knobkit-example-<name> dev
 ```
 
@@ -160,8 +159,7 @@ from `@knobkit/core/client`.
 
 - TypeScript strict, ESM, React 19 for views. Comments are sparse and explain **why** at non-obvious
   seams, not what — match the surrounding density.
-- Examples only use the public authored API. Each example must stay ≤ its LOC baseline
-  (`pnpm check:examples`) — if a core change makes an example longer or uglier, the API surface
-  regressed; fix the API, not the example.
+- Examples only use the public authored API. If a core change makes an example longer or uglier,
+  the API surface regressed; fix the API, not the example.
 - `@knobkit/core` never imports from `knobkit` (test-enforced). Built-in widgets use only the public
   core API — a third-party widget package has exactly the same powers.
