@@ -23,5 +23,6 @@ jobs:
       - run: pnpm -F @knobkit/core typecheck
       - run: pnpm -F @knobkit/core test
       - run: pnpm -F knobkit typecheck
-      - run: pnpm -F knobkit test
+      # Build before testing so the browser-runtime smoke test exercises the release artifact.
       - run: pnpm -F knobkit build
+      - run: pnpm -F knobkit test
