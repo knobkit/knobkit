@@ -34,7 +34,8 @@ app.serve(); // runs Whisper on Node — change to app.mount("#root") to run it 
 ```
 
 See [`examples/`](https://github.com/knobkit/knobkit/tree/main/examples) — chatbots, image captioning,
-live transcription, webcam filters, an agent dashboard; each a single `demo.tsx`.
+live transcription, webcam filters, an agent dashboard, a drive-style file browser, an Electron
+desktop app; each a single `demo.tsx`.
 
 ## Quick start
 
@@ -103,7 +104,7 @@ themselves stay out of app state and cross the wire lazily. `knobkit/media` adds
 | Factory (defaults) | Events / channels | Methods |
 |---|---|---|
 | `button({ label })` | `clicked` | |
-| `upload({ label? })` | `picked` (`MediaRef`) | `await value()`, `clear()` |
+| `upload({ accept?, multiple?, label? })` | `picked` (`MediaRef`, per file), `changed` (`UploadFile[]`) | `await value()`, `await files()`, `clear()`. `UploadFile: { name, type, size, ref }` |
 | `mic({ every?, control?, hold? })` | `clip` channel (`Float32Array`, 16 kHz mono PCM) | `start()`, `stop()`, `await toggle()`, `await live()`. `every` ms emits a clip every N ms (0 = one clip per recording) |
 | `webcam({ every?, preview? })` | `frame` channel (`MediaRef`, JPEG) | `start()`, `stop()`. `every` ms emits a frame every N ms (0 = preview only) |
 | `chat({ placeholder?, voice?, images?, markdown? })` | `sent` (`{ text, image? }`), `recorded` channel (`Float32Array`) | `await history()`, `say(msg)`, `append(token)`, `clear()`. `markdown` renders assistant replies; `images`/`voice` add attach/talk buttons |
@@ -127,7 +128,7 @@ themselves stay out of app state and cross the wire lazily. `knobkit/media` adds
 | Factory (defaults) | Events | Methods |
 |---|---|---|
 | `code({ value?, language?, readOnly? })` | `changed` (string) | `await value()`, `set(src)`, `setLanguage(lang)` |
-| `table({ columns?, rows?, editable?, maxHeight? })` | `edited` (`{ row, key, value }`) | `await data()`, `setRows`, `setColumns`, `addRow`, `setCell`. `Column: { key, label?, type?, width? }` |
+| `table({ columns?, rows?, editable?, maxHeight? })` | `edited` (`{ row, key, value }`), `contextmenu` (`{ item, row, x, y }`) | `await data()`, `setRows`, `setColumns`, `addRow`, `setCell`. `Column: { key, label?, type?, width? }` |
 | `terminal({ rows?, cols?, scrollback?, echo? })` | `data` (string), `resized` | `write(text)`, `writeln(line)`, `clear()`. `echo` echoes typed input locally |
 
 **Navigation:**
@@ -135,7 +136,9 @@ themselves stay out of app state and cross the wire lazily. `knobkit/media` adds
 | Factory (defaults) | Events | Methods |
 |---|---|---|
 | `toolbar(items?)` | `clicked` (`{ id }`) | `setItems(items)`. `ToolbarItem: { id, label, icon?, disabled?, variant?, separator? }` |
-| `tree(nodes?)` | `selected` (`{ id, data? }`) | `setNodes(nodes)`. `TreeNode: { id, label, icon?, children?, data? }` |
+| `tree(nodes \| { nodes?, expanded?, selected? })` | `selected`/`activated` (`{ id, data? }`), `expanded`/`collapsed`, `contextmenu` (`{ id, x, y }`), `renamed` (`{ id, name }`) | `setNodes`, `setChildren(id, nodes)`, `expand(id)`, `collapse(id)`, `select(id)`, `rename(id)`. `TreeNode: { id, label, icon?, children?, hasChildren?, data? }` |
+| `breadcrumb({ crumbs? })` | `selected` (`{ id }`) | `set(crumbs)`. `Crumb: { id, label }` |
+| `menu()` | `selected` (`{ action, target }`) | `open({ x, y, items, target? })`, `close()`. `MenuItem: { id, label, icon?, danger?, disabled?, separator? }` |
 | `sidebar(sections?)` | `selected` (`{ id }`) | `setSections(sections)`. Section: `{ label, items: { id, label, icon?, badge? }[] }` |
 
 ## Layout
@@ -147,11 +150,15 @@ knobkit({ widgets: col(photo, row(size, go), caption) });
 grid([a, b, c, d], { cols: 2 });
 tabs([{ label: "One", content: a }, { label: "Two", content: b }]);
 splitPane(editor, preview, { direction: "horizontal", ratio: 0.5 });
+drawer(nav, main, { open: true });
 accordion({ label: "Advanced", open: false }, x, y);
 ```
 
 Containers are widgets whose state is their arrangement, so a handler can restructure the UI at
 runtime — `panel.add(chart)`, `await panel.removeChild(chart)`.
+
+Slot modifiers tune one child in place: `span(w, 2)` claims extra grid/row slots, `grow(w)` absorbs
+a `col`'s leftover space, and `density(w, "sm")` / `theme(w, "dark")` restyle just that subtree.
 
 ## Build your own widget
 
