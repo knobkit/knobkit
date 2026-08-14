@@ -1,10 +1,12 @@
 name: Release
 
-# Publishes both packages to npm in lockstep when a `knobkit@X` tag is pushed.
+# Publishes all packages to npm in lockstep when a `knobkit@X` tag is pushed.
 # Auth is npm Trusted Publishing (OIDC) — no NPM_TOKEN. Each package has its own
 # trusted-publisher entry on npmjs.com pointing at this workflow file.
 # Note: we publish with the npm CLI, not `pnpm publish` — pnpm 11 has an OIDC
-# regression (pnpm#11513). pnpm still does install + build.
+# regression (pnpm#11513). npm doesn't understand the `workspace:*` protocol,
+# so packages that use it are packed with `pnpm pack` (which rewrites it to the
+# real version) and npm publishes the tarball. pnpm still does install + build.
 on:
   push:
     tags: ['knobkit@*']
@@ -32,7 +34,7 @@ jobs:
       - name: Check tag matches package version
         run: |
           tag_version="${GITHUB_REF_NAME#knobkit@}"
-          for pkg in knobkit create-knobkit; do
+          for pkg in core knobkit create-knobkit; do
             pkg_version="$(node -p "require('./packages/$pkg/package.json').version")"
             if [ "$tag_version" != "$pkg_version" ]; then
               echo "::error::tag $GITHUB_REF_NAME implies $tag_version but packages/$pkg is $pkg_version"
@@ -42,19 +44,32 @@ jobs:
       # A tag push does not run ci.yml (that's branch/PR-triggered), so gate the
       # publish on the same checks here rather than trusting the tagged commit
       # already went green on main.
+      # Core first: knobkit's typecheck/build resolve @knobkit/core from its dist.
+      - run: pnpm -F @knobkit/core build
+      - run: pnpm -F @knobkit/core typecheck
+      - run: pnpm -F @knobkit/core test
       - run: pnpm -F knobkit typecheck
       - run: pnpm -F knobkit test
       # Build up front so a broken build fails the job before any publish, rather
       # than mid-way through `prepublishOnly` with one package already pushed.
       - run: pnpm -F knobkit build
+      # Publish order matters: core before knobkit, so a half-failed release can
+      # never leave a knobkit on npm whose core dependency doesn't exist yet.
+      - name: Publish @knobkit/core
+        working-directory: packages/core
+        run: |
+          pnpm pack
+          npm publish knobkit-core-*.tgz --access public
       - name: Publish knobkit
         working-directory: packages/knobkit
-        run: npm publish --access public
+        run: |
+          pnpm pack
+          npm publish knobkit-[0-9]*.tgz --access public
       - name: Publish create-knobkit
         working-directory: packages/create-knobkit
         run: npm publish --access public
       # Surface the tag's own annotation (our changelog) on the Releases page.
-      # Runs only after both publishes succeed, so a Release always means npm shipped.
+      # Runs only after all publishes succeed, so a Release always means npm shipped.
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}

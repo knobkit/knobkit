@@ -16,8 +16,12 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      # Only the knobkit package — examples (heavy ML deps) are out of scope for now.
+      # Only core + knobkit — examples (heavy ML deps) are out of scope for now.
       - run: pnpm install --frozen-lockfile --filter knobkit...
+      # Core first: knobkit's typecheck/build resolve @knobkit/core from its dist.
+      - run: pnpm -F @knobkit/core build
+      - run: pnpm -F @knobkit/core typecheck
+      - run: pnpm -F @knobkit/core test
       - run: pnpm -F knobkit typecheck
       - run: pnpm -F knobkit test
       - run: pnpm -F knobkit build
