@@ -23,7 +23,9 @@ function start(): void {
     attributes: true,
     attributeFilter: ["data-theme", "data-density"],
   });
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", bump);
+  if (typeof window.matchMedia === "function") {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", bump);
+  }
 }
 
 export function onThemeChange(cb: () => void): () => void {

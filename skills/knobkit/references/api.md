@@ -82,6 +82,10 @@ an object), plus `await w.value()` and `w.set(v)`. There is **no** `.submitted` 
 | `text({ placeholder?, lines? })` | `string` (init `""`) | `lines` = textarea rows (default 1) |
 | `number({ value?, min?, max?, step? })` | `number` (init `0`) | numeric stepper |
 | `dropdown({ choices, value? })` | `string` | `choices: (string \| { value, label? })[]`; `value` defaults to the first choice |
+| `slider({ value?, min?, max?, step? })` | `number` | `min` 0, `max` 100, `step` 1; `value` defaults to `min` |
+| `checkbox({ label?, value? })` | `boolean` | single toggle |
+| `checkboxGroup({ choices, value? })` | `string[]` | multi-select |
+| `radio({ choices, value? })` | `string` | single-select; `value` defaults to the first choice |
 
 Inputs with their own shape:
 
@@ -103,8 +107,17 @@ All are write-only (no read getter unless noted).
 |--------------------|-----------------|-------|
 | `output({ format? })` | `set(text)`, `append(text)`, `clear()` | `format: "markdown"` renders GFM; `append` streams tokens |
 | `log({ maxLines? })` | `push(line)`, `pushStyled(line, level?)`, `setFilter(q)`, `clear()`, `await all()` | append-only lines; levels (`info`/`warn`/`error`/`debug`) color-code |
+| `json()` | `set(value)` | pretty-printed JSON |
+| `label()` | `set(string \| { label?, confidences? })` | classifier result; `confidences: { label, score }[]` → bars |
+| `html({ value? })` | `set(markup)` | raw HTML |
+| `progress({ label? })` | `set(value, label?)` | `value` is 0..1 |
+| `file()` | `set({ name?, url } \| url)` | offer a download; `url` may be a `MediaRef` |
 | `image()` | `show(srcOrRef)`, `clear()` | a `MediaRef` or URL |
+| `gallery()` | `set(items)`, `add(item)` | `item: { src, caption? }`; `src` a `MediaRef` or URL |
 | `audio({ autoplay? })` | `set(srcOrRef)` | a `MediaRef` or URL |
+| `video({ autoplay?, loop? })` | `set(srcOrRef)` | a `MediaRef` or URL |
+| `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
+| `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain) |
 | `frame({ src? })` | `set(url)` | iframe |
 | `chart({ x, y, kind?, data? })` | `setData(rows)` | `x` = category-axis key; `y` = one series key or `string[]` for several; `kind` `"bar"`/`"line"`/`"area"` (default bar); rows are `Record<string, unknown>` |
 | `diff()` | `setFiles(files)` | `FileDiff: { path, oldContent, newContent, language?, status? }` |

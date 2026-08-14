@@ -1,0 +1,29 @@
+@layer components {
+  .pu-file {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-surface-2);
+    color: var(--pu-text);
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.12s, background 0.12s, color 0.12s;
+  }
+  .pu-file:hover {
+    border-color: var(--pu-accent);
+    color: var(--pu-accent);
+    background: var(--pu-accent-subtle);
+  }
+  .pu-file-empty {
+    color: var(--pu-muted);
+  }
+  .pu-file-icon {
+    font-size: 16px;
+  }
+  .pu-file-name {
+    font-weight: 500;
+  }
+}

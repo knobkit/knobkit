@@ -1,0 +1,17 @@
+@layer components {
+  .pu-json {
+    min-height: 42px;
+    margin: 0;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-surface-2);
+    color: var(--pu-text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: var(--pu-font-sm);
+    line-height: 1.5;
+  }
+}

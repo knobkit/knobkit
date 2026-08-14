@@ -1,0 +1,13 @@
+@layer components {
+  .pu-video {
+    width: 100%;
+    display: block;
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-surface-2);
+  }
+  .pu-video-empty {
+    display: grid;
+    place-items: center;
+    color: var(--pu-muted);
+  }
+}

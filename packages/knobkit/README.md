@@ -98,6 +98,10 @@ themselves stay out of app state and cross the wire lazily. `knobkit/media` adds
 | `text({ placeholder?, lines? })` | `string` | `lines` = textarea rows (default 1) |
 | `number({ value?, min?, max?, step? })` | `number` | numeric stepper (init 0) |
 | `dropdown({ choices, value? })` | `string` | `choices: (string \| { value, label? })[]`; `value` defaults to the first choice |
+| `slider({ value?, min?, max?, step? })` | `number` | `min` 0, `max` 100, `step` 1; `value` defaults to `min` |
+| `checkbox({ label?, value? })` | `boolean` | single toggle |
+| `checkboxGroup({ choices, value? })` | `string[]` | multi-select |
+| `radio({ choices, value? })` | `string` | single-select; `value` defaults to the first choice |
 
 **Other inputs:**
 
@@ -115,8 +119,17 @@ themselves stay out of app state and cross the wire lazily. `knobkit/media` adds
 |---|---|---|
 | `output({ format? })` | `set(text)`, `append(text)`, `clear()` | `format: "markdown"` renders GFM; `append` streams tokens |
 | `log({ maxLines? })` | `push(line)`, `pushStyled(line, level?)`, `setFilter(q)`, `clear()`, `await all()` | append-only lines; levels color-code |
+| `json()` | `set(value)` | pretty-printed JSON |
+| `label()` | `set(string \| { label?, confidences? })` | classifier result; `confidences: { label, score }[]` → bars |
+| `html({ value? })` | `set(markup)` | raw HTML |
+| `progress({ label? })` | `set(value, label?)` | `value` is 0..1 |
+| `file()` | `set({ name?, url } \| url)` | offer a download; `url` may be a `MediaRef` |
 | `image()` | `show(srcOrRef)`, `clear()` | `MediaRef` or URL |
+| `gallery()` | `set(items)`, `add(item)` | `item: { src, caption? }`; `src` `MediaRef` or URL |
 | `audio({ autoplay? })` | `set(srcOrRef)` | `MediaRef` or URL |
+| `video({ autoplay?, loop? })` | `set(srcOrRef)` | `MediaRef` or URL |
+| `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
+| `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain) |
 | `frame({ src? })` | `set(url)` | iframe |
 | `chart({ x, y, kind?, data? })` | `setData(rows)` | `x` = category key; `y` = key or `string[]`; `kind` bar/line/area |
 | `diff()` | `setFiles(files)` | `FileDiff: { path, oldContent, newContent, language?, status? }` |
