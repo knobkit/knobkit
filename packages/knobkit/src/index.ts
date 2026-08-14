@@ -36,6 +36,9 @@ export type {
   Type,
   WidgetFactory,
 } from "@knobkit/core";
+// type-only, so app authors writing inline widget views don't need a direct
+// @knobkit/core dependency (pnpm's strict node_modules hides transitive deps)
+export type { ViewProps } from "@knobkit/core/client";
 
 export { text } from "./widgets/text/def.js";
 export { number } from "./widgets/number/def.js";

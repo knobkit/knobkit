@@ -175,7 +175,7 @@ export const counter = defineWidget({
 
 ```tsx
 // counter/view.tsx
-import type { ViewProps } from "@knobkit/core/client";
+import type { ViewProps } from "knobkit";
 
 export default function CounterView({ props, state, emit }: ViewProps<{ count: number }, { step: number }>) {
   return <button onClick={() => emit("changed", state.count + props.step)}>{state.count}</button>;
