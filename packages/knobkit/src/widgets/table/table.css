@@ -28,4 +28,10 @@
     --revo-grid-primary: var(--pu-accent) !important;
     --revo-grid-shadow: var(--pu-shadow-2) !important;
   }
+  [data-fill] .pu-table {
+    height: 100%;
+  }
+  [data-fill] .pu-table revo-grid {
+    height: 100% !important;
+  }
 }

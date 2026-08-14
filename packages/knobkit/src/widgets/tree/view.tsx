@@ -1,103 +1,108 @@
 import "./tree.css";
-import { useState, useCallback } from "react";
+import { useRef, type MouseEvent, type ReactNode } from "react";
 import type { ViewProps } from "@knobkit/core/client";
 import type { TreeNode } from "./def.js";
 
-function TreeNodeView({
-  node,
-  depth,
-  selected,
-  expanded,
-  onToggle,
-  onSelect,
-}: {
-  node: TreeNode;
-  depth: number;
-  selected?: string;
-  expanded: Set<string>;
-  onToggle: (id: string) => void;
-  onSelect: (node: TreeNode) => void;
-}) {
-  const hasChildren = node.children && node.children.length > 0;
-  const isExpanded = expanded.has(node.id);
-  const isSelected = selected === node.id;
+interface TreeState {
+  nodes: TreeNode[];
+  expanded: string[];
+  selected: string | null;
+  editing: string | null;
+}
 
+function RenameInput({ value, onCommit, onCancel }: { value: string; onCommit: (v: string) => void; onCancel: () => void }) {
+  const done = useRef(false);
+  const finish = (commit: boolean, v: string) => {
+    if (done.current) return;
+    done.current = true;
+    if (commit) onCommit(v);
+    else onCancel();
+  };
   return (
-    <>
-      <div
-        className={`pu-tree-node${isSelected ? " pu-tree-node--selected" : ""}`}
-        style={{ paddingLeft: depth * 16 }}
-        onClick={() => onSelect(node)}
-      >
-        <span
-          className={`pu-tree-toggle${hasChildren ? "" : " pu-tree-toggle--leaf"}`}
-          onClick={(e) => {
-            if (hasChildren) {
-              e.stopPropagation();
-              onToggle(node.id);
-            }
-          }}
-        >
-          {hasChildren ? (isExpanded ? "▼" : "▶") : ""}
-        </span>
-        {node.icon && <span className="pu-tree-icon">{node.icon}</span>}
-        <span className="pu-tree-label">{node.label}</span>
-      </div>
-      {hasChildren && isExpanded && (
-        <div className="pu-tree-children">
-          {node.children!.map((child) => (
-            <TreeNodeView
-              key={child.id}
-              node={child}
-              depth={depth + 1}
-              selected={selected}
-              expanded={expanded}
-              onToggle={onToggle}
-              onSelect={onSelect}
-            />
-          ))}
-        </div>
-      )}
-    </>
+    <input
+      className="pu-tree-input"
+      defaultValue={value}
+      autoFocus
+      onFocus={(e) => e.currentTarget.select()}
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") finish(true, e.currentTarget.value);
+        else if (e.key === "Escape") finish(false, "");
+      }}
+      onBlur={(e) => finish(true, e.currentTarget.value)}
+    />
   );
 }
 
-export default function TreeView({ state, emit }: ViewProps<{ nodes: TreeNode[] }>) {
-  const nodes = state.nodes ?? [];
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  // selection highlight is presentation-only, so plain component state (widget state is just `nodes`)
-  const [selected, setSelected] = useState<string>();
+export default function TreeView({ state, emit, set }: ViewProps<TreeState>) {
+  const expanded = new Set(state.expanded ?? []);
+  const selected = state.selected ?? null;
+  const editing = state.editing ?? null;
 
-  const onToggle = useCallback((id: string) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
+  const toggle = (id: string) => {
+    const open = expanded.has(id);
+    const next = open ? (state.expanded ?? []).filter((x) => x !== id) : [...(state.expanded ?? []), id];
+    set(["expanded"], next);
+    emit(open ? "collapsed" : "expanded", { id });
+  };
+  const choose = (node: TreeNode) => {
+    set(["selected"], node.id);
+    emit("selected", { id: node.id, data: node.data });
+  };
+  const contextmenu = (node: TreeNode, e: MouseEvent) => {
+    e.preventDefault();
+    set(["selected"], node.id);
+    emit("contextmenu", { id: node.id, x: e.clientX, y: e.clientY, data: node.data });
+  };
+  const commitRename = (id: string, value: string) => {
+    set(["editing"], null);
+    const name = value.trim();
+    if (name) emit("renamed", { id, name });
+  };
 
-  const onSelect = useCallback(
-    (node: TreeNode) => {
-      setSelected(node.id);
-      emit("selected", { id: node.id, data: node.data });
-    },
-    [emit],
-  );
+  const renderNode = (node: TreeNode, depth: number): ReactNode => {
+    const folder = node.children !== undefined || node.hasChildren === true;
+    const open = expanded.has(node.id);
+    const kids = open && node.children && node.children.length > 0 ? node.children : null;
+    return (
+      <li key={node.id} role="treeitem" aria-expanded={folder ? open : undefined} aria-selected={node.id === selected}>
+        <div
+          className={`pu-tree-node${node.id === selected ? " pu-tree-node--selected" : ""}`}
+          style={{ paddingLeft: depth * 16 + 8 }}
+          onClick={() => choose(node)}
+          onDoubleClick={() => emit("activated", { id: node.id, data: node.data })}
+          onContextMenu={(e) => contextmenu(node, e)}
+        >
+          <span
+            className={`pu-tree-toggle${folder ? "" : " pu-tree-toggle--leaf"}`}
+            onClick={(e) => {
+              if (folder) {
+                e.stopPropagation();
+                toggle(node.id);
+              }
+            }}
+          >
+            {folder ? (open ? "▼" : "▶") : ""}
+          </span>
+          {node.icon && <span className="pu-tree-icon">{node.icon}</span>}
+          {node.id === editing ? (
+            <RenameInput value={node.label} onCommit={(v) => commitRename(node.id, v)} onCancel={() => set(["editing"], null)} />
+          ) : (
+            <span className="pu-tree-label">{node.label}</span>
+          )}
+        </div>
+        {kids ? (
+          <ul className="pu-tree-children" role="group">
+            {kids.map((c) => renderNode(c, depth + 1))}
+          </ul>
+        ) : null}
+      </li>
+    );
+  };
 
   return (
-    <div className="pu-tree">
-      {nodes.map((node) => (
-        <TreeNodeView
-          key={node.id}
-          node={node}
-          depth={0}
-          selected={selected}
-          expanded={expanded}
-          onToggle={onToggle}
-          onSelect={onSelect}
-        />
-      ))}
-    </div>
+    <ul className="pu-tree" role="tree">
+      {(state.nodes ?? []).map((n) => renderNode(n, 0))}
+    </ul>
   );
 }

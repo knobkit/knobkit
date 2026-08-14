@@ -47,6 +47,13 @@ export function scanMediaRefs(value: unknown, visit: (ref: MediaRef) => void): v
 export const ENABLED = "$enabled";
 export const BUSY = "$busy";
 
+// reserved props stamped by the layout modifiers, honored by the Field wrapper
+export const COLSPAN = "$colspan";
+export const ROWSPAN = "$rowspan";
+export const GROW = "$grow";
+export const DENSITY = "$density";
+export const THEME = "$theme";
+
 export interface KnobkitServer {
   url: string;
   stop(): Promise<void>;

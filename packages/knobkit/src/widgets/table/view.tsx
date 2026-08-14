@@ -1,5 +1,5 @@
 import "./table.css";
-import { useMemo } from "react";
+import { useMemo, type MouseEvent } from "react";
 import { RevoGrid } from "@revolist/react-datagrid";
 import type { ViewProps } from "@knobkit/core/client";
 import type { Column, Row } from "./def.js";
@@ -88,8 +88,21 @@ export default function TableView({ props, state, emit, set }: ViewProps<{ colum
     }
   };
 
+  const onContextMenu = async (e: MouseEvent): Promise<void> => {
+    const cell = (e.target as HTMLElement).closest("[data-rgrow]");
+    if (!cell) return;
+    e.preventDefault();
+    const { clientX: x, clientY: y } = e;
+    const row = Number(cell.getAttribute("data-rgrow"));
+    // resolve the row model through the grid when possible — visible order diverges from state.rows under sort
+    const grid = cell.closest("revo-grid") as (Element & { getVisibleSource?: () => Promise<Row[]> }) | null;
+    let item: Row | undefined = state.rows[row];
+    if (grid?.getVisibleSource) item = (await grid.getVisibleSource())[row] ?? item;
+    if (item) emit("contextmenu", { item, row, x, y });
+  };
+
   return (
-    <div className="pu-table">
+    <div className="pu-table" onContextMenu={onContextMenu}>
       <RevoGrid
         columns={columns}
         source={source}

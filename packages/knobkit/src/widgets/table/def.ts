@@ -18,7 +18,10 @@ export const table = defineWidget({
     editable: { default: false },
     maxHeight: { default: 500 }, // height ceiling in px; the grid fits its rows up to this, then scrolls
   },
-  events: { edited: { payload: t<{ row: number; key: string; value: unknown }>() } },
+  events: {
+    edited: { payload: t<{ row: number; key: string; value: unknown }>() },
+    contextmenu: { payload: t<{ item: Row; row: number; x: number; y: number }>() },
+  },
   ops: (at) => ({
     setRows: at("rows").op("set"),
     setColumns: at("columns").op("set"),

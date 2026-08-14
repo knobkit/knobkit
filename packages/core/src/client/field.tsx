@@ -1,8 +1,8 @@
 import { Component, Suspense, createElement, useCallback, useMemo, useSyncExternalStore } from "react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { isLens } from "../lens.js";
 import type { Lens } from "../lens.js";
-import { BUSY, ENABLED } from "../types.js";
+import { BUSY, COLSPAN, DENSITY, ENABLED, GROW, ROWSPAN, THEME } from "../types.js";
 import type { Id, Path } from "../types.js";
 import { viewFor } from "./registry.js";
 import type { Store } from "./store.js";
@@ -58,8 +58,23 @@ export function Field({ id, runtime }: { id: Id; runtime: FieldRuntime }) {
   const enabled = inst.state[ENABLED] !== false;
   const busy = inst.state[BUSY] === true;
 
+  const colspan = typeof inst.props[COLSPAN] === "number" ? (inst.props[COLSPAN] as number) : 1;
+  const rowspan = typeof inst.props[ROWSPAN] === "number" ? (inst.props[ROWSPAN] as number) : 1;
+  const spanStyle: CSSProperties | undefined =
+    colspan > 1 || rowspan > 1
+      ? { gridColumn: colspan > 1 ? `span ${colspan}` : undefined, gridRow: rowspan > 1 ? `span ${rowspan}` : undefined }
+      : undefined;
+  const grow = inst.props[GROW] ? " pu-field-grow" : "";
+  const density = typeof inst.props[DENSITY] === "string" ? (inst.props[DENSITY] as string) : undefined;
+  const theme = typeof inst.props[THEME] === "string" ? (inst.props[THEME] as string) : undefined;
+
   return (
-    <div className={`pu-field${enabled ? "" : " pu-disabled"}${busy ? " pu-busy" : ""}`}>
+    <div
+      className={`pu-field${enabled ? "" : " pu-disabled"}${busy ? " pu-busy" : ""}${grow}`}
+      style={spanStyle}
+      data-density={density}
+      data-theme={theme}
+    >
       {busy && <div className="pu-busy-bar" role="status" aria-label="Loading" />}
       <ViewBoundary type={inst.type}>
         <Suspense fallback={null}>{createElement(View, viewProps)}</Suspense>

@@ -7,6 +7,10 @@ export {
   bound,
   idOf,
   spawnTree,
+  span,
+  grow,
+  density,
+  theme,
   latest,
   queue,
   debounce,
@@ -48,9 +52,14 @@ export { output } from "./widgets/output/def.js";
 export { log } from "./widgets/log/def.js";
 export { chat } from "./widgets/chat/def.js";
 export type { Message } from "./widgets/chat/def.js";
+export { breadcrumb } from "./widgets/breadcrumb/def.js";
+export type { Crumb } from "./widgets/breadcrumb/def.js";
+export { menu } from "./widgets/menu/def.js";
+export type { MenuItem } from "./widgets/menu/def.js";
 export { table } from "./widgets/table/def.js";
 export { chart } from "./widgets/chart/def.js";
 export { upload } from "./widgets/upload/def.js";
+export type { UploadFile } from "./widgets/upload/def.js";
 export { image } from "./widgets/image/def.js";
 export { audio } from "./widgets/audio/def.js";
 export { mic } from "./widgets/mic/def.js";
@@ -63,10 +72,12 @@ export { frame } from "./widgets/frame/def.js";
 export { toast } from "./widgets/toast/def.js";
 export { toolbar } from "./widgets/toolbar/def.js";
 export { tree } from "./widgets/tree/def.js";
+export type { TreeNode, TreeOptions } from "./widgets/tree/def.js";
 export { sidebar } from "./widgets/sidebar/def.js";
 export { statusBadge } from "./widgets/status-badge/def.js";
 export { row, col, grid } from "./widgets/layout/def.js";
 export { tabs } from "./widgets/tabs/def.js";
 export type { TabPanel } from "./widgets/tabs/def.js";
 export { splitPane } from "./widgets/split-pane/def.js";
+export { drawer } from "./widgets/drawer/def.js";
 export { accordion } from "./widgets/accordion/def.js";

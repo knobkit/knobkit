@@ -66,3 +66,5 @@ export type { MediaStore } from "./media.js";
 
 export { setTheme, setDensity } from "./theme.js";
 export type { Theme, Density } from "./theme.js";
+
+export { span, grow, density, theme } from "./layout.js";
