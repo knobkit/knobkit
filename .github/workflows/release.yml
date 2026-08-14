@@ -55,19 +55,34 @@ jobs:
       - run: pnpm -F knobkit build
       # Publish order matters: core before knobkit, so a half-failed release can
       # never leave a knobkit on npm whose core dependency doesn't exist yet.
+      # Each publish is skipped if the version is already on npm, so re-running a
+      # failed release (or pre-seeding a first publish manually) is safe.
       - name: Publish @knobkit/core
         working-directory: packages/core
         run: |
+          v="${GITHUB_REF_NAME#knobkit@}"
+          if [ -n "$(npm view "@knobkit/core@$v" version 2>/dev/null || true)" ]; then
+            echo "@knobkit/core@$v already on npm — skipping"; exit 0
+          fi
           pnpm pack
           npm publish knobkit-core-*.tgz --access public
       - name: Publish knobkit
         working-directory: packages/knobkit
         run: |
+          v="${GITHUB_REF_NAME#knobkit@}"
+          if [ -n "$(npm view "knobkit@$v" version 2>/dev/null || true)" ]; then
+            echo "knobkit@$v already on npm — skipping"; exit 0
+          fi
           pnpm pack
           npm publish knobkit-[0-9]*.tgz --access public
       - name: Publish create-knobkit
         working-directory: packages/create-knobkit
-        run: npm publish --access public
+        run: |
+          v="${GITHUB_REF_NAME#knobkit@}"
+          if [ -n "$(npm view "create-knobkit@$v" version 2>/dev/null || true)" ]; then
+            echo "create-knobkit@$v already on npm — skipping"; exit 0
+          fi
+          npm publish --access public
       # Surface the tag's own annotation (our changelog) on the Releases page.
       # Runs only after all publishes succeed, so a Release always means npm shipped.
       - name: Create GitHub Release
