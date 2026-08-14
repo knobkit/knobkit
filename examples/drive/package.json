@@ -1,0 +1,13 @@
+{
+  "name": "knobkit-example-drive",
+  "private": true,
+  "type": "module",
+  "main": "demo.tsx",
+  "scripts": {
+    "dev": "knobkit dev",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "knobkit": "workspace:*"
+  }
+}
