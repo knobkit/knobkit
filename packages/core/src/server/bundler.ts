@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { APP_PATH } from "../protocol.js";
 import { allWidgetDefs } from "../widget.js";
 
 /** Two Reacts in one page is an immediate "Invalid hook call" — collapse them to the app's copy. */
@@ -117,6 +118,10 @@ export async function createViteDev({ root, server, port, viewDeps }: ViteDevOpt
 export async function buildServeClient(outDir: string): Promise<void> {
   const { build } = await import("vite");
   await build({
+    // the server mounts this bundle under APP_PATH; without a matching base vite emits
+    // preload URLs rooted at "/" that 404 (the imports themselves still resolve, relative
+    // to the entry chunk — so it "works" while logging a 404 per chunk on every load)
+    base: `${APP_PATH}/`,
     plugins: [entryPlugin()],
     build: {
       outDir,

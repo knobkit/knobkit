@@ -5,6 +5,7 @@
   "main": "demo.tsx",
   "scripts": {
     "dev": "knobkit dev",
+    "build": "knobkit build",
     "serve": "knobkit serve",
     "typecheck": "tsc --noEmit"
   },
