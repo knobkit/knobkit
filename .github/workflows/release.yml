@@ -65,8 +65,8 @@ jobs:
           if [ -n "$(npm view "@knobkit/core@$v" version 2>/dev/null || true)" ]; then
             echo "@knobkit/core@$v already on npm — skipping"; exit 0
           fi
-          pnpm pack
-          npm publish knobkit-core-*.tgz --access public
+          pnpm pack --pack-destination "$RUNNER_TEMP"
+          npm publish "$RUNNER_TEMP/knobkit-core-$v.tgz" --access public
       - name: Publish knobkit
         working-directory: packages/knobkit
         run: |
@@ -74,8 +74,8 @@ jobs:
           if [ -n "$(npm view "knobkit@$v" version 2>/dev/null || true)" ]; then
             echo "knobkit@$v already on npm — skipping"; exit 0
           fi
-          pnpm pack
-          npm publish knobkit-[0-9]*.tgz --access public
+          pnpm pack --pack-destination "$RUNNER_TEMP"
+          npm publish "$RUNNER_TEMP/knobkit-$v.tgz" --access public
       - name: Publish create-knobkit
         working-directory: packages/create-knobkit
         run: |
