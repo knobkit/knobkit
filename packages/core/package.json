@@ -1,8 +1,13 @@
 {
   "name": "@knobkit/core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "knobkit kernel: state model, ops, protocol, scheduler, widget definition API — isomorphic, dependency-free.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knobkit/knobkit.git",
+    "directory": "packages/core"
+  },
   "author": "Alain Brown",
   "engines": {
     "node": ">=22"
