@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
+import { devEnv } from "./view-deps.js";
 
 function tsxBin(): string {
   const require = createRequire(import.meta.url);
@@ -13,7 +14,7 @@ function tsxBin(): string {
 
 /** Run a serve app under tsx watch with the vite dev middleware active. */
 export function runServe(file: string, opts: { port?: number; quiet?: boolean } = {}): Promise<void> {
-  const env: Record<string, string | undefined> = { ...process.env, KNOBKIT_DEV: "1" };
+  const env: Record<string, string | undefined> = { ...process.env, ...devEnv() };
   if (opts.port) env["KNOBKIT_PORT"] = String(opts.port);
   if (opts.quiet) env["KNOBKIT_QUIET"] = "1";
   const child = spawn(process.execPath, [tsxBin(), "watch", file], { stdio: "inherit", env });

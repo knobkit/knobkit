@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
-    "knobkit": "workspace:*"
+    "knobkit": "workspace:*",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "concurrently": "^10.0.3",

@@ -9,7 +9,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "knobkit": "__KNOBKIT_VERSION__"
+    "knobkit": "__KNOBKIT_VERSION__",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "typescript": "^6.0.3"

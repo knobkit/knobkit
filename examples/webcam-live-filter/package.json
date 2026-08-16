@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.22",
-    "knobkit": "workspace:*"
+    "knobkit": "workspace:*",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   }
 }

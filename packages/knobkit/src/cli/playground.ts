@@ -1,5 +1,6 @@
 import { devMount } from "./mount.js";
 import { runServe } from "./serve.js";
+import { devEnv } from "./view-deps.js";
 
 export async function runPlayground(
   root: string,
@@ -18,6 +19,9 @@ export async function runPlayground(
     preview = `http://localhost:${appPort}/`;
   }
 
+  // the playground UI is itself a serve app, but it runs in *this* process — runServe sets the dev
+  // env only for the child it spawns, so set it here too or serveApp takes the dist/client branch.
+  Object.assign(process.env, devEnv());
   process.env["KNOBKIT_PG_FILE"] = file;
   process.env["KNOBKIT_PG_PREVIEW"] = preview;
   process.env["KNOBKIT_PG_PORT"] = String(pgPort);

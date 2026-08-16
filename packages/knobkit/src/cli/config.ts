@@ -1,7 +1,9 @@
 import { existsSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, relative, resolve } from "node:path";
+import { REACT_DEDUPE, REACT_DEPS } from "@knobkit/core/server";
 import { searchForWorkspaceRoot, type InlineConfig, type Plugin } from "vite";
+import { VIEW_DEPS } from "./view-deps.js";
 import { viewRefTransform } from "./view-transform.js";
 
 // K-Tile favicon as a data URI so apps get one without serving an extra file.
@@ -102,11 +104,16 @@ export function mountConfig(root: string, entry: string, ownHtml: boolean): Inli
     plugins: [viewRefTransform(), tsSource, ...(ownHtml ? [] : [virtualIndex(entryRel)])],
     esbuild: { jsx: "automatic" },
     resolve: {
-      dedupe: ["react", "react-dom"],
+      dedupe: REACT_DEDUPE,
       alias: sourceAliases(root),
     },
-    // keep the widget packages out of esbuild prebundling so viewRefTransform sees their defs
-    optimizeDeps: { exclude: ["knobkit", "@knobkit/core"], ...(ownHtml ? {} : { entries: [entryRel] }) },
+    // keep the widget packages out of esbuild prebundling so viewRefTransform sees their defs — which
+    // also puts react and the view libraries out of the scanner's reach, so declare them
+    optimizeDeps: {
+      exclude: ["knobkit", "@knobkit/core"],
+      include: [...REACT_DEPS, ...VIEW_DEPS],
+      ...(ownHtml ? {} : { entries: [entryRel] }),
+    },
     server: { fs: { allow: [searchForWorkspaceRoot(root)] } },
   };
 }

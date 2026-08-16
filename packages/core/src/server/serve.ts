@@ -11,7 +11,7 @@ import { setMediaStore } from "../media.js";
 import { APP_PATH, MEDIA_PATH, WS_PATH } from "../protocol.js";
 import type { Frame } from "../protocol.js";
 import type { KnobkitServer } from "../types.js";
-import { createViteDev } from "./bundler.js";
+import { createViteDev, HMR_PATH } from "./bundler.js";
 import type { DevMiddleware } from "./bundler.js";
 import { installNodeContext } from "./context.js";
 import { FAVICON_TAG } from "./favicon.js";
@@ -61,12 +61,12 @@ export async function serveApp(
   const media = createServerMediaStore();
   setMediaStore(media);
 
+  const port = opts?.port ?? (process.env["KNOBKIT_PORT"] ? Number(process.env["KNOBKIT_PORT"]) : 3000);
   const dev = process.env["KNOBKIT_DEV"] === "1";
-  const distClient = resolve(process.cwd(), "dist/client");
-  let vite: DevMiddleware | null = null;
-  if (dev) {
-    vite = await createViteDev();
-  } else if (!existsSync(resolve(distClient, "entry.js"))) {
+  const viewDeps = process.env["KNOBKIT_VIEW_DEPS"]?.split(",").filter(Boolean) ?? [];
+  const root = process.cwd();
+  const distClient = resolve(root, "dist/client");
+  if (!dev && !existsSync(resolve(distClient, "entry.js"))) {
     throw new Error(
       `knobkit: no client bundle at ${distClient} — run \`knobkit build\` first (or \`knobkit dev\` for development)`,
     );
@@ -132,10 +132,20 @@ export async function serveApp(
     }
   });
 
+  // after the http server exists so vite's HMR websocket can ride it instead of opening its own port
+  const vite: DevMiddleware | null = dev ? await createViteDev({ root, server, port, viewDeps }) : null;
+
   const wss = new WebSocketServer({ noServer: true });
   server.on("upgrade", (req, socket, head) => {
-    if ((req.url ?? "").split("?")[0] !== WS_PATH) return socket.destroy();
-    wss.handleUpgrade(req, socket, head, (ws) => wss.emit("connection", ws, req));
+    const path = (req.url ?? "").split("?")[0];
+    if (path === WS_PATH) {
+      return void wss.handleUpgrade(req, socket, head, (ws) => wss.emit("connection", ws, req));
+    }
+    // in dev vite is a second upgrade consumer on this server — leave HMR to vite's own listener
+    // rather than destroying it out from under it. Everything else is still ours to close: once a
+    // listener exists node stops closing unhandled upgrades, so an unclaimed socket would sit open
+    // until the peer times out.
+    if (!dev || path !== HMR_PATH) socket.destroy();
   });
 
   wss.on("connection", (ws: WebSocket) => {
@@ -190,7 +200,6 @@ export async function serveApp(
     });
   });
 
-  const port = opts?.port ?? (process.env["KNOBKIT_PORT"] ? Number(process.env["KNOBKIT_PORT"]) : 3000);
   await new Promise<void>((r) => server.listen(port, r));
   const addr = server.address();
   const boundPort = addr && typeof addr === "object" ? addr.port : port;

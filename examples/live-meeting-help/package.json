@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@huggingface/transformers": "^3.5.1",
-    "knobkit": "workspace:*"
+    "knobkit": "workspace:*",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   }
 }
