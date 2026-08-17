@@ -1,19 +1,6 @@
 @layer components {
-  .pu-input {
-    width: 100%;
-    padding: var(--pu-cpad-y) var(--pu-cpad-x);
-    border: 1px solid var(--pu-border);
-    border-radius: var(--pu-radius-sm);
-    font: inherit;
-    color: inherit;
-    background: var(--pu-field);
-    outline: none;
-    transition: border-color 0.12s, box-shadow 0.12s;
-  }
-  .pu-input:focus {
-    border-color: var(--pu-accent);
-    box-shadow: 0 0 0 3px var(--pu-ring);
-  }
+  /* .pu-input itself is a shared primitive (see _primitives/controls.css) — only the multi-line
+     variant is this widget's own */
   textarea.pu-input {
     resize: vertical;
     line-height: 1.5;

@@ -1,4 +1,4 @@
-import "./mic.css";
+import { puRec, puSubmit } from "../_primitives/controls.css.js";
 import { useEffect, useRef } from "react";
 import type { ViewProps } from "@knobkit/core/client";
 
@@ -64,7 +64,7 @@ export default function MicView({ props, state, send, set }: ViewProps<{ live: b
   if (!props.control) return null;
 
   const streaming = props.every > 0;
-  const cls = `pu-submit${state.live ? " pu-rec" : ""}`;
+  const cls = `${puSubmit}${state.live ? ` ${puRec}` : ""}`;
 
   if (!streaming && props.hold) {
     return (

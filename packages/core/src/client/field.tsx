@@ -1,9 +1,11 @@
+import { puBusy, puBusyBar, puDisabled, puField, puFillX, puFillY, puSlot } from "./styles.css.js";
+import { puViewError } from "./overlay.css.js";
 import { Component, Suspense, createElement, useCallback, useMemo, useSyncExternalStore } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { isLens } from "../lens.js";
 import type { Lens } from "../lens.js";
-import { BUSY, COLSPAN, DENSITY, ENABLED, GROW, ROWSPAN, THEME } from "../types.js";
-import type { Id, Path } from "../types.js";
+import { BUSY, COLSPAN, DEFAULT_SIZE, DENSITY, ENABLED, GROW, ROWSPAN, SIZE, SLOTS, THEME } from "../types.js";
+import type { Id, Path, SizeSpec } from "../types.js";
 import { viewFor } from "./registry.js";
 import type { Store } from "./store.js";
 
@@ -26,13 +28,14 @@ class ViewBoundary extends Component<{ type: string; children: ReactNode }, { er
 
   override render() {
     if (this.state.error) {
-      return <div className="pu-view-error">⚠ {this.props.type}: {this.state.error.message}</div>;
+      return <div className={puViewError}>⚠ {this.props.type}: {this.state.error.message}</div>;
     }
     return this.props.children;
   }
 }
 
-export function Field({ id, runtime }: { id: Id; runtime: FieldRuntime }) {
+/** `distributed` is set by a parent whose def declares `slots: "distribute"` — see slot() below. */
+export function Field({ id, runtime, distributed = false }: { id: Id; runtime: FieldRuntime; distributed?: boolean }) {
   const { store } = runtime;
   const subscribe = useCallback((cb: () => void) => store.subscribe(id, cb), [store, id]);
   const inst = useSyncExternalStore(subscribe, () => store.get(id), () => store.get(id));
@@ -43,9 +46,10 @@ export function Field({ id, runtime }: { id: Id; runtime: FieldRuntime }) {
     (path: Path | Lens<unknown>, value: unknown) => store.setLocal(id, isLens(path) ? path.path : path, value),
     [store, id],
   );
+  const distributes = inst?.props[SLOTS] === true;
   const slot = useCallback(
-    (child: Id): ReactNode => <Field key={child} id={child} runtime={runtime} />,
-    [runtime],
+    (child: Id): ReactNode => <Field key={child} id={child} runtime={runtime} distributed={distributes} />,
+    [runtime, distributes],
   );
   const viewProps = useMemo(
     () => ({ id, props: inst?.props, state: inst?.state, emit, send, set, slot }),
@@ -65,17 +69,24 @@ export function Field({ id, runtime }: { id: Id; runtime: FieldRuntime }) {
       ? { gridColumn: colspan > 1 ? `span ${colspan}` : undefined, gridRow: rowspan > 1 ? `span ${rowspan}` : undefined }
       : undefined;
   const grow = inst.props[GROW] ? " pu-field-grow" : "";
+  // a widget only *claims* space inside a container that distributes it; elsewhere `fill` degrades
+  // to its intrinsic size rather than collapsing against an indefinite parent
+  const size: Required<SizeSpec> = { ...DEFAULT_SIZE, ...((inst.props[SIZE] as SizeSpec | undefined) ?? {}) };
+  const fill =
+    (size.x === "fill" ? ` ${puFillX}` : "") +
+    (size.y === "fill" ? ` ${puFillY}` : "") +
+    (distributed ? ` ${puSlot}` : "");
   const density = typeof inst.props[DENSITY] === "string" ? (inst.props[DENSITY] as string) : undefined;
   const theme = typeof inst.props[THEME] === "string" ? (inst.props[THEME] as string) : undefined;
 
   return (
     <div
-      className={`pu-field${enabled ? "" : " pu-disabled"}${busy ? " pu-busy" : ""}${grow}`}
+      className={`${puField}${enabled ? "" : ` ${puDisabled}`}${busy ? ` ${puBusy}` : ""}${grow}${fill}`}
       style={spanStyle}
       data-density={density}
       data-theme={theme}
     >
-      {busy && <div className="pu-busy-bar" role="status" aria-label="Loading" />}
+      {busy && <div className={puBusyBar} role="status" aria-label="Loading" />}
       <ViewBoundary type={inst.type}>
         <Suspense fallback={null}>{createElement(View, viewProps)}</Suspense>
       </ViewBoundary>

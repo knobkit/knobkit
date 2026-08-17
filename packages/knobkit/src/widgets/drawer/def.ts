@@ -3,6 +3,8 @@ import { containerMethods } from "../layout/container.js";
 
 const drawerDef = defineWidget({
   type: "drawer",
+  size: { x: "fill", y: "fill" },
+  slots: "distribute",
   state: {
     items: { initial: [] as unknown[] },
     open: { initial: true }, // toggling is a view-local edit

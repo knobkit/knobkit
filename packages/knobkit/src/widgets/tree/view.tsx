@@ -1,4 +1,4 @@
-import "./tree.css";
+import { puTree, puTreeChildren, puTreeIcon, puTreeInput, puTreeLabel, puTreeNode, puTreeNodeSelected, puTreeToggle, puTreeToggleLeaf } from "./tree.css.js";
 import { useRef, type MouseEvent, type ReactNode } from "react";
 import type { ViewProps } from "@knobkit/core/client";
 import type { TreeNode } from "./def.js";
@@ -20,7 +20,7 @@ function RenameInput({ value, onCommit, onCancel }: { value: string; onCommit: (
   };
   return (
     <input
-      className="pu-tree-input"
+      className={puTreeInput}
       defaultValue={value}
       autoFocus
       onFocus={(e) => e.currentTarget.select()}
@@ -67,14 +67,14 @@ export default function TreeView({ state, emit, set }: ViewProps<TreeState>) {
     return (
       <li key={node.id} role="treeitem" aria-expanded={folder ? open : undefined} aria-selected={node.id === selected}>
         <div
-          className={`pu-tree-node${node.id === selected ? " pu-tree-node--selected" : ""}`}
+          className={`${puTreeNode}${node.id === selected ? ` ${puTreeNodeSelected}` : ""}`}
           style={{ paddingLeft: depth * 16 + 8 }}
           onClick={() => choose(node)}
           onDoubleClick={() => emit("activated", { id: node.id, data: node.data })}
           onContextMenu={(e) => contextmenu(node, e)}
         >
           <span
-            className={`pu-tree-toggle${folder ? "" : " pu-tree-toggle--leaf"}`}
+            className={`${puTreeToggle}${folder ? "" : ` ${puTreeToggleLeaf}`}`}
             onClick={(e) => {
               if (folder) {
                 e.stopPropagation();
@@ -84,15 +84,15 @@ export default function TreeView({ state, emit, set }: ViewProps<TreeState>) {
           >
             {folder ? (open ? "▼" : "▶") : ""}
           </span>
-          {node.icon && <span className="pu-tree-icon">{node.icon}</span>}
+          {node.icon && <span className={puTreeIcon}>{node.icon}</span>}
           {node.id === editing ? (
             <RenameInput value={node.label} onCommit={(v) => commitRename(node.id, v)} onCancel={() => set(["editing"], null)} />
           ) : (
-            <span className="pu-tree-label">{node.label}</span>
+            <span className={puTreeLabel}>{node.label}</span>
           )}
         </div>
         {kids ? (
-          <ul className="pu-tree-children" role="group">
+          <ul className={puTreeChildren} role="group">
             {kids.map((c) => renderNode(c, depth + 1))}
           </ul>
         ) : null}
@@ -101,7 +101,7 @@ export default function TreeView({ state, emit, set }: ViewProps<TreeState>) {
   };
 
   return (
-    <ul className="pu-tree" role="tree">
+    <ul className={puTree} role="tree">
       {(state.nodes ?? []).map((n) => renderNode(n, 0))}
     </ul>
   );

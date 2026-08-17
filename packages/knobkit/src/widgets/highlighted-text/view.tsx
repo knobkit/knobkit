@@ -1,4 +1,4 @@
-import "./highlighted-text.css";
+import { puHltext, puHltextEmpty, puHltextLabel, puHltextSpan } from "./highlighted-text.css.js";
 import { seriesPalette, useThemeVersion } from "@knobkit/core/client";
 import type { ViewProps } from "@knobkit/core/client";
 import type { HighlightSpan } from "./def.js";
@@ -17,20 +17,20 @@ export default function HighlightedTextView({
   const colorMap = state.colorMap ?? {};
   useThemeVersion();
   const palette = seriesPalette();
-  if (spans.length === 0) return <div className="pu-hltext-empty">—</div>;
+  if (spans.length === 0) return <div className={puHltextEmpty}>—</div>;
   return (
-    <div className="pu-hltext">
+    <div className={puHltext}>
       {spans.map((s, i) => {
         if (!s.label) return <span key={i}>{s.text}</span>;
         const color = colorFor(s.label, colorMap, palette);
         return (
           <span
             key={i}
-            className="pu-hltext-span"
+            className={puHltextSpan}
             style={{ background: `color-mix(in srgb, ${color} 13%, transparent)`, borderColor: color }}
           >
             {s.text}
-            <span className="pu-hltext-label" style={{ color }}>
+            <span className={puHltextLabel} style={{ color }}>
               {s.label}
             </span>
           </span>

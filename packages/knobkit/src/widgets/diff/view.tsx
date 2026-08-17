@@ -1,4 +1,4 @@
-import "./diff.css";
+import { puDiff, puDiffCode, puDiffContent, puDiffEmpty, puDiffFile, puDiffFileIcon, puDiffFilePath, puDiffLn, puDiffMain, puDiffModeBtn, puDiffModeGroup, puDiffSidebar, puDiffSidebarTitle, puDiffSign, puDiffSplit, puDiffSplitHeader, puDiffSplitPane, puDiffTable, puDiffToolbar, puDiffToolbarPath } from "./diff.css.js";
 import { useMemo, useState } from "react";
 import type { ViewProps } from "@knobkit/core/client";
 import type { FileDiff } from "./def.js";
@@ -70,17 +70,17 @@ function FileList({
 }) {
   const statusIcon: Record<string, string> = { added: "added", modified: "modified", deleted: "deleted", renamed: "renamed" };
   return (
-    <div className="pu-diff-sidebar">
-      <div className="pu-diff-sidebar-title">Files ({files.length})</div>
+    <div className={puDiffSidebar}>
+      <div className={puDiffSidebarTitle}>Files ({files.length})</div>
       {files.map((f, i) => (
         <button
           key={i}
-          className="pu-diff-file"
+          className={puDiffFile}
           aria-selected={i === activeFile}
           onClick={() => onSelect(i)}
         >
-          <span className={`pu-diff-file-icon pu-diff-file-icon--${statusIcon[f.status ?? "modified"] ?? "modified"}`} />
-          <span className="pu-diff-file-path">{f.path}</span>
+          <span className={`${puDiffFileIcon} pu-diff-file-icon--${statusIcon[f.status ?? "modified"] ?? "modified"}`} />
+          <span className={puDiffFilePath}>{f.path}</span>
         </button>
       ))}
     </div>
@@ -89,17 +89,17 @@ function FileList({
 
 function UnifiedView({ lines }: { lines: DiffLine[] }) {
   return (
-    <div className="pu-diff-content">
-      <table className="pu-diff-table">
+    <div className={puDiffContent}>
+      <table className={puDiffTable}>
         <tbody>
           {lines.map((line, i) => (
             <tr key={i} className={line.type !== "same" ? `pu-diff-row--${line.type}` : undefined}>
-              <td className="pu-diff-ln">{line.oldNum ?? ""}</td>
-              <td className="pu-diff-ln">{line.newNum ?? ""}</td>
-              <td className="pu-diff-sign">
+              <td className={puDiffLn}>{line.oldNum ?? ""}</td>
+              <td className={puDiffLn}>{line.newNum ?? ""}</td>
+              <td className={puDiffSign}>
                 {line.type === "add" ? "+" : line.type === "remove" ? "−" : " "}
               </td>
-              <td className="pu-diff-code">{line.content}</td>
+              <td className={puDiffCode}>{line.content}</td>
             </tr>
           ))}
         </tbody>
@@ -126,9 +126,9 @@ function SplitView({ lines }: { lines: DiffLine[] }) {
   }
 
   const renderPane = (rows: (DiffLine | null)[], header: string) => (
-    <div className="pu-diff-split-pane">
-      <div className="pu-diff-split-header">{header}</div>
-      <table className="pu-diff-table">
+    <div className={puDiffSplitPane}>
+      <div className={puDiffSplitHeader}>{header}</div>
+      <table className={puDiffTable}>
         <tbody>
           {rows.map((line, i) => (
             <tr
@@ -137,8 +137,8 @@ function SplitView({ lines }: { lines: DiffLine[] }) {
                 line && line.type !== "same" ? `pu-diff-row--${line.type}` : undefined
               }
             >
-              <td className="pu-diff-ln">{line?.oldNum ?? line?.newNum ?? ""}</td>
-              <td className="pu-diff-sign">
+              <td className={puDiffLn}>{line?.oldNum ?? line?.newNum ?? ""}</td>
+              <td className={puDiffSign}>
                 {line
                   ? line.type === "add"
                     ? "+"
@@ -147,7 +147,7 @@ function SplitView({ lines }: { lines: DiffLine[] }) {
                       : " "
                   : ""}
               </td>
-              <td className="pu-diff-code">{line?.content ?? ""}</td>
+              <td className={puDiffCode}>{line?.content ?? ""}</td>
             </tr>
           ))}
         </tbody>
@@ -156,7 +156,7 @@ function SplitView({ lines }: { lines: DiffLine[] }) {
   );
 
   return (
-    <div className="pu-diff-split">
+    <div className={puDiffSplit}>
       {renderPane(left, "Old")}
       {renderPane(right, "New")}
     </div>
@@ -180,30 +180,30 @@ export default function DiffView({ state }: ViewProps<{ files: FileDiff[] }>) {
 
   if (files.length === 0) {
     return (
-      <div className="pu-diff">
-        <div className="pu-diff-empty">No files to review</div>
+      <div className={puDiff}>
+        <div className={puDiffEmpty}>No files to review</div>
       </div>
     );
   }
 
   return (
-    <div className="pu-diff">
+    <div className={puDiff}>
       {files.length > 1 && (
         <FileList files={files} activeFile={active} onSelect={setActiveFile} />
       )}
-      <div className="pu-diff-main">
-        <div className="pu-diff-toolbar">
-          <span className="pu-diff-toolbar-path">{file?.path ?? ""}</span>
-          <div className="pu-diff-mode-group">
+      <div className={puDiffMain}>
+        <div className={puDiffToolbar}>
+          <span className={puDiffToolbarPath}>{file?.path ?? ""}</span>
+          <div className={puDiffModeGroup}>
             <button
-              className="pu-diff-mode-btn"
+              className={puDiffModeBtn}
               aria-pressed={mode === "unified"}
               onClick={() => setMode("unified")}
             >
               Unified
             </button>
             <button
-              className="pu-diff-mode-btn"
+              className={puDiffModeBtn}
               aria-pressed={mode === "split"}
               onClick={() => setMode("split")}
             >

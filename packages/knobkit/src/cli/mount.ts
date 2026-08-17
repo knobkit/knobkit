@@ -26,7 +26,9 @@ export async function buildMount(root: string, entry: string): Promise<void> {
   try {
     await viteBuild({
       ...mountConfig(root, entry, true),
-      build: { outDir: "dist", emptyOutDir: true },
+      // match the serve build: one stylesheet, so a widget's CSS is present whether or not its
+      // view chunk has loaded. Per-chunk CSS makes styling depend on which widgets an app composes.
+      build: { outDir: "dist", emptyOutDir: true, cssCodeSplit: false },
     });
   } finally {
     if (created) rmSync(htmlPath, { force: true });

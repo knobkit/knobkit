@@ -36,6 +36,8 @@ packages/core/src/          @knobkit/core — the kernel, isomorphic, dependency
                             media LRU + /__media, vite dev middleware over a *generated* entry
 packages/knobkit/src/       knobkit — the standard library; re-exports the core authoring surface
   widgets/<name>/           def.ts (defineWidget) + view.tsx (default export) + <name>.css
+  widgets/_primitives/      controls.css, media.css — rules shared by 2+ views
+  <name>.css.ts             generated beside every .css: imports it, exports a const per class
   media.ts                  knobkit/media: dataUrlToBytes, bytesToDataUrl, pcmToWav (+ core re-exports)
   cli/                      knobkit bin: dev/build/serve/playground, mount vite config,
                             view-transform.ts (viewRef → lazy import thunk), playground-app.ts
@@ -116,6 +118,28 @@ export const thing = defineWidget({
 local-only edit (transported only if watched). Export the factory from `src/index.ts`. CSS next to
 the view, **only `--pu-*` tokens** (test-enforced; see Theming).
 
+**Class names come from imports, never from string literals.** CSS rides the lazy chunk of the
+module that imports it, so a rule borrowed from another widget's file applies only when that widget
+happens to be on the page too — a property of the app, not the widget. `scripts/gen-css-classes.mjs`
+generates a `<name>.css.ts` beside every `<name>.css` that imports the sheet and exports a constant
+per class, so **naming a class is what loads its rules** and the two cannot drift apart:
+
+```tsx
+import { puInput } from "../_primitives/controls.css.js";   // pulls controls.css with it
+<input className={puInput} />
+```
+
+A sheet that only *extends* a foreign class (`textarea.pu-input`, `.pu-composer .pu-input`) has its
+generated module re-export the name from the defining sheet, so the base rule follows. Ownership is
+the bare selector `.pu-x`; a class defined twice is a codegen error. A rule needed by 2+ views goes
+in `widgets/_primitives/`; a rule for a shared sub-module (`output/markdown.tsx`, loaded by both
+`output` and `chat`) goes beside that sub-module. Core's chrome classes come from
+`@knobkit/core/client` — its `styles.css` rides `render.tsx` and is always present.
+
+Dynamic variants (`` `${puToast} pu-toast--${variant}` ``) stay literal; the base constant imported
+alongside them has already pulled the sheet that defines every variant. Run `pnpm gen:css` after
+touching CSS — `css-classes.test.ts` fails on stale output or on a class-name literal in a view.
+
 View delivery: serve builds a **generated entry** (one `register(type, () => import(<view path>))`
 per registered def) via vite middleware (dev, `KNOBKIT_DEV=1`) or `knobkit build` → `dist/client`;
 mount bundles the app itself and the CLI's `viewRef` transform makes view imports statically
@@ -131,6 +155,34 @@ Carried over verbatim from the old engine: two token families in `core/src/clien
 fill })` rides in `#app` state (serve pre-applies attrs in the HTML — no FOUC) and is runtime-editable.
 JS-drawn colors (chart series) read tokens via `seriesPalette()`/`cssVar()` + `useThemeVersion()`
 from `@knobkit/core/client`.
+
+## Sizing
+
+**How tall a widget gets is declared, not styled.** A widget says what it does with offered space;
+a container says it offers some; `Field` emits the plumbing. No widget writes `height: 100%` to fill
+a parent, and no container writes rules about its children:
+
+```ts
+defineWidget({ size: { x: "fill", y: "fill" }, … })   // terminal, code, table, tree, frame
+defineWidget({ slots: "distribute", … })              // row/col/grid, tabs, split-pane, drawer
+```
+
+Default is `{ x: "fill", y: "intrinsic" }` — as wide as offered, as tall as its content — so most
+widgets declare nothing. The declaration rides `$size`/`$slots` props stamped at `instantiate`,
+because the serve tier's client has views but no defs; props already cross the wire.
+
+`Field` marks a child of a distributing container `.pu-slot` and adds `.pu-fill-x`/`.pu-fill-y` from
+its own declaration. Only `.pu-slot` rules do anything, so `fill` outside a distributing container
+keeps its intrinsic size instead of collapsing. **`flex-basis` stays `auto` everywhere** — with
+basis `0` an indefinite-height flex column (a plain `col` on a normal page) resolves its children to
+zero height. `grow(w)` still wins: when a col names the child that absorbs the leftover, siblings
+that merely *could* fill stand down.
+
+`data-fill` no longer propagates size; it is only page chrome (viewport-height page, full-bleed,
+smaller `h1`) plus the root field's claim, since the page is not a widget. A widget's *internal*
+layout (tabs' bar-plus-panel) is still its own CSS, keyed off `.pu-fill-y` — that part is local to
+one file. Block-level boxes between a container and its slots (tabs' panel, split-pane's panel,
+drawer's body) hand height down explicitly; the flex claim cannot cross them.
 
 ## Gotchas
 

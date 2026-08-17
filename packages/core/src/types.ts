@@ -54,6 +54,23 @@ export const GROW = "$grow";
 export const DENSITY = "$density";
 export const THEME = "$theme";
 
+/**
+ * The sizing contract, stamped from the widget's definition at instantiate time. It rides props
+ * because the serve tier's client has views but no defs — props already cross the wire, so both
+ * tiers read the same declaration with no protocol change.
+ */
+export const SIZE = "$size";
+export const SLOTS = "$slots";
+
+/** Per axis: does the widget consume space a container offers, or take its natural size? */
+export type Extent = "fill" | "intrinsic";
+export interface SizeSpec {
+  x?: Extent;
+  y?: Extent;
+}
+/** Block-level default: as wide as offered, as tall as its content. */
+export const DEFAULT_SIZE: Required<SizeSpec> = { x: "fill", y: "intrinsic" };
+
 export interface KnobkitServer {
   url: string;
   stop(): Promise<void>;

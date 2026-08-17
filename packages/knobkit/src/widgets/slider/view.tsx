@@ -1,4 +1,4 @@
-import "./slider.css";
+import { puSlider, puSliderVal } from "./slider.css.js";
 import type { ViewProps } from "@knobkit/core/client";
 
 export default function SliderView({ props, state, emit, set }: ViewProps<{ value: number }, { min: number; max: number; step: number }>) {
@@ -7,7 +7,7 @@ export default function SliderView({ props, state, emit, set }: ViewProps<{ valu
     emit("changed", v);
   };
   return (
-    <div className="pu-slider">
+    <div className={puSlider}>
       <input
         type="range"
         min={props.min}
@@ -16,7 +16,7 @@ export default function SliderView({ props, state, emit, set }: ViewProps<{ valu
         value={state.value}
         onChange={(e) => update(e.currentTarget.valueAsNumber)}
       />
-      <output className="pu-slider-val">{state.value}</output>
+      <output className={puSliderVal}>{state.value}</output>
     </div>
   );
 }

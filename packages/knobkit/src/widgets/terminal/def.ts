@@ -2,6 +2,7 @@ import { defineWidget, t, viewRef } from "@knobkit/core";
 
 export const terminal = defineWidget({
   type: "terminal",
+  size: { y: "fill" },
   state: { buffer: { initial: "" } },
   props: {
     rows: { default: 24 },

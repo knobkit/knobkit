@@ -43,6 +43,7 @@
       "default": "./dist/knobkit.browser.js"
     },
     "./browser.css": "./dist/knobkit.browser.css",
+    "./styles/*": "./dist/widgets/_primitives/*",
     "./vite": {
       "types": "./dist/cli/view-transform.d.ts",
       "default": "./dist/cli/view-transform.js"
@@ -61,12 +62,13 @@
   "scripts": {
     "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"",
     "build": "pnpm run clean && pnpm run build:lib && pnpm run build:browser && pnpm run typecheck",
-    "build:lib": "tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
+    "build:lib": "node scripts/gen-css-classes.mjs && tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
     "build:browser": "vite build --config vite.browser.config.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepare": "pnpm run build:lib && pnpm run build:browser",
     "prepublishOnly": "pnpm run build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "gen:css": "node scripts/gen-css-classes.mjs"
   },
   "dependencies": {
     "@knobkit/core": "workspace:*",

@@ -1,4 +1,4 @@
-import "./annotated-image.css";
+import { puAnnimg, puAnnimgBase, puAnnimgBox, puAnnimgChip, puAnnimgEmpty, puAnnimgFrame, puAnnimgLegend, puAnnimgMask, puAnnimgSwatch, puAnnimgTag } from "./annotated-image.css.js";
 import { useState } from "react";
 import { mediaUrl } from "@knobkit/core";
 import type { MediaRef } from "@knobkit/core";
@@ -25,15 +25,15 @@ export default function AnnotatedImageView({
   const [nat, setNat] = useState<{ w: number; h: number } | null>(null);
   useThemeVersion();
   const palette = seriesPalette();
-  if (!state.src) return <div className="pu-annimg-empty">—</div>;
+  if (!state.src) return <div className={puAnnimgEmpty}>—</div>;
   const annotations = state.annotations ?? [];
   const colorMap = state.colorMap ?? {};
   const labels = [...new Set(annotations.map((a) => a.label))];
   return (
-    <div className="pu-annimg">
-      <div className="pu-annimg-frame">
+    <div className={puAnnimg}>
+      <div className={puAnnimgFrame}>
         <img
-          className="pu-annimg-base"
+          className={puAnnimgBase}
           src={url(state.src)}
           alt=""
           onLoad={(e) => setNat({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
@@ -43,10 +43,10 @@ export default function AnnotatedImageView({
             const color = colorFor(a.label, colorMap, palette);
             return (
               <span key={i}>
-                {a.mask && <img className="pu-annimg-mask" src={url(a.mask)} alt="" />}
+                {a.mask && <img className={puAnnimgMask} src={url(a.mask)} alt="" />}
                 {a.box && (
                   <span
-                    className="pu-annimg-box"
+                    className={puAnnimgBox}
                     style={{
                       left: `${(a.box[0] / nat.w) * 100}%`,
                       top: `${(a.box[1] / nat.h) * 100}%`,
@@ -55,7 +55,7 @@ export default function AnnotatedImageView({
                       borderColor: color,
                     }}
                   >
-                    <span className="pu-annimg-tag" style={{ background: color }}>
+                    <span className={puAnnimgTag} style={{ background: color }}>
                       {a.label}
                     </span>
                   </span>
@@ -65,10 +65,10 @@ export default function AnnotatedImageView({
           })}
       </div>
       {labels.length > 0 && (
-        <div className="pu-annimg-legend">
+        <div className={puAnnimgLegend}>
           {labels.map((l) => (
-            <span key={l} className="pu-annimg-chip">
-              <span className="pu-annimg-swatch" style={{ background: colorFor(l, colorMap, palette) }} />
+            <span key={l} className={puAnnimgChip}>
+              <span className={puAnnimgSwatch} style={{ background: colorFor(l, colorMap, palette) }} />
               {l}
             </span>
           ))}

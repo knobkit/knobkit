@@ -1,3 +1,4 @@
+import { puInput } from "../_primitives/controls.css.js";
 import type { ViewProps } from "@knobkit/core/client";
 
 interface Props {
@@ -13,7 +14,7 @@ export default function NumberView({ props, state, emit, set }: ViewProps<{ valu
   };
   return (
     <input
-      className="pu-input"
+      className={puInput}
       type="number"
       min={props.min}
       max={props.max}

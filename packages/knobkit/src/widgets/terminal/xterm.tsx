@@ -1,3 +1,4 @@
+import { puTerminal, puTerminalDisabled } from "./terminal.css.js";
 import { useEffect, useRef } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
@@ -162,5 +163,5 @@ export default function XtermView({ props, state, emit, set }: ViewProps<Termina
   }, [state.buffer]);
 
   // pointer-events: none while disabled, so focus/typing can't reach the xterm canvas
-  return <div ref={hostRef} className={`pu-terminal${state.$enabled === false ? " pu-terminal-disabled" : ""}`} />;
+  return <div ref={hostRef} className={`${puTerminal}${state.$enabled === false ? ` ${puTerminalDisabled}` : ""}`} />;
 }

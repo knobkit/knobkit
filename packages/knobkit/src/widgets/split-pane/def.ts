@@ -3,6 +3,8 @@ import { containerMethods } from "../layout/container.js";
 
 const splitPaneDef = defineWidget({
   type: "splitPane",
+  size: { x: "fill", y: "fill" },
+  slots: "distribute",
   state: {
     items: { initial: [] as unknown[] },
     ratio: { initial: 0.5 }, // state, not prop: the view drags it locally

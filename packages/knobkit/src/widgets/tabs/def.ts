@@ -10,6 +10,8 @@ export interface TabPanel {
 
 const tabsDef = defineWidget({
   type: "tabs",
+  size: { x: "fill", y: "fill" },
+  slots: "distribute",
   state: {
     items: { initial: [] as unknown[] },
     labels: { initial: [] as string[] },

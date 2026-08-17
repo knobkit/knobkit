@@ -4,12 +4,6 @@
     flex-direction: column;
     gap: 12px;
   }
-  .pu-image {
-    display: block;
-    max-width: 100%;
-    border: 1px solid var(--pu-border);
-    border-radius: var(--pu-radius-sm);
-  }
   .pu-upload-drop {
     display: flex;
     align-items: center;

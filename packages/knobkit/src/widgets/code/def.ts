@@ -2,6 +2,7 @@ import { defineWidget, t, viewRef } from "@knobkit/core";
 
 export const code = defineWidget({
   type: "code",
+  size: { y: "fill" },
   state: {
     value: { initial: "" },
     language: { initial: "" }, // state, not prop: runtime-switchable via setLanguage()

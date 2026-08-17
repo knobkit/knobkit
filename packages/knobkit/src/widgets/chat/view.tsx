@@ -1,4 +1,5 @@
-import "./chat.css";
+import "../_primitives/controls.css";
+import { puAttach, puAttachX, puAttachment, puChat, puComposer, puInput, puMic, puMsg, puMsgImage, puMsgMd, puRec } from "./chat.css.js";
 import { lazy, Suspense, useRef, useState } from "react";
 import { mediaUrl, toMedia } from "@knobkit/core";
 import type { MediaRef } from "@knobkit/core";
@@ -78,11 +79,11 @@ export default function ChatView({ props, state, emit, send }: ViewProps<{ messa
   };
 
   return (
-    <div className="pu-chat">
+    <div className={puChat}>
       {state.messages.map((m, i) => {
         const asMarkdown = props.markdown && m.role === "assistant";
         return (
-          <div key={i} className={`pu-msg pu-${m.role}${asMarkdown ? " pu-msg-md" : ""}`}>
+          <div key={i} className={`${puMsg} pu-${m.role}${asMarkdown ? ` ${puMsgMd}` : ""}`}>
             <b>{m.role}:</b>{" "}
             {asMarkdown ? (
               <Suspense fallback={<span>{m.content}</span>}>
@@ -91,29 +92,29 @@ export default function ChatView({ props, state, emit, send }: ViewProps<{ messa
             ) : (
               m.content
             )}
-            {m.image && <img className="pu-msg-image" src={imageSrc(m.image)} alt="" />}
+            {m.image && <img className={puMsgImage} src={imageSrc(m.image)} alt="" />}
           </div>
         );
       })}
       {pending && (
-        <div className="pu-attachment">
+        <div className={puAttachment}>
           <img src={mediaUrl(pending)} alt="" />
-          <button className="pu-attach-x" onClick={() => setPending(null)} aria-label="Remove image">
+          <button className={puAttachX} onClick={() => setPending(null)} aria-label="Remove image">
             ✕
           </button>
         </div>
       )}
-      <div className="pu-composer">
+      <div className={puComposer}>
         {props.images && (
           <>
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={pick} />
-            <button className="pu-attach" onClick={() => fileRef.current?.click()} aria-label="Attach image">
+            <button className={puAttach} onClick={() => fileRef.current?.click()} aria-label="Attach image">
               +
             </button>
           </>
         )}
         <input
-          className="pu-input"
+          className={puInput}
           placeholder={props.placeholder}
           onKeyDown={(e) => {
             if (e.key === "Enter") submit(e.currentTarget);
@@ -121,7 +122,7 @@ export default function ChatView({ props, state, emit, send }: ViewProps<{ messa
         />
         {props.voice && (
           <button
-            className={`pu-mic${recording ? " pu-rec" : ""}`}
+            className={`${puMic}${recording ? ` ${puRec}` : ""}`}
             onPointerDown={start}
             onPointerUp={stop}
             onPointerLeave={() => pressedRef.current && stop()}

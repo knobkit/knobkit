@@ -1,4 +1,4 @@
-import "./output.css";
+import { puOutput } from "./output.css.js";
 import { lazy, Suspense } from "react";
 import type { ViewProps } from "@knobkit/core/client";
 
@@ -7,7 +7,7 @@ import type { ViewProps } from "@knobkit/core/client";
 const Markdown = lazy(() => import("./markdown.js"));
 
 export default function OutputView({ props, state }: ViewProps<{ value: string }, { format: string }>) {
-  const plain = <div className="pu-output">{state.value || "—"}</div>;
+  const plain = <div className={puOutput}>{state.value || "—"}</div>;
   if (props.format !== "markdown") return plain;
   return <Suspense fallback={plain}><Markdown value={state.value} /></Suspense>;
 }

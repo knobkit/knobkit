@@ -21,6 +21,7 @@ function mapNode(nodes: TreeNode[], id: string, fn: (n: TreeNode) => TreeNode): 
 
 const treeDef = defineWidget({
   type: "tree",
+  size: { y: "fill" },
   state: {
     nodes: { initial: [] as TreeNode[] },
     expanded: { initial: [] as string[] },

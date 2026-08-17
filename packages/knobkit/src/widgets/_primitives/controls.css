@@ -1,0 +1,54 @@
+/*
+ * Control primitives shared by more than one widget. A view's CSS ships in that view's lazy chunk,
+ * so a class whose base rule lives in *another* widget's file is styled only when that widget
+ * happens to be on the page too — a property of the app, not of the widget. Any pu-* class used by
+ * two or more views belongs here, and every view that renders it imports this file directly
+ * (css-ownership.test.ts enforces it). Public as `knobkit/styles/controls.css` so a third-party
+ * widget package can render knobkit-looking controls the same way the built-ins do.
+ */
+@layer components {
+  .pu-input {
+    width: 100%;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    font: inherit;
+    color: inherit;
+    background: var(--pu-field);
+    outline: none;
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  .pu-input:focus {
+    border-color: var(--pu-accent);
+    box-shadow: 0 0 0 3px var(--pu-ring);
+  }
+
+  .pu-submit {
+    padding: var(--pu-cpad-y) calc(var(--pu-cpad-x) + 4px);
+    border: none;
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-accent);
+    color: var(--pu-on-accent);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.06s;
+  }
+  .pu-submit:hover {
+    background: var(--pu-accent-press);
+  }
+  .pu-submit:active {
+    transform: translateY(1px);
+  }
+  .pu-submit:disabled {
+    opacity: 0.55;
+    cursor: default;
+    background: var(--pu-accent);
+    transform: none;
+  }
+  /* recording state, shared by mic and webcam */
+  .pu-submit.pu-rec,
+  .pu-submit.pu-rec:hover {
+    background: var(--pu-danger);
+  }
+}

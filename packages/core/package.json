@@ -36,10 +36,11 @@
   ],
   "scripts": {
     "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"",
-    "build": "pnpm run clean && tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
+    "build": "pnpm run clean && node scripts/gen-css-classes.mjs && tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepare": "pnpm run build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "gen:css": "node scripts/gen-css-classes.mjs"
   },
   "dependencies": {
     "ws": "^8.18.0"

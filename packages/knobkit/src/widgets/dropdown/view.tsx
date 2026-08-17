@@ -1,3 +1,4 @@
+import { puInput } from "../_primitives/controls.css.js";
 import type { ViewProps } from "@knobkit/core/client";
 import { choiceValue } from "./def.js";
 import type { DropdownChoice } from "./def.js";
@@ -8,7 +9,7 @@ export default function DropdownView({ props, state, emit, set }: ViewProps<{ va
     emit("changed", v);
   };
   return (
-    <select className="pu-input" value={state.value} onChange={(e) => update(e.currentTarget.value)}>
+    <select className={puInput} value={state.value} onChange={(e) => update(e.currentTarget.value)}>
       {props.choices.map((c) => {
         const value = choiceValue(c);
         return (

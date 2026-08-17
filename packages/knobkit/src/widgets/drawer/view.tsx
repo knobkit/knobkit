@@ -1,4 +1,4 @@
-import "./drawer.css";
+import { puDrawer, puDrawerBody, puDrawerCollapsed, puDrawerMain, puDrawerNav, puDrawerToggle } from "./drawer.css.js";
 import type { ViewProps } from "@knobkit/core/client";
 
 export default function DrawerView({ state, set, slot }: ViewProps<{ items: string[]; open: boolean }>) {
@@ -6,19 +6,19 @@ export default function DrawerView({ state, set, slot }: ViewProps<{ items: stri
   const open = state.open !== false;
   const [nav, main] = items;
   return (
-    <div className={`pu-drawer${open ? "" : " pu-drawer-collapsed"}`}>
-      <div className="pu-drawer-nav">
+    <div className={`${puDrawer}${open ? "" : ` ${puDrawerCollapsed}`}`}>
+      <div className={puDrawerNav}>
         <button
-          className="pu-drawer-toggle"
+          className={puDrawerToggle}
           aria-label={open ? "Collapse drawer" : "Expand drawer"}
           aria-expanded={open}
           onClick={() => set(["open"], !open)}
         >
           {open ? "⟨⟨" : "☰"}
         </button>
-        {open && nav != null && <div className="pu-drawer-body">{slot(nav)}</div>}
+        {open && nav != null && <div className={puDrawerBody}>{slot(nav)}</div>}
       </div>
-      <div className="pu-drawer-main">{main != null ? slot(main) : null}</div>
+      <div className={puDrawerMain}>{main != null ? slot(main) : null}</div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import "./checkbox.css";
+import { puCheck } from "./checkbox.css.js";
 import type { ViewProps } from "@knobkit/core/client";
 
 export default function CheckboxView({ props, state, emit, set }: ViewProps<{ value: boolean }, { label: string }>) {
@@ -7,7 +7,7 @@ export default function CheckboxView({ props, state, emit, set }: ViewProps<{ va
     emit("changed", v);
   };
   return (
-    <label className="pu-check">
+    <label className={puCheck}>
       <input type="checkbox" checked={state.value} onChange={(e) => update(e.currentTarget.checked)} /> {props.label}
     </label>
   );

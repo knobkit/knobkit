@@ -1,3 +1,4 @@
+import { puLayout, puLayoutCol } from "./styles.css.js";
 // @vitest-environment jsdom
 import { describe, expect, test } from "vitest";
 import { knobkit } from "../app.js";
@@ -28,7 +29,7 @@ register("probe", () => Promise.resolve({ default: ProbeView }));
 register("col", () =>
   Promise.resolve({
     default: ({ state, slot }: ViewProps<{ items: string[] }>) => (
-      <div className="pu-layout pu-layout-col">{state.items.map(slot)}</div>
+      <div className={`${puLayout} ${puLayoutCol}`}>{state.items.map(slot)}</div>
     ),
   }),
 );

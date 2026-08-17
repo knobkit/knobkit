@@ -1,4 +1,9 @@
 @layer components {
+  /* The escape hatch imposes nothing on author markup — but the wrapper still needs to exist as a
+     nameable, themeable hook, which is what authors target to scope their own rules. */
+  .pu-html {
+    display: block;
+  }
   .pu-html-empty {
     color: var(--pu-muted);
   }

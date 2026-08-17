@@ -1,4 +1,4 @@
-import "./split-pane.css";
+import { puSplitPane, puSplitPaneHandle, puSplitPanePanel } from "./split-pane.css.js";
 import { useCallback, useRef } from "react";
 import type { ViewProps } from "@knobkit/core/client";
 
@@ -32,12 +32,12 @@ export default function SplitPaneView({ props, state, set, slot }: ViewProps<{ i
   return (
     <div
       ref={containerRef}
-      className={`pu-split-pane pu-split-pane--${isHorizontal ? "horizontal" : "vertical"}`}
+      className={`${puSplitPane} pu-split-pane--${isHorizontal ? "horizontal" : "vertical"}`}
       style={isHorizontal ? { gridTemplateColumns: template } : { gridTemplateRows: template }}
     >
-      <div className="pu-split-pane-panel">{items[0] && slot(items[0])}</div>
-      <div className="pu-split-pane-handle" onMouseDown={onMouseDown} />
-      <div className="pu-split-pane-panel">{items[1] && slot(items[1])}</div>
+      <div className={puSplitPanePanel}>{items[0] && slot(items[0])}</div>
+      <div className={puSplitPaneHandle} onMouseDown={onMouseDown} />
+      <div className={puSplitPanePanel}>{items[1] && slot(items[1])}</div>
     </div>
   );
 }

@@ -1,8 +1,0 @@
-@layer components {
-  .pu-submit.pu-rec {
-    background: var(--pu-danger);
-  }
-  .pu-submit.pu-rec:hover {
-    background: var(--pu-danger);
-  }
-}

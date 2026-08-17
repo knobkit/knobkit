@@ -4,8 +4,8 @@ import type { At, Lens } from "./lens.js";
 import type { OpName } from "./ops.js";
 import type { ChannelPolicy } from "./protocol.js";
 import type { PayloadType } from "./schema.js";
-import { BUSY, ENABLED } from "./types.js";
-import type { Id, Instance, Path } from "./types.js";
+import { BUSY, DEFAULT_SIZE, ENABLED, SIZE, SLOTS } from "./types.js";
+import type { Id, Instance, Path, SizeSpec } from "./types.js";
 
 // ---------- specs ----------
 
@@ -188,6 +188,14 @@ export interface WidgetDef {
   ops?: (at: OpsBuilder<any>) => Record<string, OpDecl<any>>;
   methods?: (self: any) => object;
   view?: ViewRef;
+  /** Per axis, whether this widget consumes offered space. Defaults to `DEFAULT_SIZE`. */
+  size?: SizeSpec;
+  /**
+   * Set by containers that hand each slot a definite box (row/col/grid, tabs, split-pane, drawer).
+   * A child declaring `fill` claims its share only inside one of these; anywhere else it falls
+   * back to its intrinsic size rather than collapsing.
+   */
+  slots?: "distribute";
 }
 
 const TYPE_RE = /^[a-z][a-zA-Z0-9]*$/;
@@ -210,6 +218,8 @@ export function defineWidget<
   ops?: (at: OpsBuilder<StateOf<SS>>) => O;
   methods?: (self: Handle<SS, PS, ES, CS, O>) => M;
   view?: ViewRef;
+  size?: SizeSpec;
+  slots?: "distribute";
 }): WidgetFactory<SS, PS, ES, CS, O, M> {
   const full: WidgetDef = {
     type: def.type,
@@ -220,6 +230,8 @@ export function defineWidget<
     ops: def.ops as WidgetDef["ops"],
     methods: def.methods as WidgetDef["methods"],
     view: def.view,
+    size: def.size,
+    slots: def.slots,
   };
 
   // type format: bare `[a-z][a-zA-Z0-9]*`, or namespaced `<pkgName>/<name>` for third parties
@@ -340,6 +352,11 @@ export function instantiate(h: unknown, assignId: () => Id, emit: (id: Id, inst:
   const props: Record<string, unknown> = {};
   for (const [key, spec] of Object.entries(def.props)) props[key] = spec.default;
   Object.assign(props, internal.props);
+  // only when it differs from the block-level default, to keep the wire quiet
+  if (def.size && (def.size.x ?? DEFAULT_SIZE.x) + (def.size.y ?? DEFAULT_SIZE.y) !== DEFAULT_SIZE.x + DEFAULT_SIZE.y) {
+    props[SIZE] = { ...DEFAULT_SIZE, ...def.size };
+  }
+  if (def.slots === "distribute") props[SLOTS] = true;
 
   const lower = (value: unknown): unknown => {
     if (isHandle(value)) return instantiate(value, assignId, emit);

@@ -1,4 +1,4 @@
-import "./status-badge.css";
+import { puStatusBadge, puStatusBadgeDot, puStatusBadgeLabel } from "./status-badge.css.js";
 import type { ViewProps } from "@knobkit/core/client";
 import type { StatusBadgeVariant } from "./def.js";
 
@@ -8,9 +8,9 @@ export default function StatusBadgeView({ props, state }: ViewProps<{ status: st
   const status = state.status || "idle";
   const variant = props.variants[status] ?? (VARIANTS.has(status) ? status : "idle");
   return (
-    <span className={`pu-status-badge pu-status-badge--${variant}`}>
-      <span className="pu-status-badge-dot" />
-      <span className="pu-status-badge-label">{status}</span>
+    <span className={`${puStatusBadge} pu-status-badge--${variant}`}>
+      <span className={puStatusBadgeDot} />
+      <span className={puStatusBadgeLabel}>{status}</span>
     </span>
   );
 }

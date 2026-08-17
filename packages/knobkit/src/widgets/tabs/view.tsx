@@ -1,4 +1,4 @@
-import "./tabs.css";
+import { puTab, puTabActive, puTabBadge, puTabClose, puTabLabel, puTabs, puTabsBar, puTabsPanel } from "./tabs.css.js";
 import { useState } from "react";
 import type { ViewProps } from "@knobkit/core/client";
 
@@ -22,21 +22,21 @@ export default function TabsView({ state, set, slot }: ViewProps<TabsState>) {
   }
 
   return (
-    <div className="pu-tabs">
-      <div className="pu-tabs-bar" role="tablist">
+    <div className={puTabs}>
+      <div className={puTabsBar} role="tablist">
         {items.map((_, i) => (
           <button
             key={i}
             role="tab"
             aria-selected={i === current}
-            className={`pu-tab${i === current ? " pu-tab-active" : ""}`}
+            className={`${puTab}${i === current ? ` ${puTabActive}` : ""}`}
             onClick={() => setActive(i)}
           >
-            <span className="pu-tab-label">{labels[i] ?? `Tab ${i + 1}`}</span>
-            {badges[i] != null && badges[i] !== "" && <span className="pu-tab-badge">{badges[i]}</span>}
+            <span className={puTabLabel}>{labels[i] ?? `Tab ${i + 1}`}</span>
+            {badges[i] != null && badges[i] !== "" && <span className={puTabBadge}>{badges[i]}</span>}
             {closable[i] && (
               <span
-                className="pu-tab-close"
+                className={puTabClose}
                 role="button"
                 aria-label={`Close ${labels[i] ?? `Tab ${i + 1}`}`}
                 onClick={(e) => handleClose(e, i)}
@@ -47,7 +47,7 @@ export default function TabsView({ state, set, slot }: ViewProps<TabsState>) {
           </button>
         ))}
       </div>
-      <div className="pu-tabs-panel">{items[current] != null ? slot(items[current]) : null}</div>
+      <div className={puTabsPanel}>{items[current] != null ? slot(items[current]) : null}</div>
     </div>
   );
 }

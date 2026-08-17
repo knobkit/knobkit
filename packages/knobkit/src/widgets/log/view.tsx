@@ -1,4 +1,4 @@
-import "./log.css";
+import { puAnsiBlue, puAnsiBold, puAnsiGreen, puAnsiRed, puAnsiYellow, puLog, puLogFooter, puLogLine, puLogLines } from "./log.css.js";
 import { useEffect, useRef, useMemo } from "react";
 import type { ReactNode } from "react";
 import type { ViewProps } from "@knobkit/core/client";
@@ -16,10 +16,10 @@ interface AnsiSpan {
 const ANSI_RE = /\x1b\[(\d+)m/g;
 
 const COLOR_MAP: Record<string, string> = {
-  "31": "pu-ansi-red",
-  "32": "pu-ansi-green",
-  "33": "pu-ansi-yellow",
-  "34": "pu-ansi-blue",
+  "31": puAnsiRed,
+  "32": puAnsiGreen,
+  "33": puAnsiYellow,
+  "34": puAnsiBlue,
 };
 
 function parseAnsi(raw: string): AnsiSpan[] {
@@ -56,7 +56,7 @@ function renderAnsi(raw: string): ReactNode {
     return spans[0]!.text;
   }
   return spans.map((s, i) => {
-    const cls = [s.bold ? "pu-ansi-bold" : "", s.color ?? ""].filter(Boolean).join(" ");
+    const cls = [s.bold ? puAnsiBold : "", s.color ?? ""].filter(Boolean).join(" ");
     return cls ? (
       <span key={i} className={cls}>
         {s.text}
@@ -108,18 +108,18 @@ export default function LogView({ props, state }: ViewProps<LogState, { maxLines
   }, [filtered.length]);
 
   return (
-    <div className="pu-log">
-      <div className="pu-log-lines" ref={scrollRef}>
+    <div className={puLog}>
+      <div className={puLogLines} ref={scrollRef}>
         {filtered.map((line, i) => {
           const level = detectLevel(line);
           return (
-            <div key={i} className={`pu-log-line pu-log-line--${level}`}>
+            <div key={i} className={`${puLogLine} pu-log-line--${level}`}>
               {renderAnsi(line)}
             </div>
           );
         })}
       </div>
-      <div className="pu-log-footer">
+      <div className={puLogFooter}>
         {filtered.length}
         {filter ? ` / ${lines.length}` : ""} line{lines.length !== 1 ? "s" : ""}
       </div>

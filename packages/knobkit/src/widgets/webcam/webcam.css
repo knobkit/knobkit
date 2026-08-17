@@ -43,11 +43,4 @@
     font-size: 14px;
     letter-spacing: 0.02em;
   }
-  /* duplicated from mic.css: this view must not depend on the mic chunk's css being loaded */
-  .pu-submit.pu-rec {
-    background: var(--pu-danger);
-  }
-  .pu-submit.pu-rec:hover {
-    background: var(--pu-danger);
-  }
 }

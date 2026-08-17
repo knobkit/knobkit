@@ -29,11 +29,16 @@
     display: none;
   }
 
-  [data-fill] .pu-code,
-  [data-fill] .pu-code .cm-editor {
-    height: 100%;
+  /* internal: when the contract has given .pu-code a definite box, CodeMirror must follow it */
+  .pu-fill-y .pu-code {
+    display: flex;
+    flex-direction: column;
   }
-  [data-fill] .pu-code .cm-scroller {
+  .pu-fill-y .pu-code .cm-editor {
+    flex: 1;
+    min-height: 0;
+  }
+  .pu-fill-y .pu-code .cm-scroller {
     max-height: none;
   }
 }

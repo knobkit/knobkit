@@ -1,4 +1,5 @@
-import "./webcam.css";
+import { puRec, puSubmit } from "../_primitives/controls.css.js";
+import { puWebcam, puWebcamMirror, puWebcamOffscreen, puWebcamPlaceholder, puWebcamStage, puWebcamVideo } from "./webcam.css.js";
 import { useEffect, useRef } from "react";
 import { toMedia } from "@knobkit/core";
 import type { ViewProps } from "@knobkit/core/client";
@@ -63,17 +64,17 @@ export default function WebcamView({ props, state, send, set }: ViewProps<{ live
   }, [state.live, enabled]);
 
   return (
-    <div className="pu-webcam">
+    <div className={puWebcam}>
       {props.preview ? (
-        <div className="pu-webcam-stage">
-          <video ref={videoRef} className="pu-webcam-video pu-webcam-mirror" muted playsInline />
-          {!state.live && <div className="pu-webcam-placeholder">Camera off</div>}
+        <div className={puWebcamStage}>
+          <video ref={videoRef} className={`${puWebcamVideo} ${puWebcamMirror}`} muted playsInline />
+          {!state.live && <div className={puWebcamPlaceholder}>Camera off</div>}
         </div>
       ) : (
         // kept alive off-screen so capture still has a frame source, but nothing renders
-        <video ref={videoRef} className="pu-webcam-offscreen" muted playsInline />
+        <video ref={videoRef} className={puWebcamOffscreen} muted playsInline />
       )}
-      <button className={`pu-submit${state.live ? " pu-rec" : ""}`} onClick={() => toggle(!state.live)}>
+      <button className={`${puSubmit}${state.live ? ` ${puRec}` : ""}`} onClick={() => toggle(!state.live)}>
         {state.live ? "● Stop camera" : "Go live"}
       </button>
     </div>

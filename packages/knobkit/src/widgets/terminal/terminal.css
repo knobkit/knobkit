@@ -29,7 +29,4 @@
     pointer-events: none;
   }
 
-  [data-fill] .pu-terminal {
-    height: 100%;
-  }
 }

@@ -1,4 +1,4 @@
-import "./video.css";
+import { puVideo, puVideoEmpty } from "./video.css.js";
 import { mediaUrl } from "@knobkit/core";
 import type { MediaRef } from "@knobkit/core";
 import type { ViewProps } from "@knobkit/core/client";
@@ -8,10 +8,10 @@ export default function VideoView({
   state,
 }: ViewProps<{ src: MediaRef | string | null }, { autoplay: boolean; loop: boolean }>) {
   const src = state.src;
-  if (!src) return <div className="pu-video-empty">—</div>;
+  if (!src) return <div className={puVideoEmpty}>—</div>;
   return (
     <video
-      className="pu-video"
+      className={puVideo}
       src={typeof src === "string" ? src : mediaUrl(src)}
       controls
       autoPlay={props.autoplay}

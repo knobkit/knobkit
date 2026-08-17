@@ -1,4 +1,4 @@
-import "./code.css";
+import { puCode, puCodeRo } from "./code.css.js";
 import { useEffect, useRef } from "react";
 import { EditorState, Compartment, Annotation, type Extension } from "@codemirror/state";
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
@@ -129,5 +129,5 @@ export default function CodeView({ props, state, emit, set }: ViewProps<{ value:
     view.current?.dispatch({ effects: edit.current.reconfigure(editOf(editable)) });
   }, [editable]);
 
-  return <div ref={host} className={`pu-code${editable ? "" : " pu-code-ro"}`} />;
+  return <div ref={host} className={`${puCode}${editable ? "" : ` ${puCodeRo}`}`} />;
 }

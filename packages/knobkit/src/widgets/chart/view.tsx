@@ -1,4 +1,4 @@
-import "./chart.css";
+import { puChart } from "./chart.css.js";
 import { ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, Legend, BarChart, Bar, LineChart, Line, AreaChart, Area } from "recharts";
 import type { ReactElement } from "react";
 import type { ViewProps } from "@knobkit/core/client";
@@ -66,7 +66,7 @@ export default function ChartView({ props, state }: ViewProps<{ data: Row[] }, P
   }
 
   return (
-    <div className="pu-chart">
+    <div className={puChart}>
       <ResponsiveContainer width="100%" height={HEIGHT}>
         {inner}
       </ResponsiveContainer>

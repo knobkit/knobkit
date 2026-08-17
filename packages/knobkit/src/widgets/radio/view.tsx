@@ -1,4 +1,4 @@
-import "./radio.css";
+import { puRadio, puRadioOpt } from "./radio.css.js";
 import type { ViewProps } from "@knobkit/core/client";
 
 export default function RadioView({ props, state, emit, set }: ViewProps<{ value: string }, { choices: string[] }>) {
@@ -7,9 +7,9 @@ export default function RadioView({ props, state, emit, set }: ViewProps<{ value
     emit("changed", v);
   };
   return (
-    <div className="pu-radio">
+    <div className={puRadio}>
       {props.choices.map((c) => (
-        <label key={c} className="pu-radio-opt">
+        <label key={c} className={puRadioOpt}>
           <input type="radio" checked={state.value === c} onChange={() => update(c)} /> {c}
         </label>
       ))}

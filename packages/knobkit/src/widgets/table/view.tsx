@@ -1,4 +1,4 @@
-import "./table.css";
+import { puTable } from "./table.css.js";
 import { useMemo, type MouseEvent } from "react";
 import { RevoGrid } from "@revolist/react-datagrid";
 import type { ViewProps } from "@knobkit/core/client";
@@ -102,7 +102,7 @@ export default function TableView({ props, state, emit, set }: ViewProps<{ colum
   };
 
   return (
-    <div className="pu-table" onContextMenu={onContextMenu}>
+    <div className={puTable} onContextMenu={onContextMenu}>
       <RevoGrid
         columns={columns}
         source={source}

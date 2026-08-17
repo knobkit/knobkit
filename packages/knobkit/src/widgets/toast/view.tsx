@@ -1,4 +1,4 @@
-import "./toast.css";
+import { puToast, puToastClose, puToastContainer, puToastText } from "./toast.css.js";
 import { useEffect } from "react";
 import type { ViewProps } from "@knobkit/core/client";
 import type { Toast } from "./def.js";
@@ -21,12 +21,12 @@ export default function ToastView({ state, set }: ViewProps<{ items: Toast[] }>)
   if (items.length === 0) return null;
 
   return (
-    <div className="pu-toast-container">
+    <div className={puToastContainer}>
       {items.map((item) => (
-        <div key={item.key} className={`pu-toast pu-toast--${item.variant}`}>
-          <span className="pu-toast-text">{item.message}</span>
+        <div key={item.key} className={`${puToast} pu-toast--${item.variant}`}>
+          <span className={puToastText}>{item.message}</span>
           <button
-            className="pu-toast-close"
+            className={puToastClose}
             onClick={() => set(["items"], items.filter((t) => t.key !== item.key))}
             aria-label="Dismiss"
           >

@@ -1,4 +1,4 @@
-import "./toolbar.css";
+import { puToolbar, puToolbarBtn, puToolbarIcon, puToolbarSep } from "./toolbar.css.js";
 import type { ViewProps } from "@knobkit/core/client";
 import type { ToolbarItem } from "./def.js";
 
@@ -6,18 +6,18 @@ export default function ToolbarView({ state, emit }: ViewProps<{ items: ToolbarI
   const items = state.items ?? [];
   const enabled = state.$enabled !== false;
   return (
-    <div className="pu-toolbar">
+    <div className={puToolbar}>
       {items.map((item) =>
         item.separator ? (
-          <span key={item.id} className="pu-toolbar-sep" />
+          <span key={item.id} className={puToolbarSep} />
         ) : (
           <button
             key={item.id}
-            className={`pu-toolbar-btn${item.variant && item.variant !== "default" ? ` pu-toolbar-btn--${item.variant}` : ""}`}
+            className={`${puToolbarBtn}${item.variant && item.variant !== "default" ? ` pu-toolbar-btn--${item.variant}` : ""}`}
             disabled={!enabled || item.disabled}
             onClick={() => emit("clicked", { id: item.id })}
           >
-            {item.icon && <span className="pu-toolbar-icon">{item.icon}</span>}
+            {item.icon && <span className={puToolbarIcon}>{item.icon}</span>}
             {item.label}
           </button>
         ),

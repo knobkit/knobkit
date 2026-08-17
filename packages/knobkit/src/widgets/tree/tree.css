@@ -7,7 +7,7 @@
     color: var(--pu-text);
     user-select: none;
   }
-  .pu-tree ul {
+  .pu-tree-children {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -63,7 +63,7 @@
     border-radius: var(--pu-radius-sm);
     padding: 0 4px;
   }
-  [data-fill] .pu-tree {
+  .pu-fill-y .pu-tree {
     overflow: auto;
   }
 }

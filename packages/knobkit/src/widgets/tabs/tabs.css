@@ -76,4 +76,15 @@
     opacity: 1;
     background: var(--pu-border);
   }
+
+  /* the bar is intrinsic; the panel takes the rest */
+  /* internal: the bar is intrinsic, the panel takes the rest. The panel is a block box, so it
+     hands its height to the slot's field explicitly — the flex claim can't reach across it. */
+  .pu-tabs-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .pu-fill-y .pu-tabs-panel > .pu-field {
+    height: 100%;
+  }
 }

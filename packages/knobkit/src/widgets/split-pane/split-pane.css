@@ -36,4 +36,10 @@
   .pu-split-pane-handle:active {
     background: var(--pu-accent);
   }
+
+  /* a panel is a grid cell with a definite height; hand it to the slot's field, which the flex
+     claim cannot cross (the panel is a block box) */
+  .pu-fill-y .pu-split-pane-panel > .pu-field {
+    height: 100%;
+  }
 }

@@ -1,4 +1,4 @@
-import "./menu.css";
+import { puMenu, puMenuIcon, puMenuItem, puMenuItemDanger, puMenuLabel, puMenuSep } from "./menu.css.js";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { ViewProps } from "@knobkit/core/client";
@@ -50,21 +50,21 @@ export default function MenuView({ state, emit, set }: ViewProps<S>) {
   };
 
   return createPortal(
-    <div ref={ref} className="pu-menu" style={{ left: pos.x, top: pos.y }} role="menu">
+    <div ref={ref} className={puMenu} style={{ left: pos.x, top: pos.y }} role="menu">
       {state.items.map((item, i) =>
         item.separator ? (
-          <div key={`sep-${i}`} className="pu-menu-sep" role="separator" />
+          <div key={`sep-${i}`} className={puMenuSep} role="separator" />
         ) : (
           <button
             key={item.id}
             type="button"
             role="menuitem"
             disabled={item.disabled}
-            className={`pu-menu-item${item.danger ? " pu-menu-item-danger" : ""}`}
+            className={`${puMenuItem}${item.danger ? ` ${puMenuItemDanger}` : ""}`}
             onClick={() => pick(item)}
           >
-            <span className="pu-menu-icon">{item.icon ?? ""}</span>
-            <span className="pu-menu-label">{item.label}</span>
+            <span className={puMenuIcon}>{item.icon ?? ""}</span>
+            <span className={puMenuLabel}>{item.label}</span>
           </button>
         ),
       )}

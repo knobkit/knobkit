@@ -1,4 +1,5 @@
-import "./upload.css";
+import { puImage } from "../_primitives/media.css.js";
+import { puUpload, puUploadDrop, puUploadGlyph, puUploadItem, puUploadList, puUploadName, puUploadRemove, puUploadSize, puUploadThumb } from "./upload.css.js";
 import { mediaUrl, toMedia } from "@knobkit/core";
 import type { ViewProps } from "@knobkit/core/client";
 import type { UploadFile } from "./def.js";
@@ -42,8 +43,8 @@ export default function UploadView({
   const single = !props.multiple && files.length === 1 ? files[0] : null;
 
   return (
-    <div className="pu-upload">
-      <label className="pu-upload-drop">
+    <div className={puUpload}>
+      <label className={puUploadDrop}>
         <input
           type="file"
           hidden
@@ -60,23 +61,23 @@ export default function UploadView({
         </span>
       </label>
       {files.length > 0 && (
-        <ul className="pu-upload-list">
+        <ul className={puUploadList}>
           {files.map((f, i) => (
-            <li className="pu-upload-item" key={`${f.name}-${i}`}>
+            <li className={puUploadItem} key={`${f.name}-${i}`}>
               {f.type.startsWith("image/") ? (
-                <img className="pu-upload-thumb" src={mediaUrl(f.ref)} alt="" />
+                <img className={puUploadThumb} src={mediaUrl(f.ref)} alt="" />
               ) : (
-                <span className="pu-upload-glyph" aria-hidden="true">
+                <span className={puUploadGlyph} aria-hidden="true">
                   📄
                 </span>
               )}
-              <span className="pu-upload-name" title={f.name}>
+              <span className={puUploadName} title={f.name}>
                 {f.name}
               </span>
-              <span className="pu-upload-size">{humanSize(f.size)}</span>
+              <span className={puUploadSize}>{humanSize(f.size)}</span>
               <button
                 type="button"
-                className="pu-upload-remove"
+                className={puUploadRemove}
                 aria-label={`Remove ${f.name}`}
                 onClick={() => remove(i)}
               >
@@ -87,7 +88,7 @@ export default function UploadView({
         </ul>
       )}
       {single && single.type.startsWith("image/") && (
-        <img className="pu-image" src={mediaUrl(single.ref)} alt={single.name} />
+        <img className={puImage} src={mediaUrl(single.ref)} alt={single.name} />
       )}
     </div>
   );

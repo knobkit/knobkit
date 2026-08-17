@@ -1,4 +1,4 @@
-import "./styles.css";
+import { puDesc, puPage } from "./styles.css.js";
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { createRoot } from "react-dom/client";
 import { setDensity, setTheme } from "../theme.js";
@@ -33,10 +33,12 @@ function Root({ runtime, notes }: { runtime: FieldRuntime; notes: NotesHub }) {
 
   return (
     <>
-      <div className="pu-page">
+      <div className={puPage}>
         {app.title && <h1>{app.title}</h1>}
-        {app.description && <p className="pu-desc">{app.description}</p>}
-        {app.root && <Field id={app.root} runtime={runtime} />}
+        {app.description && <p className={puDesc}>{app.description}</p>}
+        {/* the page is the outermost distributing container: in fill mode it has the viewport's
+            height to offer, otherwise the root's `fill` degrades to intrinsic on its own */}
+        {app.root && <Field id={app.root} runtime={runtime} distributed />}
       </div>
       <NotesOverlay hub={notes} />
     </>

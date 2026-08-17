@@ -14,3 +14,6 @@ export type { NotesHub, NoteEntry } from "./notes.js";
 export { createWatchTable } from "./watch-table.js";
 export type { WatchTable } from "./watch-table.js";
 export { cssVar, seriesPalette, onThemeChange, useThemeVersion } from "./theme.js";
+// core's chrome classes: always present (styles.css rides render.tsx), so widgets — ours and
+// third-party alike — name them from here rather than hardcoding the strings
+export * from "./styles.css.js";

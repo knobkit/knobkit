@@ -10,6 +10,7 @@ export type Row = Record<string, unknown>;
 
 export const table = defineWidget({
   type: "table",
+  size: { y: "fill" },
   state: {
     columns: { initial: [] as Column[] },
     rows: { initial: [] as Row[] },
