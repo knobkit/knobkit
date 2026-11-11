@@ -1,5 +1,5 @@
 import { puTable } from "./table.css.js";
-import { useMemo, useState, type MouseEvent } from "react";
+import { useMemo, useRef, useState, type MouseEvent } from "react";
 import { RevoGrid } from "@revolist/react-datagrid";
 import type { ViewProps } from "@knobkit/core/client";
 import type { Column, Row } from "./def.js";
@@ -44,7 +44,7 @@ interface Props {
   maxHeight: number;
 }
 
-export default function TableView({ props, state, emit, set }: ViewProps<{ columns: Column[]; rows: Row[] }, Props>) {
+export default function TableView({ props, state, emit, set }: ViewProps<{ columns: Column[]; rows: Row[]; selected: number | null }, Props>) {
   const { editable, maxHeight } = props;
   // fit to content (header + rows), capped at maxHeight; +2 leaves room for a horizontal scrollbar so
   // a fitting grid doesn't sprout a vertical one
@@ -69,6 +69,9 @@ export default function TableView({ props, state, emit, set }: ViewProps<{ colum
   const [rejected, setRejected] = useState(0);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const source = useMemo<GridRow[]>(() => state.rows.map((r) => ({ ...r })), [state.rows, rejected]);
+
+  const selectedRef = useRef<number | null>(state.selected);
+  selectedRef.current = state.selected;
 
   const apply = (row: number, key: string, typedValue: unknown): void => {
     // the grid's editor hands over text; a number column holds numbers
@@ -103,21 +106,42 @@ export default function TableView({ props, state, emit, set }: ViewProps<{ colum
     }
   };
 
+  // the row model as the grid shows it — visible order diverges from state.rows under sort
+  const shown = async (grid: Element | null, row: number): Promise<Row | undefined> => {
+    const g = grid as (Element & { getVisibleSource?: () => Promise<Row[]> }) | null;
+    return (g?.getVisibleSource ? (await g.getVisibleSource())[row] : undefined) ?? state.rows[row];
+  };
+
+  // the user is on another row: by a click anywhere in it (its number included), or with the keyboard
+  const select = async (grid: Element | null, row: number): Promise<void> => {
+    if (!Number.isInteger(row) || row < 0 || row === selectedRef.current) return;
+    selectedRef.current = row;
+    const item = await shown(grid, row);
+    if (!item) return;
+    set(["selected"], row);
+    emit("selected", { row, item });
+  };
+  const onClick = (e: MouseEvent): void => {
+    const cell = (e.target as HTMLElement).closest("[data-rgrow]");
+    if (cell) void select(cell.closest("revo-grid"), Number(cell.getAttribute("data-rgrow")));
+  };
+  const onAfterfocus = (e: CustomEvent): void => {
+    const d = e.detail as { rowIndex?: number; rowType?: string } | null;
+    if (d && typeof d.rowIndex === "number" && (d.rowType ?? "rgRow") === "rgRow") void select(e.target as Element, d.rowIndex);
+  };
+
   const onContextMenu = async (e: MouseEvent): Promise<void> => {
     const cell = (e.target as HTMLElement).closest("[data-rgrow]");
     if (!cell) return;
     e.preventDefault();
     const { clientX: x, clientY: y } = e;
     const row = Number(cell.getAttribute("data-rgrow"));
-    // resolve the row model through the grid when possible — visible order diverges from state.rows under sort
-    const grid = cell.closest("revo-grid") as (Element & { getVisibleSource?: () => Promise<Row[]> }) | null;
-    let item: Row | undefined = state.rows[row];
-    if (grid?.getVisibleSource) item = (await grid.getVisibleSource())[row] ?? item;
+    const item = await shown(cell.closest("revo-grid"), row);
     if (item) emit("contextmenu", { item, row, x, y });
   };
 
   return (
-    <div className={puTable} onContextMenu={onContextMenu}>
+    <div className={puTable} onContextMenu={onContextMenu} onClick={onClick}>
       <RevoGrid
         columns={columns}
         source={source}
@@ -130,6 +154,7 @@ export default function TableView({ props, state, emit, set }: ViewProps<{ colum
         hideAttribution={true}
         style={{ height }}
         onAfteredit={onAfteredit}
+        onAfterfocus={onAfterfocus}
       />
     </div>
   );
