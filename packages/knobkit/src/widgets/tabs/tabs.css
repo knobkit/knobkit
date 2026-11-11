@@ -97,10 +97,13 @@
     visibility: hidden;
     pointer-events: none;
   }
-  .pu-fill-y .pu-tabs-pane {
+  /* Only where the tabs have a definite height. On an ordinary page a pane is as tall as its
+     content, and one that is not open must keep that height too: held to the open pane's, a
+     terminal refits to it and comes back short. */
+  .pu-bounded > .pu-tabs > .pu-tabs-panel > .pu-tabs-pane {
     height: 100%;
   }
-  .pu-fill-y .pu-tabs-pane > .pu-field {
+  .pu-bounded > .pu-tabs > .pu-tabs-panel > .pu-tabs-pane > .pu-field {
     height: 100%;
   }
 }

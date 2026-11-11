@@ -308,6 +308,19 @@ test("grow() gives one child the leftover and the others their own height", asyn
   expect(used).toBeGreaterThan(panel.height * 0.9);
 });
 
+test("on an ordinary page a tab is as tall as its own content, also after another tab was open", async () => {
+  await show((w) => tabs([{ label: "Terminal", content: w.term() }, { label: "Badge", content: w.hidden(() => w.badge()) }]), false);
+  const tab = (i: number): void => document.querySelectorAll<HTMLElement>(".pu-tab")[i]!.click();
+  const before = heightOf(".pu-terminal");
+  expect(before).toBeGreaterThan(200);
+  tab(1);
+  await sleep(600); // the terminal refits on a change of its box
+  expect(heightOf(".pu-tabs")).toBeLessThan(before); // the short tab is short
+  tab(0);
+  await sleep(600);
+  expect(heightOf(".pu-terminal")).toBe(before);
+});
+
 describe("on an ordinary page, nothing collapses and the page scrolls", () => {
   const cases: Record<string, (w: Tools) => unknown> = {
     "col(bar, chat, code, term, log)": (w) => col(w.bar(), w.chat(), w.code(), w.term(), w.log()),
