@@ -21,7 +21,9 @@
     color: var(--pu-muted);
   }
   .pu-file-icon {
-    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    flex: none;
   }
   .pu-file-name {
     font-weight: 500;
