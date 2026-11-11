@@ -115,7 +115,7 @@ All are write-only (no read getter unless noted).
 | `image()` | `show(srcOrRef)`, `clear()` | a `MediaRef` or URL |
 | `gallery()` | `set(items)`, `add(item)` | `item: { src, caption? }`; `src` a `MediaRef` or URL |
 | `audio({ autoplay? })` | `set(srcOrRef)` | a `MediaRef` or URL |
-| `video({ autoplay?, loop? })` | `set(srcOrRef)` | a `MediaRef` or URL |
+| `video({ autoplay?, loop? })` | `set(srcOrRef)`, `await position()`, `await playing()`, `await duration()` | a `MediaRef` or URL. Events for what the user does with the controls: `played`, `paused`, `seeked`, and `progress` about twice a second while playing — each `{ position }` in seconds |
 | `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
 | `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain) |
 | `frame({ src? })` | `set(url)` | iframe |
