@@ -26,6 +26,7 @@ export {
   viewRef,
   instantiate,
   spawnTree,
+  raise,
   isHandle,
   idOf,
   internalOf,

@@ -27,12 +27,13 @@ journey("t13", (j) => {
     await show(page, url);
     await expect.poll(() => navigations).toEqual([url]);
     await page.frameLocator("iframe").locator("#where").waitFor();
-    const asked = site.hits["/ok"]!;
 
     // today's way does nothing: the same address set again is not a change
     await show(page, url);
     await sleep(500);
     expect(navigations).toEqual([url]);
+    // counted from here: in server mode set() itself asks the site once, for its headers
+    const asked = site.hits["/ok"]!;
 
     await page.getByRole("button", { name: "reload" }).click();
     await expect.poll(() => navigations).toEqual([url, url]);

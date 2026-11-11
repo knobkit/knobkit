@@ -109,6 +109,7 @@ export function createSession(app: App, opts: { dev: boolean; onNote?: (level: s
       outbox.edit(corr, [target, "instanceRemove", []]);
     },
     note: (level, message, src) => note(level, message, { src, corr }),
+    raise: (src, name, payload) => dispatcher.raise(src, name, payload, corr),
     subscribe(entry) {
       dispatcher.addSub(entry as SubEntry);
       unannounced.push(entry as SubEntry);

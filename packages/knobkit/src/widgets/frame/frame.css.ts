@@ -2,4 +2,9 @@
 import "./frame.css";
 
 export const puFrame = "pu-frame";
+export const puFrameAddress = "pu-frame-address";
+export const puFrameBar = "pu-frame-bar";
+export const puFrameBox = "pu-frame-box";
 export const puFrameEmpty = "pu-frame-empty";
+export const puFrameOpen = "pu-frame-open";
+export const puFrameRefused = "pu-frame-refused";
