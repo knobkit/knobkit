@@ -7,6 +7,7 @@ export const puAttachX = "pu-attach-x";
 export const puAttachment = "pu-attachment";
 export const puChat = "pu-chat";
 export const puChatMessages = "pu-chat-messages";
+export const puChatStop = "pu-chat-stop";
 export const puChatTool = "pu-chat-tool";
 export const puChatToolAccept = "pu-chat-tool-accept";
 export const puChatToolActions = "pu-chat-tool-actions";

@@ -5,6 +5,7 @@ import {
   puAttachment,
   puChat,
   puChatMessages,
+  puChatStop,
   puChatTool,
   puChatToolAccept,
   puChatToolActions,
@@ -102,6 +103,7 @@ interface State {
   streams: Record<string, string>;
   tools: Record<string, ToolCall>;
   queued: string[];
+  running: boolean;
   /** set by the dispatcher: the corr of the latest `sent` whose handler has begun */
   $started?: string;
 }
@@ -279,6 +281,13 @@ export default function ChatView({ props, state, emit, send, set }: ViewProps<St
             if (e.key === "Enter") submit(e.currentTarget);
           }}
         />
+        {state.running && (
+          // beside the input, not in place of it: the next message can be typed during a run
+          <button type="button" className={puChatStop} onClick={() => emit("stopped")} aria-label="Stop">
+            <span aria-hidden="true" />
+            Stop
+          </button>
+        )}
         {props.voice && (
           <button
             className={`${puMic}${recording ? ` ${puRec}` : ""}`}

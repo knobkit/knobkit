@@ -126,6 +126,9 @@ convo.tool({ id: "c3", name: "edit", status: "awaiting",             // …and t
 
 app.on(convo.decided, ({ id, decision }) => { /* "accept" | "reject", for the call `id` */ });
 
+convo.runStarted();                               // shows Stop beside the input; runEnded() removes it
+app.on(convo.stopped, () => { /* arrives while the handler for the message is still running */ });
+
 convo.queue(text);                                // sent while the agent works: shown as queued
 convo.dequeue();                                  // taken up (or setQueued(list))
 convo.say({ role: "error", content: "The model call failed" });

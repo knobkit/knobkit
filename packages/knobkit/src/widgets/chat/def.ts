@@ -43,6 +43,8 @@ export const chat = defineWidget({
     streams: { initial: {} as Record<string, string> },
     tools: { initial: {} as Record<string, ToolCall> },
     queued: { initial: [] as string[] },
+    // a run is under way: the conversation offers to stop it
+    running: { initial: false },
   },
   props: {
     placeholder: { default: "Say something…" },
@@ -54,6 +56,8 @@ export const chat = defineWidget({
     // `ack`: the view shows a message as waiting until the handler it went to has begun
     sent: { payload: t<{ text: string; image?: MediaRef }>(), ack: true },
     decided: { payload: t<{ id: string; decision: "accept" | "reject" }>() },
+    /** the user pressed stop; it arrives while the handler for the message is still running */
+    stopped: {},
   },
   channels: { recorded: { data: t<Float32Array>() } },
   ops: (at) => ({
@@ -62,6 +66,8 @@ export const chat = defineWidget({
     queue: at("queued").op("append"),
     dequeue: at("queued").op("removeAt", 0),
     setQueued: at("queued").op("set"),
+    runStarted: at("running").op("set", true),
+    runEnded: at("running").op("set", false),
   }),
   methods: (self) => ({
     /** Stream a token into the message said with this `id`. */

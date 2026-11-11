@@ -188,6 +188,27 @@
   .pu-composer .pu-input {
     flex: 1;
   }
+  .pu-chat-stop {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: var(--pu-control);
+    padding: 0 var(--pu-cpad-x);
+    border: 1px solid var(--pu-danger);
+    border-radius: var(--pu-radius-sm);
+    background: none;
+    color: var(--pu-danger);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .pu-chat-stop span {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: currentColor;
+  }
   .pu-mic {
     flex: none;
     width: var(--pu-control);
