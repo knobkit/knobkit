@@ -11,4 +11,4 @@ export const puTabsBar = "pu-tabs-bar";
 export const puTabsPane = "pu-tabs-pane";
 export const puTabsPaneOff = "pu-tabs-pane-off";
 export const puTabsPanel = "pu-tabs-panel";
-export const puFillY = "pu-fill-y";
+export const puBounded = "pu-bounded";
