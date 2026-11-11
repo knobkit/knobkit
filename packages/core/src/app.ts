@@ -108,15 +108,20 @@ export class App {
       instances[id] = inst;
     };
 
+    // a widget's own handlers are registered as the app's would be, ahead of them
+    const own = (src: unknown, name: string, handler: Handler<unknown>): void => {
+      this.subs.push({ src, name, chan: false, handler, opts: {} });
+    };
+
     const w = this.config.widgets;
     let root: Id;
     if (Array.isArray(w)) {
       // implicit column for an authored array — an ordinary "col" instance (view from the standard library)
       root = assignId();
-      const items = w.map((child) => instantiate(child, assignId, emit));
+      const items = w.map((child) => instantiate(child, assignId, emit, own));
       instances[root] = { type: "col", props: {}, state: { [ENABLED]: true, [BUSY]: false, items } };
     } else {
-      root = instantiate(w, assignId, emit);
+      root = instantiate(w, assignId, emit, own);
     }
 
     instances[APP_ID] = {

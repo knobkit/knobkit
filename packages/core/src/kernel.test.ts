@@ -131,6 +131,44 @@ describe("declare walk", () => {
   });
 });
 
+describe("a widget's own handlers", () => {
+  const lister = defineWidget({
+    type: "lister",
+    state: { listing: { initial: [] as string[] } },
+    events: { browse: { payload: t<{ path: string }>() } },
+    handlers: (self) => ({
+      browse: ({ path }) => self.at("listing").set([`${path}/a`, `${path}/b`]),
+    }),
+  });
+
+  test("run for the widget's event with no code in the app, ahead of the app's own", async () => {
+    const w = lister();
+    const seen: string[] = [];
+    const app = knobkit({ widgets: w });
+    app.on(w.browse, async ({ path }) => void seen.push(`${path}: ${(await w.at("listing").get()).length}`));
+    expect(app.subDecls()).toEqual([
+      { src: idOf(w), name: "browse" },
+      { src: idOf(w), name: "browse" },
+    ]);
+
+    const r = realm(app);
+    r.dispatcher.dispatchEvent(idOf(w), "browse", { path: "top" }, r.corr());
+    await r.flushAll();
+    expect(r.state(idOf(w))["listing"]).toEqual(["top/a", "top/b"]);
+    expect(seen).toEqual(["top: 2"]);
+  });
+
+  test("a handler for something that is not one of the widget's events is refused", () => {
+    const bad = defineWidget({
+      type: "badLister",
+      state: { v: { initial: 0 } },
+      events: { browse: {} },
+      handlers: () => ({ brwse: () => {} }) as never,
+    });
+    expect(() => knobkit({ widgets: bad() }).declare()).toThrow(/brwse.*not one of its events/);
+  });
+});
+
 describe("handlers: ops, lenses, RYOW, busy", () => {
   test("generated ops write; methods read-your-own-writes through the queue", async () => {
     const convo = chat();
