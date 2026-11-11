@@ -16,13 +16,16 @@ export interface TextTarget {
   scrollToLine(line: number): Promise<void>;
 }
 
+// On macOS Home and End scroll without moving the cursor, so the cursor keys differ by platform.
+const MAC = process.platform === "darwin";
+const DOC_START = MAC ? "Meta+ArrowUp" : "Control+Home";
+const LINE_START = MAC ? "Meta+ArrowLeft" : "Home";
+
 async function keysTo(page: Page, focusable: Locator, line: number, column: number): Promise<void> {
   await focusable.click();
-  await page.keyboard.press("ControlOrMeta+ArrowUp"); // start of the text, on macOS
-  await page.keyboard.press("ControlOrMeta+Home");
+  await page.keyboard.press(DOC_START);
   for (let i = 1; i < line; i++) await page.keyboard.press("ArrowDown");
-  await page.keyboard.press("Home");
-  await page.keyboard.press("ControlOrMeta+ArrowLeft"); // start of the line, on macOS
+  await page.keyboard.press(LINE_START);
   for (let i = 1; i < column; i++) await page.keyboard.press("ArrowRight");
 }
 
@@ -48,7 +51,7 @@ export function codeEditor(page: Page): TextTarget {
       const box = (await scroller.boundingBox())!;
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
       const lineHeight = await ask<number>(`return view.defaultLineHeight;`);
-      await page.mouse.wheel(0, Math.round((line - 1) * lineHeight));
+      await page.mouse.wheel(0, Math.round((line - 1) * lineHeight - (await scroller.evaluate((el) => el.scrollTop))));
       await page.waitForTimeout(300);
     },
   };
@@ -72,8 +75,8 @@ export function textBox(page: Page): TextTarget {
     async scrollToLine(line) {
       const b = (await box.boundingBox())!;
       await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
-      const lineHeight = await box.evaluate((el) => parseFloat(getComputedStyle(el).lineHeight));
-      await page.mouse.wheel(0, Math.round((line - 1) * lineHeight));
+      const lineHeight = await box.evaluate((el) => el.scrollHeight / (el as HTMLTextAreaElement).value.split("\n").length);
+      await page.mouse.wheel(0, Math.round((line - 1) * lineHeight - (await box.evaluate((el) => el.scrollTop))));
       await page.waitForTimeout(300);
     },
   };
