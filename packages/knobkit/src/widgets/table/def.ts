@@ -19,10 +19,12 @@ export const table = defineWidget({
   },
   props: {
     editable: { default: false },
+    reorderable: { default: false }, // rows get a handle to drag them to another place
     maxHeight: { default: 500 }, // height ceiling in px; the grid fits its rows up to this, then scrolls
   },
   events: {
     edited: { payload: t<{ row: number; key: string; value: unknown }>() },
+    reordered: { payload: t<{ from: number; to: number }>() },
     selected: { payload: t<{ row: number; item: Row }>() },
     contextmenu: { payload: t<{ item: Row; row: number; x: number; y: number }>() },
   },
