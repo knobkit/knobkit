@@ -115,7 +115,7 @@ All are write-only (no read getter unless noted).
 | `image()` | `show(srcOrRef)`, `clear()` | a `MediaRef` or URL |
 | `gallery()` | `set(items)`, `add(item)` | `item: { src, caption? }`; `src` a `MediaRef` or URL |
 | `audio({ autoplay? })` | `set(srcOrRef)` | a `MediaRef` or URL |
-| `video({ autoplay?, loop? })` | `set(srcOrRef)`, `await position()`, `await playing()`, `await duration()` | a `MediaRef` or URL. Events for what the user does with the controls: `played`, `paused`, `seeked`, and `progress` about twice a second while playing — each `{ position }` in seconds |
+| `video({ autoplay?, loop? })` | `set(srcOrRef)`, `seek(seconds)`, `play()`, `pause()`, `playRange(from, to)`, `await position()`, `await playing()`, `await duration()` | a `MediaRef` or URL. Events for what the user does with the controls: `played`, `paused`, `seeked`, and `progress` about twice a second while playing — each `{ position }` in seconds. `seek` moves the player without loading the clip again; what a handler's own commands cause is not sent back as an event |
 | `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
 | `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain) |
 | `frame({ src? })` | `set(url)` | iframe |
