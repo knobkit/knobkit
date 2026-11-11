@@ -29,6 +29,9 @@ export default defineConfig({
       { find: /^@knobkit\/core$/, replacement: resolve(here, "../core/src/index.ts") },
     ],
   },
+  // a worker's address is relative to the bundle, as its chunks are: the bundle is loaded from
+  // wherever it is hosted, not from the site's root
+  base: "./",
   build: {
     outDir: "dist",
     emptyOutDir: false,
