@@ -159,7 +159,7 @@ scrolls and the input stays in place.
 | `video({ autoplay?, loop? })` | `set(srcOrRef)`, `seek(seconds)`, `play()`, `pause()`, `playRange(from, to)`, `await position()`, `await playing()`, `await duration()` | `MediaRef` or URL. Events for what the user does with the controls: `played`, `paused`, `seeked`, and `progress` about twice a second while playing — each `{ position }` in seconds. `seek` moves the player without loading the clip again; what a handler's own commands cause is not sent back as an event |
 | `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
 | `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain) |
-| `frame({ src? })` | `set(url)` | iframe |
+| `frame({ src? })` | `set(url)`, `reload()` | iframe; `reload()` loads the same address again |
 | `chart({ x, y, kind?, data? })` | `setData(rows)` | `x` = category key; `y` = key or `string[]`; `kind` bar/line/area |
 | `diff()` | `setFiles(files)` | `FileDiff: { path, oldContent, newContent, language?, status? }` |
 | `statusBadge(status?, { variants? })` | `set(status)` | dot + label; `variants` maps custom statuses to idle/running/waiting/completed/failed/error |
