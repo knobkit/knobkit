@@ -1,0 +1,157 @@
+@layer components {
+  /* The box a document is shown in. On an ordinary page it has a ceiling and scrolls inside it. */
+  .pu-doc-view {
+    position: relative;
+    max-height: 640px;
+    overflow: auto;
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-surface-2);
+    color: var(--pu-text);
+  }
+  /* internal: given a definite height, it takes that instead */
+  .pu-bounded > .pu-doc-view {
+    max-height: none;
+  }
+  .pu-doc-view-empty {
+    display: grid;
+    place-items: center;
+    min-height: 42px;
+    color: var(--pu-muted);
+  }
+
+  /* a file that cannot be shown: its name, its size, a link to save it */
+  .pu-doc-view-other {
+    display: flex;
+    align-items: center;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    gap: var(--pu-gap);
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+  }
+  .pu-doc-view-size {
+    color: var(--pu-muted);
+    font-size: var(--pu-font-sm);
+  }
+
+  /* a workbook: the sheet names over the grid, which takes the height that is left */
+  .pu-doc-view-sheet {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .pu-doc-view-sheet > .pu-tabs-bar {
+    flex: none;
+  }
+  .pu-doc-view-sheet > .pu-table {
+    flex: 1 1 auto;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+  }
+  /* (!important because the table's own rule for its grid is) */
+  .pu-field:not(.pu-bounded) > .pu-doc-view-sheet > .pu-table revo-grid {
+    height: var(--pu-doc-view-grid) !important;
+  }
+
+  /* pages or slides, one under another */
+  .pu-doc-view-pages {
+    padding: var(--pu-cpad-y) 0;
+  }
+  .pu-doc-view-note {
+    padding: 0 var(--pu-cpad-x) var(--pu-cpad-y);
+    color: var(--pu-danger);
+    font-size: var(--pu-font-sm);
+  }
+  /* a Word file: the library's own page wrapper, without its backdrop — the box already has one */
+  .pu-doc-view > .docx-wrapper {
+    padding: 0 var(--pu-cpad-x);
+    background: none;
+  }
+  .pu-doc-view > .docx-wrapper > section.docx {
+    margin-bottom: var(--pu-cpad-y);
+    box-shadow: var(--pu-shadow-1);
+  }
+  .pu-doc-view ::highlight(pu-doc-mark) {
+    background-color: color-mix(in srgb, var(--pu-warning) 45%, transparent);
+  }
+
+  /* a PDF page: the drawn page with its text laid over it, transparent, for selecting and marking.
+     The text rules are pdf.js's own (web/pdf_viewer.css, `.textLayer`): its script positions every
+     piece of text through these variables, so without them the text does not sit on the drawing. */
+  .pu-doc-view-page {
+    position: relative;
+    margin: 0 auto var(--pu-cpad-y);
+    background: var(--pu-field);
+    box-shadow: var(--pu-shadow-1);
+    overflow: hidden;
+  }
+  .pu-doc-view-page > canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .pu-doc-view-text {
+    --min-font-size: 1;
+    --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+    --min-font-size-inv: calc(1 / var(--min-font-size));
+    position: absolute;
+    inset: 0;
+    overflow: clip;
+    line-height: 1;
+    letter-spacing: normal;
+    word-spacing: normal;
+    text-align: initial;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+    forced-color-adjust: none;
+    transform-origin: 0 0;
+    color-scheme: only light;
+    z-index: 0;
+  }
+  .pu-doc-view-text :is(span, br) {
+    position: absolute;
+    color: transparent;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+    user-select: text;
+  }
+  .pu-doc-view-text > :not(.markedContent),
+  .pu-doc-view-text .markedContent span:not(.markedContent) {
+    z-index: 1;
+    --font-height: 0;
+    --scale-x: 1;
+    --rotate: 0deg;
+    font-size: calc(var(--text-scale-factor) * var(--font-height));
+    transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+  }
+  .pu-doc-view-text .markedContent {
+    display: contents;
+  }
+  .pu-doc-view-text span[role="img"] {
+    user-select: none;
+    cursor: default;
+  }
+  .pu-doc-view-text ::selection {
+    background: color-mix(in srgb, AccentColor, transparent 50%);
+    color: transparent;
+  }
+  .pu-doc-view-text br::selection {
+    background: transparent;
+  }
+  .pu-doc-view-text > .pu-doc-view-end {
+    display: block;
+    position: absolute;
+    inset: 100% 0 0;
+    z-index: 0;
+    font-size: 0;
+    transform: none;
+    cursor: default;
+    user-select: none;
+  }
+  .pu-doc-view-text > .pu-doc-view-end-active {
+    top: 0;
+  }
+}

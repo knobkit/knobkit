@@ -1,12 +1,40 @@
 import { afterEach, describe, expect, test } from "vitest";
+import { utils, write } from "xlsx";
 import {
-  accordion, chat, code, col, diff, drawer, grid, grow, knobkit, log, output, row, sidebar, splitPane, statusBadge,
-  table, tabs, terminal, toolbar, tree,
+  accordion, chat, code, col, diff, docView, drawer, grid, grow, knobkit, log, output, row, sidebar, splitPane, statusBadge,
+  table, tabs, terminal, toMedia, toolbar, tree,
 } from "../../index.js";
 
 // Every widget is given far more content than fits, so a widget that is not held to the height
 // it is offered shows up as one that runs past its container.
 const LONG = 120;
+
+/** A PDF of blank pages, written out by hand: enough for the viewer to lay its pages out. */
+function blankPdf(pages: number): Uint8Array<ArrayBuffer> {
+  const kids = Array.from({ length: pages }, (_, i) => `${i + 3} 0 R`).join(" ");
+  const objects = [
+    "<</Type/Catalog/Pages 2 0 R>>",
+    `<</Type/Pages/Kids[${kids}]/Count ${pages}>>`,
+    ...Array.from({ length: pages }, () => "<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]>>"),
+  ];
+  let body = "%PDF-1.4\n";
+  const offsets = objects.map((o, i) => {
+    const at = body.length;
+    body += `${i + 1} 0 obj${o}endobj\n`;
+    return at;
+  });
+  const xref = body.length;
+  body += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (const at of offsets) body += `${String(at).padStart(10, "0")} 00000 n \n`;
+  body += `trailer<</Size ${objects.length + 1}/Root 1 0 R>>\nstartxref\n${xref}\n%%EOF\n`;
+  return new TextEncoder().encode(body);
+}
+
+function longWorkbook(): Uint8Array<ArrayBuffer> {
+  const book = utils.book_new();
+  utils.book_append_sheet(book, utils.aoa_to_sheet(Array.from({ length: LONG }, (_, i) => [i, `row ${i}`])), "long");
+  return new Uint8Array(write(book, { type: "array", bookType: "xlsx" }) as ArrayBuffer);
+}
 
 interface Made {
   root: unknown;
@@ -73,6 +101,16 @@ function build(make: (w: Tools) => unknown): Made {
       fillers.push(() => o.set(Array.from({ length: LONG }, (_, i) => `Paragraph ${i}.`).join("\n\n")));
       return o;
     },
+    pdf() {
+      const d = docView();
+      fillers.push(() => d.show({ src: toMedia(blankPdf(8), "application/pdf") }));
+      return d;
+    },
+    sheet() {
+      const d = docView();
+      fillers.push(() => d.show({ src: toMedia(longWorkbook(), "application/octet-stream"), type: "xlsx" }));
+      return d;
+    },
     bar: () => toolbar({ items: [{ id: "a", label: "New" }, { id: "b", label: "Refresh" }] }),
     badge: () => statusBadge("idle"),
     nav: () => sidebar([{ label: "Agents", items: [{ id: "1", label: "one" }] }]),
@@ -94,7 +132,7 @@ function build(make: (w: Tools) => unknown): Made {
 
 interface Kit {
   chat(): unknown; code(): unknown; table(): unknown; term(): unknown; tree(): unknown; log(): unknown;
-  diff(): unknown; out(): unknown; md(): unknown; bar(): unknown; badge(): unknown; nav(): unknown;
+  diff(): unknown; out(): unknown; md(): unknown; pdf(): unknown; sheet(): unknown; bar(): unknown; badge(): unknown; nav(): unknown;
 }
 interface Tools extends Kit {
   /** a widget the layout does not show at first (a tab that is not the open one) */
@@ -103,11 +141,11 @@ interface Tools extends Kit {
 
 const ROOTS: Record<keyof Kit, string> = {
   chat: ".pu-chat", code: ".pu-code .cm-editor", table: ".pu-table revo-grid", term: ".pu-terminal .xterm", tree: ".pu-tree",
-  log: ".pu-log", diff: ".pu-diff", out: ".pu-output", md: ".pu-md", bar: ".pu-toolbar", badge: ".pu-status-badge", nav: ".pu-sidebar",
+  log: ".pu-log", diff: ".pu-diff", out: ".pu-output", md: ".pu-md", pdf: '.pu-doc-view[data-pages="8"]', sheet: ".pu-doc-view revo-grid", bar: ".pu-toolbar", badge: ".pu-status-badge", nav: ".pu-sidebar",
 };
 
 // the root element of each widget that should hold the height it is offered…
-const FILLS = [".pu-chat", ".pu-code", ".pu-table", ".pu-terminal", ".pu-tree", ".pu-log", ".pu-diff", ".pu-output", ".pu-md"];
+const FILLS = [".pu-chat", ".pu-code", ".pu-table", ".pu-terminal", ".pu-tree", ".pu-log", ".pu-diff", ".pu-output", ".pu-md", ".pu-doc-view"];
 // …and of those that keep their own height
 const FIXED = [".pu-toolbar", ".pu-status-badge", ".pu-composer"];
 
@@ -222,6 +260,9 @@ describe("in a page that fills the window, every widget is held to the height it
     "splitPane(md, code)": (w) => splitPane(w.md(), w.code()),
     "drawer(tree, col(bar, md))": (w) => drawer(w.tree(), col(w.bar(), w.md())),
     "splitPane(col(log), code)": (w) => splitPane(col(w.log()), w.code()),
+    "col(bar, pdf)": (w) => col(w.bar(), w.pdf()),
+    "splitPane(pdf, sheet)": (w) => splitPane(w.pdf(), w.sheet()),
+    "col(sheet, code)": (w) => col(w.sheet(), w.code()),
     "row(nav, splitPane(tree, tabs(chat, code)))": (w) => row(w.nav(), splitPane(w.tree(), tabs([{ label: "Chat", content: w.chat() }, { label: "Code", content: w.hidden(() => w.code()) }]), { ratio: 0.2 })),
     "tabs(chat, code)": (w) => tabs([{ label: "Chat", content: w.chat() }, { label: "Code", content: w.hidden(() => w.code()) }]),
     "tabs(col(bar, chat))": (w) => tabs([{ label: "Chat", content: col(w.bar(), w.chat()) }]),
@@ -270,6 +311,7 @@ describe("on an ordinary page, nothing collapses and the page scrolls", () => {
     "splitPane(col(bar, chat), code)": (w) => splitPane(col(w.bar(), w.chat()), w.code()),
     "tabs(col(bar, chat))": (w) => tabs([{ label: "Chat", content: col(w.bar(), w.chat()) }]),
     "col(accordion(chat), code)": (w) => col(accordion({ label: "Chat" }, w.chat()), w.code()),
+    "col(bar, pdf, sheet)": (w) => col(w.bar(), w.pdf(), w.sheet()),
   };
   for (const [name, make] of Object.entries(cases)) {
     test(name, async () => {

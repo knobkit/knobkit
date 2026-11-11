@@ -100,3 +100,5 @@ export type { TabPanel } from "./widgets/tabs/def.js";
 export { splitPane } from "./widgets/split-pane/def.js";
 export { drawer } from "./widgets/drawer/def.js";
 export { accordion } from "./widgets/accordion/def.js";
+export { docView } from "./widgets/doc-view/def.js";
+export type { DocSelection } from "./widgets/doc-view/def.js";

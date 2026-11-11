@@ -1,0 +1,56 @@
+import { puDocView, puDocViewSheet } from "./doc-view.css.js";
+import { puTab, puTabActive, puTabsBar } from "../tabs/tabs.css.js";
+import { useMemo } from "react";
+import type { CSSProperties } from "react";
+import { read, utils } from "xlsx";
+import Grid from "./grid.js";
+import type { Column, Row } from "../table/def.js";
+import type { DocProps } from "./view.js";
+
+interface Sheet {
+  name: string;
+  columns: Column[];
+  rows: Row[];
+}
+
+export default function XlsxDoc(props: DocProps) {
+  const { bytes, state, set } = props;
+  const sheets = useMemo<Sheet[]>(() => {
+    const book = read(bytes, { type: "array" });
+    return book.SheetNames.map((name) => {
+      // cells as the file holds them: a number stays a number, text that looks like one stays text
+      const cells = utils.sheet_to_json<unknown[]>(book.Sheets[name]!, { header: 1, raw: true, defval: null });
+      const width = cells.reduce((w, r) => Math.max(w, r.length), 0);
+      // spreadsheet lettering: A, B, … Z, AA
+      const columns: Column[] = Array.from({ length: width }, (_, c) => ({ key: utils.encode_col(c) }));
+      const rows = cells.map((r) => Object.fromEntries(columns.map((c, i) => [c.key, r[i] ?? null])));
+      return { name, columns, rows };
+    });
+  }, [bytes]);
+
+  const at = Math.min(Math.max(1, Math.round(state.page) || 1), Math.max(1, sheets.length));
+  const sheet = sheets[at - 1];
+  // The table view sizes its grid to the height on offer, which is none on an ordinary page; there
+  // the grid gets the height the table view would have fitted to its rows (its header and row
+  // heights, under its ceiling).
+  const fitted = { "--pu-doc-view-grid": `${Math.min(500, 45 + (sheet?.rows.length ?? 0) * 32 + 2)}px` } as CSSProperties;
+  return (
+    <div className={`${puDocView} ${puDocViewSheet}`} data-kind="xlsx" style={fitted}>
+      <div className={puTabsBar} role="tablist">
+        {sheets.map((s, i) => (
+          <button
+            key={s.name}
+            type="button"
+            role="tab"
+            aria-selected={i === at - 1}
+            className={`${puTab}${i === at - 1 ? ` ${puTabActive}` : ""}`}
+            onClick={() => set(["page"], i + 1)}
+          >
+            {s.name}
+          </button>
+        ))}
+      </div>
+      {sheet && <Grid key={sheet.name} columns={sheet.columns} rows={sheet.rows} view={props} />}
+    </div>
+  );
+}

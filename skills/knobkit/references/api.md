@@ -116,6 +116,7 @@ All are write-only (no read getter unless noted).
 | `gallery()` | `set(items)`, `add(item)`, `select(index \| null)`, `await selected()` | `item: { src, caption? }`; `src` a `MediaRef` or URL. Event `clicked` (`{ index, caption? }`) when the user clicks a thumbnail; the clicked one is shown as selected |
 | `audio({ autoplay? })` | `set(srcOrRef)` | a `MediaRef` or URL |
 | `video({ autoplay?, loop? })` | `set(srcOrRef)`, `seek(seconds)`, `play()`, `pause()`, `playRange(from, to)`, `await position()`, `await playing()`, `await duration()` | a `MediaRef` or URL. Events for what the user does with the controls: `played`, `paused`, `seeked`, and `progress` about twice a second while playing — each `{ position }` in seconds. `seek` moves the player without loading the clip again; what a handler's own commands cause is not sent back as an event |
+| `docView()` | `show({ src, type?, name? })`, `goTo(n)`, `mark(text)`, `clearMark()` | a document, from a `MediaRef` or URL: PDF, Word (`.docx`), slides (`.pptx`) and spreadsheets (`.xlsx`) with their pages, slides or sheets; Markdown, plain text, CSV and images as `output`, `table` and `image` show them; anything else as its name, size and a download link. `type` is a MIME type or extension, worked out from the name or address when left out. `goTo` brings a page, slide or sheet into view (from 1); `mark` highlights a passage found by its text and scrolls to it. Event `selected` (`{ text, page }`) when the user selects text in a PDF, Word file or deck |
 | `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
 | `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain). Events: `clicked` (`{ index, label, text }`) when the user clicks a marked span, `selected` (`{ text }`) when the user selects a phrase |
 | `frame({ src? })` | `set(url)`, `reload()` | iframe with its address and an open-in-a-new-window control; `reload()` loads the same address again. Events `loaded` and `refused` (`{ src }`): on `serve`, `set(url)` asks the site whether it allows embedding, and a site that does not gets a message in the pane and `refused` instead of a blank frame. `mount` cannot tell — the browser reports a refused page as loaded |
@@ -123,6 +124,13 @@ All are write-only (no read getter unless noted).
 | `diff()` | `setFiles(files)` | `FileDiff: { path, oldContent, newContent, language?, status? }` |
 | `statusBadge(status?, { variants? })` | `set(status)` | dot + label; `variants` maps custom statuses to idle/running/waiting/completed/failed/error |
 | `toast()` | `show(message, variant?)` | transient notifications; `variant` info/success/warning/error |
+
+```ts
+const doc = docView();
+app.on(picker.changed, ([file]) => file && doc.show({ src: file.ref, name: file.name }));
+app.on(find.clicked, () => doc.mark("The method is remarkably robust to noisy gradients."));
+app.on(doc.selected, ({ text, page }) => notes.append(`p. ${page}: ${text}\n`));
+```
 
 ## Editable or read-only (both)
 
@@ -171,7 +179,7 @@ absorbs a `col`'s leftover space, `density(w, "sm")` / `theme(w, "dark")` restyl
 
 Height works the same way at every depth. In a page that fills the window (`fill: true`), widgets
 that scroll their own content — `chat`, `code`, `terminal`, `table`, `tree`, `log`, `diff`, `output`,
-`frame` — are held to the space their container has, however the containers are nested; several in
+`docView`, `frame` — are held to the space their container has, however the containers are nested; several in
 one `col` share it evenly, and `grow(w)` gives it to one. Everything else keeps its own height. On an
 ordinary page nothing is held, and the page scrolls.
 
