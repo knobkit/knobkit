@@ -1,0 +1,5 @@
+{
+  "extends": "knobkit/tsconfig.base.json",
+  "compilerOptions": { "types": ["node", "vite/client"] },
+  "include": ["**/*.ts", "**/*.tsx"]
+}

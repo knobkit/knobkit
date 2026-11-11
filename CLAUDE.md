@@ -12,7 +12,7 @@ that pulls the state it reads on demand and writes by sending structured edits. 
 ## Layout
 
 Monorepo (pnpm): kernel `packages/core` (`@knobkit/core`), standard library `packages/knobkit` (`knobkit`),
-examples in `examples/*`.
+end-to-end tests in `packages/e2e`, examples in `examples/*`.
 
 ```
 packages/core/src/          @knobkit/core — the kernel, isomorphic, dependency-free at runtime
@@ -50,6 +50,8 @@ packages/knobkit/src/       knobkit — the standard library; re-exports the cor
 pnpm build                  # core (tsc + css copy) then knobkit (tsc + css + browser bundle)
 pnpm test                   # core vitest (67 tests) + knobkit vitest (token CSS rule; layout, in a real browser —
                             #   once: pnpm -F knobkit exec playwright install chromium)
+pnpm test:e2e               # build, then packages/e2e: real browsers against real `knobkit dev` apps
+                            #   once: pnpm -F knobkit-e2e exec playwright install chromium webkit
 pnpm typecheck              # all packages incl. examples
 pnpm -F knobkit-example-<name> dev
 ```
@@ -58,6 +60,23 @@ Workspace dev needs `packages/core/dist` + `packages/knobkit/dist` built (instal
 the **CLI aliases both packages to `src/` inside vite**, so example dev picks up source edits without
 rebuilds — but the *server side* of a serve app runs from `dist`, so rebuild core/knobkit after
 editing kernel/server code. ESM with `NodeNext`: imports use `.js` extensions even for `.ts`/`.tsx`.
+
+## End-to-end tests
+
+`packages/e2e` checks what a user sees and what a handler receives, in Chromium and WebKit, with the
+app browser-only (`mount`) and from a server (`serve`). The tests run in Node and drive the browsers
+with Playwright against `knobkit dev`, because server mode needs a server and the checks need real
+input, the network log, new windows and the file chooser.
+
+- `apps/t<NN>.tsx` — a fixture: exports `app`, calls neither `mount` nor `serve`. `apps/mount.tsx`
+  mounts the one named by `?app=`; `apps/serve.ts` serves the one named by `E2E_APP`.
+- `apps/_rec.ts` — `recorder()`: handlers `push(name, data)`, tests read it with `recorded(page)`.
+  The same in both modes, because it is ordinary widget state.
+- `tests/t<NN>-*.test.ts` — `journey("t<NN>", (j) => { test(…, async () => { const page = await j.open(); … }) })`
+  defines each check once; it runs in every mode and engine.
+- `E2E_HEADED=1` shows the windows; `E2E_BROWSERS=chromium`, `E2E_MODES=serve` narrow a run.
+
+Server mode runs from `dist`, so `pnpm build` comes first (`pnpm test:e2e` does it).
 
 ## State model
 
