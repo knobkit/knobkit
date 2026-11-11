@@ -129,7 +129,7 @@ All are write-only (no read getter unless noted).
 | Factory (defaults) | Events | Read / write / methods |
 |--------------------|--------|------------------------|
 | `code({ value?, language?, readOnly? })` | `changed` (string) | syntax-highlighted CodeMirror. `await value()`, `set(src)`, `setLanguage(lang)` (switches grammar at runtime). `language` e.g. `"tsx"`, `"python"`, `"json"`, `"markdown"` |
-| `table({ columns?, rows?, editable?, maxHeight? })` | `edited` (`{ row, key, value }`) | RevoGrid. `Column: { key, label?, type?, width? }`; rows are `Record<string, unknown>`. `await data()`, `setRows(rows)`, `setColumns(cols)`, `addRow(row)`, `setCell(row, key, value)` |
+| `table({ columns?, rows?, editable?, maxHeight? })` | `edited` (`{ row, key, value }`) | RevoGrid. `Column: { key, label?, type?, width? }`; rows are `Record<string, unknown>`. `await data()`, `setRows(rows)`, `setColumns(cols)`, `addRow(row)`, `setCell(row, key, value)`. A `type: "number"` column holds and delivers numbers: `4` typed there arrives as the number 4, an emptied cell as `null`, and text that is not a number is not taken |
 | `terminal({ rows?, cols?, scrollback?, echo? })` | `data` (string), `resized` | xterm. `write(text)`, `writeln(line)`, `clear()`. `echo` echoes typed input locally |
 
 ## Navigation

@@ -1,5 +1,5 @@
 import { puTable } from "./table.css.js";
-import { useMemo, type MouseEvent } from "react";
+import { useMemo, useState, type MouseEvent } from "react";
 import { RevoGrid } from "@revolist/react-datagrid";
 import type { ViewProps } from "@knobkit/core/client";
 import type { Column, Row } from "./def.js";
@@ -65,9 +65,24 @@ export default function TableView({ props, state, emit, set }: ViewProps<{ colum
   );
   // clone each row: RevoGrid mutates its own source in place on edit — we must not let it touch the
   // store's state objects. The real change is applied through the store via onAfteredit below.
-  const source = useMemo<GridRow[]>(() => state.rows.map((r) => ({ ...r })), [state.rows]);
+  // (`rejected` hands the grid a fresh copy after an edit that was not taken, undoing the grid's own.)
+  const [rejected, setRejected] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const source = useMemo<GridRow[]>(() => state.rows.map((r) => ({ ...r })), [state.rows, rejected]);
 
-  const apply = (row: number, key: string, value: unknown): void => {
+  const apply = (row: number, key: string, typedValue: unknown): void => {
+    // the grid's editor hands over text; a number column holds numbers
+    let value = typedValue;
+    if (typeof value !== "number" && state.columns.find((c) => c.key === key)?.type === "number") {
+      const text = String(value ?? "").trim();
+      const n = text === "" ? null : Number(text);
+      if (n !== null && !Number.isFinite(n)) {
+        setRejected((r) => r + 1); // not a number: the cell goes back to what it held
+        return;
+      }
+      value = n;
+      if (state.rows[row]?.[key] === value) setRejected((r) => r + 1); // "4" over 4: nothing to send, but redraw the 4
+    }
     // a range/paste commit reports every cell in the selection; skip the ones that didn't change so
     // handlers don't see no-op edits
     if (state.rows[row]?.[key] === value) return;

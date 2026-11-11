@@ -80,6 +80,7 @@ export function journey(
               await ctx?.close();
               ctx = await browser.newContext({ viewport: { width: 1200, height: 760 }, ...o });
               const page = await ctx.newPage();
+              page.setDefaultTimeout(12_000);
               await page.goto(base);
               await page.locator("#root .pu-field").first().waitFor();
               return page;
