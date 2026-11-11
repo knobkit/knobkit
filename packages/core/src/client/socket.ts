@@ -47,19 +47,21 @@ export function boot(rootSelector = "#root"): void {
   const subsFor = (id: Id, name: string, chan: boolean): SubDecl[] =>
     subs.filter((s) => s.src === id && s.name === name && Boolean(s.chan) === chan);
 
-  const emit = (id: Id, name: string, payload: unknown): void => {
+  const emit = (id: Id, name: string, payload: unknown): string | undefined => {
     const matching = subsFor(id, name, false);
-    if (matching.length === 0 || !store) return; // no server handler — local-only event
+    if (matching.length === 0 || !store) return undefined; // no server handler — local-only event
     if (store.gated(id) && matching.every((s) => s.gate !== false)) {
       notes?.push("drop", `${name}: dropped — widget is disabled or busy`);
-      return;
+      return undefined;
     }
     const targets = new Map<string, [Id, (string | number)[]]>();
     for (const s of matching) for (const [tid, path] of s.snap ?? []) targets.set(tid + JSON.stringify(path), [tid, path]);
     const snap = targets.size
       ? [...targets.values()].map(([tid, path]) => [tid, path, store!.readAt(tid, path)] as [Id, (string | number)[], unknown])
       : undefined;
-    outbox.push({ kind: "event", corr: mint(), src: id, name, payload, snap });
+    const corr = mint();
+    outbox.push({ kind: "event", corr, src: id, name, payload, snap });
+    return corr;
   };
 
   const send = (id: Id, name: string, data: unknown): void => {

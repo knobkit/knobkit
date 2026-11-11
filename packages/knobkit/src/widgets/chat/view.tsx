@@ -26,6 +26,7 @@ import {
   puMsgMd,
   puMsgQueued,
   puMsgQueuedTag,
+  puMsgWaiting,
   puRec,
   puUser,
 } from "./chat.css.js";
@@ -101,6 +102,8 @@ interface State {
   streams: Record<string, string>;
   tools: Record<string, ToolCall>;
   queued: string[];
+  /** set by the dispatcher: the corr of the latest `sent` whose handler has begun */
+  $started?: string;
 }
 
 interface Props {
@@ -147,9 +150,24 @@ export default function ChatView({ props, state, emit, send, set }: ViewProps<St
   const [recording, setRecording] = useState(false);
   const [pending, setPending] = useState<MediaRef | null>(null);
 
+  // What was sent and has not reached its handler yet. With handlers run one after another, a
+  // message sent during a run waits for the run to end; it is shown, marked, until its turn comes
+  // — at which point the handler says it, as it would have anyway.
+  const [waiting, setWaiting] = useState<{ corr: string; text: string }[]>([]);
+  const started = state.$started;
+  useEffect(() => {
+    // handlers start in the order sent, so everything up to the one that began is no longer waiting
+    setWaiting((w) => {
+      const i = w.findIndex((m) => m.corr === started);
+      return i < 0 ? w : w.slice(i + 1);
+    });
+  }, [started]);
+
   const submit = (input: HTMLInputElement): void => {
     if (!input.value.trim() && !pending) return;
-    emit("sent", { text: input.value, image: pending ?? undefined });
+    const text = input.value;
+    const corr = emit("sent", { text, image: pending ?? undefined });
+    if (corr) setWaiting((w) => [...w, { corr, text }]);
     following.current = true; // sending is asking to see what comes back
     input.value = "";
     setPending(null);
@@ -224,6 +242,12 @@ export default function ChatView({ props, state, emit, send, set }: ViewProps<St
             </div>
           );
         })}
+        {waiting.map((m) => (
+          <div key={m.corr} className={`${puMsg} ${puUser} ${puMsgQueued} ${puMsgWaiting}`}>
+            {m.text}
+            <span className={puMsgQueuedTag}>waiting</span>
+          </div>
+        ))}
         {queued.map((text, i) => (
           <div key={`queued-${i}`} className={`${puMsg} ${puUser} ${puMsgQueued}`}>
             {text}

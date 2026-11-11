@@ -59,6 +59,19 @@
   .pu-msg-queued {
     opacity: 0.55;
   }
+  /* shown by the conversation itself for a message whose handler has not begun. A handler that is
+     free begins at once, so the mark holds back a moment rather than flash on every message. */
+  .pu-msg-waiting {
+    animation: pu-msg-waiting 0s 120ms both;
+  }
+  @keyframes pu-msg-waiting {
+    from {
+      visibility: hidden;
+    }
+    to {
+      visibility: visible;
+    }
+  }
   .pu-msg-queued-tag {
     margin-left: 8px;
     font-size: var(--pu-font-sm);

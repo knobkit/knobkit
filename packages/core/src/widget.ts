@@ -27,6 +27,12 @@ export type PropsOf<PS extends PropSpecs> = { [K in keyof PS]: PS[K]["default"] 
 
 export interface EventSpec<T = void> {
   payload?: PayloadType<T>;
+  /**
+   * Tell the view when a handler for this event begins: `emit()` returns the event's corr, and
+   * the widget's `$started` state is set to it at that moment. For a view that shows what it
+   * sent as waiting while an earlier handler is still running.
+   */
+  ack?: boolean;
 }
 export type EventSpecs = Record<string, EventSpec<any>>;
 

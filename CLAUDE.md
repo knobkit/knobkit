@@ -125,7 +125,9 @@ export const thing = defineWidget({
   type: "thing",
   state: { value: { initial: "" } },              // runtime-changing attrs (uniform seeding:
   props: { placeholder: { default: "" } },        //   thing({ value, placeholder }) both work)
-  events: { changed: { payload: t<string>() } },  // or a Standard Schema for real validation
+  events: { changed: { payload: t<string>() } },  // or a Standard Schema for real validation;
+                                                  //   `ack: true` → emit() returns a corr and
+                                                  //   state.$started says when its handler began
   channels: { clip: { policy: "latest", data: t<Float32Array>() } },
   ops: (at) => ({ set: at("value").op("set"), clear: at("value").op("set", "") }),
   methods: (self) => ({ value: () => self.at("value").get() }),

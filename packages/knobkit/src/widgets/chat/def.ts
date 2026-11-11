@@ -51,7 +51,8 @@ export const chat = defineWidget({
     markdown: { default: false },
   },
   events: {
-    sent: { payload: t<{ text: string; image?: MediaRef }>() },
+    // `ack`: the view shows a message as waiting until the handler it went to has begun
+    sent: { payload: t<{ text: string; image?: MediaRef }>(), ack: true },
     decided: { payload: t<{ id: string; decision: "accept" | "reject" }>() },
   },
   channels: { recorded: { data: t<Float32Array>() } },
