@@ -1,7 +1,6 @@
 import { puDocView, puDocViewSheet } from "./doc-view.css.js";
 import { puTab, puTabActive, puTabsBar } from "../tabs/tabs.css.js";
 import { useMemo } from "react";
-import type { CSSProperties } from "react";
 import { read, utils } from "xlsx";
 import Grid from "./grid.js";
 import type { Column, Row } from "../table/def.js";
@@ -30,12 +29,8 @@ export default function XlsxDoc(props: DocProps) {
 
   const at = Math.min(Math.max(1, Math.round(state.page) || 1), Math.max(1, sheets.length));
   const sheet = sheets[at - 1];
-  // The table view sizes its grid to the height on offer, which is none on an ordinary page; there
-  // the grid gets the height the table view would have fitted to its rows (its header and row
-  // heights, under its ceiling).
-  const fitted = { "--pu-doc-view-grid": `${Math.min(500, 45 + (sheet?.rows.length ?? 0) * 32 + 2)}px` } as CSSProperties;
   return (
-    <div className={`${puDocView} ${puDocViewSheet}`} data-kind="xlsx" style={fitted}>
+    <div className={`${puDocView} ${puDocViewSheet}`} data-kind="xlsx">
       <div className={puTabsBar} role="tablist">
         {sheets.map((s, i) => (
           <button

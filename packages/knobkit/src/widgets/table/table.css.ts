@@ -2,4 +2,4 @@
 import "./table.css";
 
 export const puTable = "pu-table";
-export const puFillY = "pu-fill-y";
+export const puBounded = "pu-bounded";
