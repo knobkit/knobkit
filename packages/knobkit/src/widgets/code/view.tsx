@@ -7,6 +7,7 @@ import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirro
 import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 import type { ViewProps } from "@knobkit/core/client";
+import type { CodeChange } from "./def.js";
 
 // token-valued theme: CodeMirror follows the --pu-* cascade with no JS re-theming
 const cmTheme = EditorView.theme({
@@ -63,10 +64,11 @@ export default function CodeView({ props, state, emit, set }: ViewProps<{ value:
   const lang = useRef(new Compartment());
   const edit = useRef(new Compartment());
   // the editor is built once; route edits through a ref so it always sees the current props
-  const onChange = useRef<(v: string) => void>(() => {});
-  onChange.current = (v: string) => {
+  const onChange = useRef<(v: string, changes: CodeChange[]) => void>(() => {});
+  onChange.current = (v, changes) => {
     set(["value"], v); // local, so reads and the controlled doc reflect typing with no round-trip
     emit("changed", v);
+    emit("edited", { changes }); // what changed, for a handler that does not want the whole text each time
   };
 
   const onSelect = useRef<(s: { start: number; end: number; text: string }) => void>(() => {});
@@ -116,7 +118,9 @@ export default function CodeView({ props, state, emit, set }: ViewProps<{ value:
           EditorView.updateListener.of((u) => {
             if (!u.docChanged) return;
             if (u.transactions.some((tr) => tr.annotation(External))) return; // our own sync, not a user edit
-            onChange.current(u.state.doc.toString());
+            const changes: CodeChange[] = [];
+            u.changes.iterChanges((from, to, _fromNew, _toNew, inserted) => changes.push({ from, to, insert: inserted.toString() }));
+            onChange.current(u.state.doc.toString(), changes);
           }),
         ],
       }),
