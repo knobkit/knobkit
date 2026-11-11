@@ -7,10 +7,15 @@ interface TabsState {
   badges: (string | null)[];
   closable: boolean[];
   active: number;
+  added: Record<string, { label: string; badge?: string | null; closable?: boolean }>;
 }
 
 export default function TabsView({ state, set, slot }: ViewProps<TabsState>) {
-  const { items = [], labels = [], badges = [], closable = [] } = state;
+  const { items = [], added = {} } = state;
+  // a tab made with the app has its label by position; one added during a run, by its content's id
+  const labels = items.map((id, i) => added[id]?.label ?? state.labels?.[i]);
+  const badges = items.map((id, i) => (added[id] ? added[id].badge : state.badges?.[i]) ?? null);
+  const closable = items.map((id, i) => (added[id] ? added[id].closable : state.closable?.[i]) ?? false);
   const setActive = (index: number): void => set(["active"], index);
   const current = Math.min(Math.max(0, state.active ?? 0), Math.max(0, items.length - 1));
 
