@@ -15,6 +15,7 @@ export interface SidebarSection {
 
 const sidebarDef = defineWidget({
   type: "sidebar",
+  size: { x: "intrinsic" }, // it has a width of its own: a row gives it that, not an equal share
   state: { sections: { initial: [] as SidebarSection[] } },
   events: { selected: { payload: t<{ id: string }>() } },
   ops: (at) => ({ setSections: at("sections").op("set") }),

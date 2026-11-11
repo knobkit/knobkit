@@ -308,6 +308,25 @@ test("grow() gives one child the leftover and the others their own height", asyn
   expect(used).toBeGreaterThan(panel.height * 0.9);
 });
 
+for (const fill of [true, false]) {
+  test(`a sidebar in a row keeps its own width and the rest of the row goes to its neighbour (${fill ? "filled" : "ordinary"} page)`, async () => {
+    await show((w) => row(w.nav(), splitPane(w.tree(), w.code(), { ratio: 0.2 })), fill);
+    const box = (s: string): DOMRect => document.querySelector(s)!.getBoundingClientRect();
+    const [whole, nav, rest] = [box(".pu-layout-row"), box(".pu-sidebar"), box(".pu-split-pane")];
+    expect(Math.round(nav.width)).toBe(240);
+    // nothing but the row's gap between the two, and the neighbour runs to the row's right edge
+    expect(rest.left - nav.right).toBeLessThan(24);
+    expect(Math.abs(rest.right - whole.right)).toBeLessThan(2);
+    expect(Math.round(box(".pu-split-pane").height)).toBe(Math.round(whole.height));
+  });
+}
+
+test("a row without a fixed-width child still shares its width equally, and span() claims more", async () => {
+  await show((w) => row(w.code(), w.term()));
+  const width = (s: string): number => document.querySelector(s)!.getBoundingClientRect().width;
+  expect(Math.abs(width(".pu-code") - width(".pu-terminal"))).toBeLessThan(2);
+});
+
 test("on an ordinary page a tab is as tall as its own content, also after another tab was open", async () => {
   await show((w) => tabs([{ label: "Terminal", content: w.term() }, { label: "Badge", content: w.hidden(() => w.badge()) }]), false);
   const tab = (i: number): void => document.querySelectorAll<HTMLElement>(".pu-tab")[i]!.click();

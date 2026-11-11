@@ -88,7 +88,12 @@ export function Field({
   const rowspan = typeof inst.props[ROWSPAN] === "number" ? (inst.props[ROWSPAN] as number) : 1;
   const spanStyle: CSSProperties | undefined =
     colspan > 1 || rowspan > 1
-      ? { gridColumn: colspan > 1 ? `span ${colspan}` : undefined, gridRow: rowspan > 1 ? `span ${rowspan}` : undefined }
+      ? ({
+          gridColumn: colspan > 1 ? `span ${colspan}` : undefined,
+          gridRow: rowspan > 1 ? `span ${rowspan}` : undefined,
+          // the same claim where the row is a flex row (one of its children has a width of its own)
+          ...(colspan > 1 ? { "--pu-colspan": colspan } : {}),
+        } as CSSProperties)
       : undefined;
   const grows = inst.props[GROW] === true;
   const grow = grows ? " pu-field-grow" : "";
