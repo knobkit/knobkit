@@ -36,6 +36,33 @@ async function readBody(req: IncomingMessage): Promise<Uint8Array> {
   return new Uint8Array(Buffer.concat(chunks));
 }
 
+/**
+ * Answer with the part of `bytes` the request asks for. A media element can only move to a time it
+ * has not loaded yet by asking for the bytes at that offset; a server that answers every request
+ * with the whole file leaves the player unable to seek.
+ */
+export function sendRanged(req: IncomingMessage, res: ServerResponse, bytes: Uint8Array): void {
+  const size = bytes.byteLength;
+  res.setHeader("accept-ranges", "bytes");
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? "");
+  if (!m || (m[1] === "" && m[2] === "")) {
+    res.setHeader("content-length", size);
+    return void res.end(req.method === "HEAD" ? undefined : Buffer.from(bytes));
+  }
+  // "a-b", "a-" (to the end) or "-n" (the last n bytes)
+  const start = m[1] === "" ? Math.max(0, size - Number(m[2])) : Number(m[1]);
+  const end = m[1] === "" || m[2] === "" ? size - 1 : Math.min(Number(m[2]), size - 1);
+  if (start >= size || start > end) {
+    res.statusCode = 416;
+    res.setHeader("content-range", `bytes */${size}`);
+    return void res.end();
+  }
+  res.statusCode = 206;
+  res.setHeader("content-range", `bytes ${start}-${end}/${size}`);
+  res.setHeader("content-length", end - start + 1);
+  res.end(req.method === "HEAD" ? undefined : Buffer.from(bytes.buffer, bytes.byteOffset + start, end - start + 1));
+}
+
 const MIME: Record<string, string> = {
   ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -100,7 +127,7 @@ export async function serveApp(
           } else {
             res.setHeader("content-type", entry.mime);
             res.setHeader("cache-control", "private, max-age=31536000, immutable");
-            res.end(Buffer.from(entry.bytes));
+            sendRanged(req, res, entry.bytes);
           }
         }
       } else if (!dev && url.startsWith(`${APP_PATH}/`)) {

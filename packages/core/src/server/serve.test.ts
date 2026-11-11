@@ -44,6 +44,27 @@ describe("serveApp", () => {
     expect(html).toContain("/__app/entry.js");
   });
 
+  test("media GET answers a byte range with 206 and the range it sent", async () => {
+    const { url } = await serverPromise;
+    const bytes = Uint8Array.from({ length: 100 }, (_, i) => i);
+    await fetch(`${url}__media/ranged`, { method: "POST", headers: { "content-type": "video/webm" }, body: bytes });
+
+    const whole = await fetch(`${url}__media/ranged`);
+    expect(whole.status).toBe(200);
+    expect(whole.headers.get("accept-ranges")).toBe("bytes");
+
+    const part = await fetch(`${url}__media/ranged`, { headers: { range: "bytes=10-19" } });
+    expect(part.status).toBe(206);
+    expect(part.headers.get("content-range")).toBe("bytes 10-19/100");
+    expect([...new Uint8Array(await part.arrayBuffer())]).toEqual([10, 11, 12, 13, 14, 15, 16, 17, 18, 19]);
+
+    const open = await fetch(`${url}__media/ranged`, { headers: { range: "bytes=95-" } });
+    expect(open.headers.get("content-range")).toBe("bytes 95-99/100");
+    const last = await fetch(`${url}__media/ranged`, { headers: { range: "bytes=-3" } });
+    expect([...new Uint8Array(await last.arrayBuffer())]).toEqual([97, 98, 99]);
+    expect((await fetch(`${url}__media/ranged`, { headers: { range: "bytes=100-" } })).status).toBe(416);
+  });
+
   test("media POST → GET round-trip", async () => {
     const { url } = await serverPromise;
     const bytes = new Uint8Array([1, 2, 3, 4]);
