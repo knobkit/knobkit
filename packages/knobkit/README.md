@@ -111,7 +111,30 @@ themselves stay out of app state and cross the wire lazily. `knobkit/media` adds
 | `upload({ accept?, multiple?, label? })` | `picked` (`MediaRef`, per file), `changed` (`UploadFile[]`) | `await value()`, `await files()`, `clear()`. `UploadFile: { name, type, size, ref }` |
 | `mic({ every?, control?, hold? })` | `clip` channel (`Float32Array`, 16 kHz mono PCM) | `start()`, `stop()`, `await toggle()`, `await live()`. `every` ms emits a clip every N ms (0 = one clip per recording) |
 | `webcam({ every?, preview? })` | `frame` channel (`MediaRef`, JPEG) | `start()`, `stop()`. `every` ms emits a frame every N ms (0 = preview only) |
-| `chat({ placeholder?, voice?, images?, markdown? })` | `sent` (`{ text, image? }`), `recorded` channel (`Float32Array`) | `await history()`, `say(msg)`, `append(token)`, `clear()`. `markdown` renders assistant replies; `images`/`voice` add attach/talk buttons |
+| `chat({ placeholder?, voice?, images?, markdown? })` | `sent` (`{ text, image? }`), `decided` (`{ id, decision }`), `recorded` channel (`Float32Array`) | `await history()`, `say(msg)`, `append(token)`, `appendTo(id, token)`, `clear()`; tool calls and queued messages below. `markdown` renders assistant replies; `images`/`voice` add attach/talk buttons |
+
+**An agent's conversation** — `chat` also shows what an agent does between its replies:
+
+```ts
+convo.say({ id: "r1", role: "assistant", content: "" });
+convo.appendTo("r1", token);                      // streams into that message, wherever it now sits
+convo.tool({ id: "c1", name: "read", input: { path: "src/app.js" } });
+convo.toolResult("c1", text);                     // or toolResult(id, message, true) for a failure
+convo.tool({ id: "c2", name: "edit", input, status: "awaiting" });   // shows Accept / Reject
+
+app.on(convo.decided, ({ id, decision }) => { /* "accept" | "reject", for the call `id` */ });
+
+convo.queue(text);                                // sent while the agent works: shown as queued
+convo.dequeue();                                  // taken up (or setQueued(list))
+convo.say({ role: "error", content: "The model call failed" });
+```
+
+A `Message` is `{ id?, role, content, image? }` with `role` one of `user`, `assistant`, `system`,
+`tool`, `error`. A tool call is `{ id, name, input?, status, result? }` with `status` one of
+`running`, `awaiting`, `done`, `error`, `rejected`; `toolStatus(id, status)` sets it and
+`await toolCalls()` reads them. `history()` returns tool calls as `{ role: "tool", call: id }`
+entries. In a container that gives it height (a split pane, tabs, a `fill` page) the conversation
+scrolls and the input stays in place.
 
 **Outputs** (write-only):
 
