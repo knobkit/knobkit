@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "vitest";
-import { utils, write } from "xlsx";
+import { utils, write } from "../doc-view/vendor/sheetjs/xlsx.mjs";
 import {
   accordion, chat, code, col, diff, docView, drawer, grid, grow, knobkit, log, output, row, sidebar, splitPane, statusBadge,
   table, tabs, terminal, toMedia, toolbar, tree,

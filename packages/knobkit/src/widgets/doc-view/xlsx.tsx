@@ -1,7 +1,7 @@
 import { puDocView, puDocViewSheet } from "./doc-view.css.js";
 import { puTab, puTabActive, puTabsBar } from "../tabs/tabs.css.js";
 import { useMemo } from "react";
-import { read, utils } from "xlsx";
+import { read, utils } from "./vendor/sheetjs/xlsx.mjs"; // SheetJS, kept in the package: see vendor/sheetjs/README.md
 import Grid from "./grid.js";
 import type { Column, Row } from "../table/def.js";
 import type { DocProps } from "./view.js";
