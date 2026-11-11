@@ -1,5 +1,6 @@
 import { puCode, puCodeRo } from "./code.css.js";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { changedSpan } from "../_primitives/text-diff.js";
 import { EditorState, Compartment, Annotation, type Extension } from "@codemirror/state";
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
@@ -71,7 +72,7 @@ export default function CodeView({ props, state, emit, set }: ViewProps<{ value:
   const language = state.language ?? "";
   const editable = !props.readOnly;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const v = new EditorView({
       parent: host.current!,
       state: EditorState.create({
@@ -103,14 +104,15 @@ export default function CodeView({ props, state, emit, set }: ViewProps<{ value:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // push programmatic value changes (set()/server edit) into the doc without echoing back an edit
-  useEffect(() => {
+  // push programmatic value changes (set()/server edit) into the doc without echoing back an edit.
+  // Only the span that differs is replaced, so the cursor, the selection and the scroll position
+  // are carried through the change by CodeMirror instead of being reset. A layout effect: between
+  // a render and a passive effect a keystroke could land, and its text would read as a difference.
+  useLayoutEffect(() => {
     const v = view.current;
     if (!v) return;
-    const cur = v.state.doc.toString();
-    if (state.value !== cur) {
-      v.dispatch({ changes: { from: 0, to: cur.length, insert: state.value }, annotations: External.of(true) });
-    }
+    const span = changedSpan(v.state.doc.toString(), state.value);
+    if (span) v.dispatch({ changes: span, annotations: External.of(true) });
   }, [state.value]);
 
   // load the grammar chunk, then swap it into the language compartment; guard against a stale load
