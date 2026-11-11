@@ -1,4 +1,5 @@
-import { puTab, puTabActive, puTabBadge, puTabClose, puTabLabel, puTabs, puTabsBar, puTabsPanel } from "./tabs.css.js";
+import { puTab, puTabActive, puTabBadge, puTabClose, puTabLabel, puTabs, puTabsBar, puTabsPane, puTabsPaneOff, puTabsPanel } from "./tabs.css.js";
+import { useRef } from "react";
 import type { ViewProps } from "@knobkit/core/client";
 
 interface TabsState {
@@ -18,6 +19,13 @@ export default function TabsView({ state, set, slot }: ViewProps<TabsState>) {
   const closable = items.map((id, i) => (added[id] ? added[id].closable : state.closable?.[i]) ?? false);
   const setActive = (index: number): void => set(["active"], index);
   const current = Math.min(Math.max(0, state.active ?? 0), Math.max(0, items.length - 1));
+
+  // A tab's content is drawn when the tab is first opened and then stays on the page, out of
+  // sight, while another tab is open. Taking it off the page loses what only the page holds: a
+  // video's position, an embedded page's document, an editor's cursor and scroll.
+  const opened = useRef(new Set<string>());
+  if (items[current] != null) opened.current.add(items[current]);
+  for (const id of opened.current) if (!items.includes(id)) opened.current.delete(id);
 
   function handleClose(e: React.MouseEvent, index: number): void {
     e.stopPropagation();
@@ -52,7 +60,15 @@ export default function TabsView({ state, set, slot }: ViewProps<TabsState>) {
           </button>
         ))}
       </div>
-      <div className={puTabsPanel}>{items[current] != null ? slot(items[current]) : null}</div>
+      <div className={puTabsPanel}>
+        {items.map((id, i) =>
+          opened.current.has(id) ? (
+            <div key={id} role="tabpanel" className={`${puTabsPane}${i === current ? "" : ` ${puTabsPaneOff}`}`} aria-hidden={i !== current}>
+              {slot(id)}
+            </div>
+          ) : null,
+        )}
+      </div>
     </div>
   );
 }

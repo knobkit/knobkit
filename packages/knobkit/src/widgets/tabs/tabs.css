@@ -81,10 +81,26 @@
   /* internal: the bar is intrinsic, the panel takes the rest. The panel is a block box, so it
      hands its height to the slot's field explicitly — the flex claim can't reach across it. */
   .pu-tabs-panel {
+    position: relative;
     flex: 1 1 auto;
     min-height: 0;
   }
-  .pu-fill-y .pu-tabs-panel > .pu-field {
+  .pu-tabs-pane {
+    min-height: 0;
+  }
+  /* a tab that is not open keeps its box, laid over the open one and not shown: with no box
+     (display: none) a scroller forgets where it was and a terminal refits to nothing */
+  .pu-tabs-pane-off {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .pu-fill-y .pu-tabs-pane {
+    height: 100%;
+  }
+  .pu-fill-y .pu-tabs-pane > .pu-field {
     height: 100%;
   }
 }

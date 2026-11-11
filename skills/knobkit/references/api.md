@@ -162,7 +162,9 @@ A container's state is its arrangement, so a handler can restructure the UI at r
 handler takes handlers the same way: call `app.on(w.changed, fn)` there, and it applies to that user's session.
 
 `tabs`: `book.select(2)` brings the third tab to the front, as a click does; `await book.selected()` reads
-which one is open; `book.addTab({ label, content, badge?, closable? })` adds a tab during a run.
+which one is open; `book.addTab({ label, content, badge?, closable? })` adds a tab during a run. A tab's content is drawn when the tab is first
+opened and stays on the page afterwards, so a video, an embedded page, an editor or a terminal is as it
+was left when its tab is opened again.
 
 Slot modifiers tune one child in place: `span(w, 2)` claims extra grid/row slots, `grow(w)`
 absorbs a `col`'s leftover space, `density(w, "sm")` / `theme(w, "dark")` restyle that subtree.
