@@ -1,0 +1,3 @@
+optimizer,loss,comment
+Adam,0.12,"fast, stable"
+SGD,0.31,slow

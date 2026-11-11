@@ -1,0 +1,2 @@
+first line of plain text
+  second line, indented
