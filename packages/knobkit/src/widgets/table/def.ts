@@ -14,6 +14,8 @@ export const table = defineWidget({
   state: {
     columns: { initial: [] as Column[] },
     rows: { initial: [] as Row[] },
+    // the row the user is on (clicked, or reached with the keyboard), as shown; null before any
+    selected: { initial: null as number | null },
   },
   props: {
     editable: { default: false },
@@ -21,6 +23,7 @@ export const table = defineWidget({
   },
   events: {
     edited: { payload: t<{ row: number; key: string; value: unknown }>() },
+    selected: { payload: t<{ row: number; item: Row }>() },
     contextmenu: { payload: t<{ item: Row; row: number; x: number; y: number }>() },
   },
   ops: (at) => ({
@@ -30,6 +33,7 @@ export const table = defineWidget({
   }),
   methods: (self) => ({
     data: () => self.at("rows").get(),
+    selectedRow: () => self.at("selected").get(),
     columnsOf: () => self.at("columns").get(),
     setCell: (row: number, key: string, value: unknown) => self.at("rows", row, key).set(value),
   }),
