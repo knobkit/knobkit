@@ -1,5 +1,4 @@
 import { puTab, puTabActive, puTabBadge, puTabClose, puTabLabel, puTabs, puTabsBar, puTabsPanel } from "./tabs.css.js";
-import { useState } from "react";
 import type { ViewProps } from "@knobkit/core/client";
 
 interface TabsState {
@@ -7,12 +6,13 @@ interface TabsState {
   labels: string[];
   badges: (string | null)[];
   closable: boolean[];
+  active: number;
 }
 
 export default function TabsView({ state, set, slot }: ViewProps<TabsState>) {
   const { items = [], labels = [], badges = [], closable = [] } = state;
-  const [active, setActive] = useState(0);
-  const current = Math.min(active, Math.max(0, items.length - 1));
+  const setActive = (index: number): void => set(["active"], index);
+  const current = Math.min(Math.max(0, state.active ?? 0), Math.max(0, items.length - 1));
 
   function handleClose(e: React.MouseEvent, index: number): void {
     e.stopPropagation();
