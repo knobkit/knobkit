@@ -136,6 +136,10 @@ export const thing = defineWidget({
   channels: { clip: { policy: "latest", data: t<Float32Array>() } },
   ops: (at) => ({ set: at("value").op("set"), clear: at("value").op("set", "") }),
   methods: (self) => ({ value: () => self.at("value").get() }),
+  // handlers: (self) => ({ changed: (v) => … }),   // optional: the widget's own handlers for its own
+                                                  //   events, run where the app's handlers run and
+                                                  //   registered with the widget (folderPicker lists
+                                                  //   the server's folders this way)
   view: viewRef(import.meta.url, "./view.js"),    // literally this shape — the CLI transform and the
 });                                               // serve bundler both key off it
 ```

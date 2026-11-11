@@ -102,3 +102,5 @@ export { drawer } from "./widgets/drawer/def.js";
 export { accordion } from "./widgets/accordion/def.js";
 export { docView } from "./widgets/doc-view/def.js";
 export type { DocSelection } from "./widgets/doc-view/def.js";
+export { folderPicker } from "./widgets/folder-picker/def.js";
+export type { FolderFile, FolderListing, PickedFolder } from "./widgets/folder-picker/def.js";

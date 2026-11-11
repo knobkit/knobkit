@@ -201,6 +201,13 @@ export interface WidgetDef {
   channels: ChanSpecs;
   ops?: (at: OpsBuilder<any>) => Record<string, OpDecl<any>>;
   methods?: (self: any) => object;
+  /**
+   * The widget's own handlers for its own events, by event name: code that runs where the app's
+   * handlers run (the server, when there is one), registered with the widget and needing nothing
+   * from the app. For a widget whose view has to ask that side for something — a list of the
+   * server's folders — and get the answer as state.
+   */
+  handlers?: (self: any) => Record<string, ((payload: any) => unknown) | undefined>;
   view?: ViewRef;
   /** Per axis, whether this widget consumes offered space. Defaults to `DEFAULT_SIZE`. */
   size?: SizeSpec;
@@ -231,6 +238,7 @@ export function defineWidget<
   channels?: CS;
   ops?: (at: OpsBuilder<StateOf<SS>>) => O;
   methods?: (self: Handle<SS, PS, ES, CS, O>) => M;
+  handlers?: (self: Handle<SS, PS, ES, CS, O> & M) => { [K in keyof ES]?: (payload: PayloadOf<ES[K]>) => unknown };
   view?: ViewRef;
   size?: SizeSpec;
   slots?: "distribute";
@@ -243,6 +251,7 @@ export function defineWidget<
     channels: def.channels ?? {},
     ops: def.ops as WidgetDef["ops"],
     methods: def.methods as WidgetDef["methods"],
+    handlers: def.handlers as WidgetDef["handlers"],
     view: def.view,
     size: def.size,
     slots: def.slots,
@@ -356,13 +365,26 @@ function createHandle(def: WidgetDef, opts: Record<string, unknown> = {}): any {
  * Build the Instance for a handle, assigning ids depth-first (parent before children) and lowering
  * any nested handles in seeded state to their ids. `emit` receives every created instance.
  */
-export function instantiate(h: unknown, assignId: () => Id, emit: (id: Id, inst: Instance) => void): Id {
+export function instantiate(
+  h: unknown,
+  assignId: () => Id,
+  emit: (id: Id, inst: Instance) => void,
+  own?: (src: unknown, name: string, handler: (payload: unknown) => unknown) => void,
+): Id {
   const internal = internalOf(h);
   if (internal.id) throw new Error(`knobkit: widget "${internal.def.type}" is already part of the app`);
   const id = assignId();
   internal.id = id;
 
   const def = internal.def;
+  // the widget's own handlers come with it, wherever it is made: declared with the app, or during a run
+  if (def.handlers && own) {
+    for (const [name, handler] of Object.entries(def.handlers(h))) {
+      if (!handler) continue;
+      if (!(name in def.events)) throw new Error(`knobkit: widget "${def.type}": handler for "${name}", which is not one of its events`);
+      own(h, name, handler);
+    }
+  }
   const props: Record<string, unknown> = {};
   for (const [key, spec] of Object.entries(def.props)) props[key] = spec.default;
   Object.assign(props, internal.props);
@@ -373,7 +395,7 @@ export function instantiate(h: unknown, assignId: () => Id, emit: (id: Id, inst:
   if (def.slots === "distribute") props[SLOTS] = true;
 
   const lower = (value: unknown): unknown => {
-    if (isHandle(value)) return instantiate(value, assignId, emit);
+    if (isHandle(value)) return instantiate(value, assignId, emit, own);
     if (Array.isArray(value)) return value.map(lower);
     if (typeof value === "object" && value !== null && value.constructor === Object) {
       return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, lower(v)]));
@@ -400,6 +422,8 @@ export function spawnTree(h: unknown): Id {
     h,
     () => b.mintId(),
     (id, inst) => b.edit([id, "instanceAdd", [], inst]),
+    // for this session only, like any handler registered during a run
+    (src, name, handler) => b.subscribe?.({ src, name, chan: false, handler, opts: {} }),
   );
 }
 

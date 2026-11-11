@@ -53,7 +53,8 @@ The full recipe with a complete `defineWidget` example lives in
 
 1. **One def artifact** — `packages/knobkit/src/widgets/<name>/def.ts`: a single `defineWidget` call
    declaring `state` (runtime-changing attrs), `props` (static config), typed `events` and
-   `channels`, `ops` (structured-edit writers), `methods` (async readers over lenses), and
+   `channels`, `ops` (structured-edit writers), `methods` (async readers over lenses), optionally
+   `handlers` (the widget's own handlers for its own events, run where the app's handlers run), and
    `view: viewRef(import.meta.url, "./view.js")` — literally that shape; the CLI transform and the
    serve bundler both key off it.
 

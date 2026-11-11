@@ -1,0 +1,97 @@
+@layer components {
+  .pu-folder {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pu-folder-pick {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 8px;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-surface-2);
+    color: var(--pu-text);
+    cursor: pointer;
+    transition: border-color 0.12s, background 0.12s, color 0.12s;
+  }
+  .pu-folder-pick:hover {
+    border-color: var(--pu-accent);
+    color: var(--pu-accent);
+    background: var(--pu-accent-subtle);
+  }
+  .pu-folder-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pu-folder-up,
+  .pu-folder-choose {
+    flex: none;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-surface-2);
+    color: var(--pu-text);
+    font: inherit;
+    cursor: pointer;
+  }
+  .pu-folder-up:hover:not(:disabled),
+  .pu-folder-choose:hover {
+    border-color: var(--pu-accent);
+    color: var(--pu-accent);
+  }
+  .pu-folder-up:disabled {
+    color: var(--pu-muted);
+    cursor: default;
+    opacity: 0.5;
+  }
+  .pu-folder-path {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .pu-folder-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-panel);
+  }
+  .pu-folder-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 10px;
+    border: 0;
+    background: transparent;
+    color: var(--pu-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .pu-folder-item:hover {
+    background: var(--pu-overlay);
+  }
+  .pu-folder-empty {
+    color: var(--pu-muted);
+  }
+  .pu-folder-error {
+    color: var(--pu-danger);
+    font-size: var(--pu-font-sm);
+  }
+  .pu-folder-picked {
+    color: var(--pu-muted);
+    font-size: var(--pu-font-sm);
+    word-break: break-all;
+  }
+}
