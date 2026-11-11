@@ -23,6 +23,8 @@ export type Body =
   | { kind: "read"; corr: string; rid: number; targets: [Id, Path][] }
   | { kind: "result"; rid: number; values: unknown[] }
   | { kind: "watch"; op: "add" | "remove"; wid: number; target: [Id, Path]; throttleMs?: number }
+  /** subscriptions made during a run, for widgets the welcome's list could not have named */
+  | { kind: "subs"; add: SubDecl[] }
   | { kind: "note"; corr?: string; level: NoteLevel; src?: Id; message: string; stack?: string }
   | SysBody;
 

@@ -89,6 +89,9 @@ export function boot(rootSelector = "#root"): void {
       case "note":
         notes?.push(frame.level, frame.message, { stack: frame.stack, corr: frame.corr });
         break;
+      case "subs":
+        subs = [...subs, ...frame.add];
+        break;
       case "sys":
         if (frame.op === "welcome") {
           if (rendered) {

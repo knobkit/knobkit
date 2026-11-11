@@ -27,10 +27,18 @@ export interface Dispatcher {
   dispatchWatch(wid: number, value: unknown, corr: string): void;
   runSetups(corr: string): Promise<void>;
   hasSub(srcId: Id, name: string): boolean;
+  /** A subscription made during a run: it lives and dies with this dispatcher's session. */
+  addSub(entry: SubEntry): void;
+  /** Forget the session's subscriptions to a widget that was removed. */
+  dropSubs(srcId: Id): void;
 }
 
 export function createDispatcher(app: App, port: DispatcherPort): Dispatcher {
   const states = new Map<object, SubState>();
+  let local: SubEntry[] = [];
+  // a widget subscribed to before it was added has no id yet, and matches nothing until it does
+  const from = (s: SubEntry, srcId: Id): boolean => internalOf(s.src).id === srcId;
+  const all = (): SubEntry[] => (local.length ? [...app.subs, ...local] : app.subs);
   const stateOf = (key: object): SubState => {
     let s = states.get(key);
     if (!s) {
@@ -60,7 +68,7 @@ export function createDispatcher(app: App, port: DispatcherPort): Dispatcher {
   }
 
   function subsFor(srcId: Id, name: string, chan: boolean): SubEntry[] {
-    return app.subs.filter((s) => s.name === name && s.chan === chan && internalOf(s.src).id === srcId);
+    return all().filter((s) => s.name === name && s.chan === chan && from(s, srcId));
   }
 
   function deliver(
@@ -173,6 +181,10 @@ export function createDispatcher(app: App, port: DispatcherPort): Dispatcher {
       }
     },
 
-    hasSub: (srcId, name) => app.subs.some((s) => s.name === name && internalOf(s.src).id === srcId),
+    hasSub: (srcId, name) => all().some((s) => s.name === name && from(s, srcId)),
+    addSub: (entry) => void local.push(entry),
+    dropSubs(srcId) {
+      local = local.filter((s) => !from(s, srcId));
+    },
   };
 }

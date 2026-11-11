@@ -1,4 +1,4 @@
-import { bound } from "./context.js";
+import { bound, currentBound } from "./context.js";
 import { isLens } from "./lens.js";
 import type { Lens } from "./lens.js";
 import type { ChannelPolicy, SubDecl } from "./protocol.js";
@@ -57,13 +57,19 @@ export class App {
   on<P>(source: EventCtor<P> | ChanRef<P>, handler: Handler<P>, opts?: OnOpts): this {
     const src = (source as EventCtor<P>).src;
     if (!isHandle(src)) throw new Error("knobkit: on() source must be a widget event or channel");
-    this.subs.push({
+    const entry: SubEntry = {
       src,
       name: source.name,
       chan: (source as ChanRef).kind === "chan",
       handler: handler as Handler<unknown>,
       opts: opts ?? {},
-    });
+    };
+    // Called while a handler runs, for a widget made during the run: the subscription belongs to
+    // that session. `subs` is shared by every session of a served app, and two sessions give the
+    // widgets they spawn the same ids, so a shared entry would answer the wrong user.
+    const running = this.doc ? currentBound() : undefined;
+    if (running?.subscribe) running.subscribe(entry);
+    else this.subs.push(entry);
     return this;
   }
 
@@ -133,17 +139,7 @@ export class App {
 
   subDecls(): SubDecl[] {
     this.declare();
-    return this.subs.map((sub) => {
-      const def = internalOf(sub.src).def;
-      const decl: SubDecl = { src: idOf(sub.src), name: sub.name };
-      if (sub.chan) {
-        decl.chan = true;
-        decl.policy = def.channels[sub.name]?.policy ?? "buffer";
-      }
-      if (sub.opts.gate === false) decl.gate = false;
-      if (sub.opts.snap) decl.snap = sub.opts.snap.map((l) => [l.__target(), l.path] as [Id, Path]);
-      return decl;
-    });
+    return this.subs.map(subDecl);
   }
 
   chanPolicy(srcId: Id, name: string): ChannelPolicy {
@@ -162,6 +158,19 @@ export class App {
   serve(opts?: { port?: number; quiet?: boolean }): Promise<KnobkitServer> {
     return import("@knobkit/core/server").then(({ serveApp }) => serveApp(this, opts));
   }
+}
+
+/** What the client must know about a subscription. The widget must already have its id. */
+export function subDecl(sub: SubEntry): SubDecl {
+  const def = internalOf(sub.src).def;
+  const decl: SubDecl = { src: idOf(sub.src), name: sub.name };
+  if (sub.chan) {
+    decl.chan = true;
+    decl.policy = def.channels[sub.name]?.policy ?? "buffer";
+  }
+  if (sub.opts.gate === false) decl.gate = false;
+  if (sub.opts.snap) decl.snap = sub.opts.snap.map((l) => [l.__target(), l.path] as [Id, Path]);
+  return decl;
 }
 
 export function knobkit(config: AppConfig): App {

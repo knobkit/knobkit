@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import type { App } from "../app.js";
+import { subDecl } from "../app.js";
+import type { App, SubEntry } from "../app.js";
 import { createReadBatcher } from "../context.js";
 import type { Bound } from "../context.js";
 import { createDispatcher } from "../dispatch.js";
@@ -12,6 +13,7 @@ import type { Outbox } from "../outbox.js";
 import { samePath } from "../path.js";
 import { BUSY, ENABLED } from "../types.js";
 import type { Id } from "../types.js";
+import { internalOf } from "../widget.js";
 
 const READ_TIMEOUT_MS = 15_000;
 const GC_MS = 5 * 60_000;
@@ -75,6 +77,16 @@ export function createSession(app: App, opts: { dev: boolean; onNote?: (level: s
     });
   });
 
+  // The client sends an event only if it knows of a subscription to it. Ones made during a run are
+  // announced as they are made — once the widget has its id, which it gets when it is added.
+  let unannounced: SubEntry[] = [];
+  const announce = (): void => {
+    const ready = unannounced.filter((s) => internalOf(s.src).id !== undefined);
+    if (ready.length === 0) return;
+    unannounced = unannounced.filter((s) => !ready.includes(s));
+    outbox.push({ kind: "subs", add: ready.map(subDecl) }); // after the queued edits that add the widget
+  };
+
   const makeBound = (corr: string, snap?: Map<string, unknown>): Bound => ({
     session: id,
     corr,
@@ -84,6 +96,7 @@ export function createSession(app: App, opts: { dev: boolean; onNote?: (level: s
     edit: (e) => {
       trackGate(e as [Id, string, (string | number)[], ...unknown[]]);
       outbox.edit(corr, e);
+      if (unannounced.length > 0 && e[1] === "instanceAdd") announce();
     },
     mintId: () => `#s${spawnN++}`,
     spawn(inst) {
@@ -91,8 +104,16 @@ export function createSession(app: App, opts: { dev: boolean; onNote?: (level: s
       this.edit([instId, "instanceAdd", [], inst]);
       return instId;
     },
-    dispose: (target) => outbox.edit(corr, [target, "instanceRemove", []]),
+    dispose(target) {
+      dispatcher.dropSubs(target);
+      outbox.edit(corr, [target, "instanceRemove", []]);
+    },
     note: (level, message, src) => note(level, message, { src, corr }),
+    subscribe(entry) {
+      dispatcher.addSub(entry as SubEntry);
+      unannounced.push(entry as SubEntry);
+      announce();
+    },
   });
 
   const note = (level: "drop" | "error" | "warn", message: string, extra?: { corr?: string; src?: Id; stack?: string }): void => {

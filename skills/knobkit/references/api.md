@@ -158,7 +158,8 @@ accordion({ label: "Advanced", open: false }, x, y)
 ```
 
 A container's state is its arrangement, so a handler can restructure the UI at runtime:
-`panel.add(chart)` appends a child, `await panel.removeChild(chart)` removes one.
+`panel.add(chart)` appends a child, `await panel.removeChild(chart)` removes one. A widget made inside a
+handler takes handlers the same way: call `app.on(w.changed, fn)` there, and it applies to that user's session.
 
 Slot modifiers tune one child in place: `span(w, 2)` claims extra grid/row slots, `grow(w)`
 absorbs a `col`'s leftover space, `density(w, "sm")` / `theme(w, "dark")` restyle that subtree.

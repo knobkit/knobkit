@@ -11,6 +11,8 @@ export interface Bound {
   spawn(inst: Instance): Id;
   dispose(id: Id): void;
   note(level: NoteLevel, message: string, src?: Id): void;
+  /** Register a handler for this session only — `app.on()` called while a handler is running. */
+  subscribe?(entry: unknown): void;
   snap?: Map<string, unknown>;
   spans: Map<string, number>;
 }
@@ -39,6 +41,11 @@ export function setContextRunner(
 
 export function runBound<T>(b: Bound, fn: () => T): T {
   return runner(b, fn);
+}
+
+/** The running handler's Bound, or undefined outside one (module scope, before the app starts). */
+export function currentBound(): Bound | undefined {
+  return resolve();
 }
 
 export function bound(): Bound {
