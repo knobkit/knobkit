@@ -1,4 +1,4 @@
-import type { App } from "../app.js";
+import type { App, SubEntry } from "../app.js";
 import type { Bound } from "../context.js";
 import { createDispatcher } from "../dispatch.js";
 import { setMediaStore } from "../media.js";
@@ -54,8 +54,12 @@ export function mountApp(app: App, selector: string): void {
       store.apply([[id, "instanceAdd", [], inst]]);
       return id;
     },
-    dispose: (id) => store.apply([[id, "instanceRemove", []]]),
+    dispose(id) {
+      dispatcher.dropSubs(id);
+      store.apply([[id, "instanceRemove", []]]);
+    },
     note: (level, message) => notes.push(level, message),
+    subscribe: (entry) => dispatcher.addSub(entry as SubEntry),
   });
 
   const dispatcher = createDispatcher(app, {
