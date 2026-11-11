@@ -81,11 +81,11 @@ an object), plus `await w.value()` and `w.set(v)`. There is **no** `.submitted` 
 |--------------------|-------------------|-------|
 | `text({ placeholder?, lines? })` | `string` (init `""`) | `lines` = textarea rows (default 1) |
 | `number({ value?, min?, max?, step? })` | `number` (init `0`) | numeric stepper |
-| `dropdown({ choices, value? })` | `string` | `choices: (string \| { value, label? })[]`; `value` defaults to the first choice |
-| `slider({ value?, min?, max?, step? })` | `number` | `min` 0, `max` 100, `step` 1; `value` defaults to `min` |
+| `dropdown({ choices, value? })` | `string` | `choices: (string \| { value, label? })[]`; `value` defaults to the first choice. `await setChoices(choices)` replaces the choices during a run; a selected value not among them is cleared to `""` |
+| `slider({ value?, min?, max?, step? })` | `number` | `min` 0, `max` 100, `step` 1; `value` defaults to `min`. `await setRange(min, max, step?)` replaces the range during a run; a value outside it moves to its nearer end |
 | `checkbox({ label?, value? })` | `boolean` | single toggle |
-| `checkboxGroup({ choices, value? })` | `string[]` | multi-select |
-| `radio({ choices, value? })` | `string` | single-select; `value` defaults to the first choice |
+| `checkboxGroup({ choices, value? })` | `string[]` | multi-select. `await setChoices(choices)` replaces the choices during a run; ticked values not among them are dropped |
+| `radio({ choices, value? })` | `string` | single-select; `value` defaults to the first choice. `await setChoices(choices)` replaces the choices during a run; a selected value not among them is cleared to `""` |
 
 Inputs with their own shape:
 

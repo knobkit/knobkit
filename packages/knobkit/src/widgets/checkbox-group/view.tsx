@@ -1,7 +1,8 @@
 import { puCheckgroup, puCheckgroupOpt } from "./checkbox-group.css.js";
 import type { ViewProps } from "@knobkit/core/client";
 
-export default function CheckboxGroupView({ props, state, emit, set }: ViewProps<{ value: string[] }, { choices: string[] }>) {
+export default function CheckboxGroupView({ props, state, emit, set }: ViewProps<{ value: string[]; options: string[] | null }, { choices: string[] }>) {
+  const choices = state.options ?? props.choices;
   const selected = state.value ?? [];
   const toggle = (c: string): void => {
     const next = selected.includes(c) ? selected.filter((x) => x !== c) : [...selected, c];
@@ -10,7 +11,7 @@ export default function CheckboxGroupView({ props, state, emit, set }: ViewProps
   };
   return (
     <div className={puCheckgroup}>
-      {props.choices.map((c) => (
+      {choices.map((c) => (
         <label key={c} className={puCheckgroupOpt}>
           <input type="checkbox" checked={selected.includes(c)} onChange={() => toggle(c)} /> {c}
         </label>

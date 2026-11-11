@@ -7,11 +7,23 @@ export const choiceValue = (c: DropdownChoice | undefined): string =>
 
 const dropdownDef = defineWidget({
   type: "dropdown",
-  state: { value: { initial: "" } },
+  state: {
+    value: { initial: "" },
+    // the choices a handler set during a run; null until one does, and the ones it was built with apply
+    options: { initial: null as DropdownChoice[] | null },
+  },
   props: { choices: { default: [] as DropdownChoice[] } },
   events: { changed: { payload: t<string>() } },
   ops: (at) => ({ set: at("value").op("set") }),
-  methods: (self) => ({ value: () => self.at("value").get() }),
+  methods: (self) => ({
+    value: () => self.at("value").get(),
+    /** Replace the choices. A selected value that is not among the new ones is cleared (to ""). */
+    async setChoices(choices: DropdownChoice[]): Promise<void> {
+      self.at("options").set(choices);
+      const value = await self.at("value").get();
+      if (value !== "" && !choices.some((c) => choiceValue(c) === value)) self.at("value").set("");
+    },
+  }),
   view: viewRef(import.meta.url, "./view.js"),
 });
 
