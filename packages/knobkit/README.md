@@ -170,7 +170,7 @@ scrolls and the input stays in place.
 | Factory (defaults) | Events | Methods |
 |---|---|---|
 | `code({ value?, language?, readOnly? })` | `changed` (string) | `await value()`, `set(src)`, `setLanguage(lang)` |
-| `table({ columns?, rows?, editable?, maxHeight? })` | `edited` (`{ row, key, value }`), `contextmenu` (`{ item, row, x, y }`) | `await data()`, `setRows`, `setColumns`, `addRow`, `setCell`. `Column: { key, label?, type?, width? }` |
+| `table({ columns?, rows?, editable?, maxHeight? })` | `edited` (`{ row, key, value }`), `contextmenu` (`{ item, row, x, y }`) | `await data()`, `setRows`, `setColumns`, `addRow`, `setCell`. `Column: { key, label?, type?, width? }`. A `type: "number"` column holds and delivers numbers: `4` typed there arrives as the number 4, an emptied cell as `null`, and text that is not a number is not taken |
 | `terminal({ rows?, cols?, scrollback?, echo? })` | `data` (string), `resized` | `write(text)`, `writeln(line)`, `clear()`. `echo` echoes typed input locally |
 
 **Navigation:**
