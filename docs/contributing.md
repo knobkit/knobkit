@@ -10,6 +10,7 @@ widget recipe), see [CLAUDE.md](../CLAUDE.md).
 packages/core/            @knobkit/core — the engine kernel (doc, edits, protocol, outbox,
                           dispatch, defineWidget, mount + serve runtimes)
 packages/knobkit/         knobkit — built-in widgets, media helpers, and the knobkit CLI
+packages/e2e/             end-to-end tests: fixtures (apps/) and checks (tests/) run in real browsers
 packages/create-knobkit/  npm create knobkit scaffolder
 examples/                 Example apps, one demo.tsx each
 skills/knobkit/           Agent Skill and validated reference projects
@@ -26,6 +27,8 @@ pnpm install                # the install prepare step builds both packages' dis
 pnpm build                  # core (tsc + css copy), then knobkit (tsc + css + browser bundle)
 pnpm test                   # core vitest + knobkit vitest (includes the token CSS rule, and the layout
                             # tests, which run in Chromium — once: pnpm -F knobkit exec playwright install chromium)
+pnpm test:e2e               # build, then packages/e2e: Chromium and WebKit against real `knobkit dev` apps,
+                            # browser-only and from a server — once: pnpm -F knobkit-e2e exec playwright install chromium webkit
 pnpm typecheck              # all packages, including examples
 pnpm -F knobkit-example-<name> dev
 node skills/knobkit/references/verify.mjs   # install + typecheck the skill reference projects
