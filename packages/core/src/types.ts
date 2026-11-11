@@ -46,6 +46,11 @@ export function scanMediaRefs(value: unknown, visit: (ref: MediaRef) => void): v
 
 export const ENABLED = "$enabled";
 export const BUSY = "$busy";
+/**
+ * The corr of the latest event whose handler has begun, on widgets with an event declared
+ * `ack: true`. It lets a view show that something it sent is still waiting its turn.
+ */
+export const STARTED = "$started";
 
 // reserved props stamped by the layout modifiers, honored by the Field wrapper
 export const COLSPAN = "$colspan";

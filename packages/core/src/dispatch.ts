@@ -5,6 +5,7 @@ import type { NoteLevel } from "./protocol.js";
 import { validate } from "./schema.js";
 import { idOf, internalOf, isEventObj } from "./widget.js";
 import type { EventObj } from "./widget.js";
+import { STARTED } from "./types.js";
 import type { Id, Path } from "./types.js";
 
 export interface DispatcherPort {
@@ -22,7 +23,8 @@ interface SubState {
 }
 
 export interface Dispatcher {
-  dispatchEvent(srcId: Id, name: string, payload: unknown, corr: string, snap?: [Id, Path, unknown][]): void;
+  /** True when at least one handler was scheduled (there is one, and the gate let it through). */
+  dispatchEvent(srcId: Id, name: string, payload: unknown, corr: string, snap?: [Id, Path, unknown][]): boolean;
   dispatchChan(srcId: Id, name: string, data: unknown, corr: string): void;
   dispatchWatch(wid: number, value: unknown, corr: string): void;
   runSetups(corr: string): Promise<void>;
@@ -52,6 +54,8 @@ export function createDispatcher(app: App, port: DispatcherPort): Dispatcher {
     (sub: SubEntry, payload: unknown, corr: string, snap?: Map<string, unknown>) => async (): Promise<void> => {
       const b = port.makeBound(corr, snap);
       try {
+        const src = internalOf(sub.src);
+        if (!sub.chan && src.def.events[sub.name]?.ack && src.id) b.edit([src.id, "set", [STARTED], corr]);
         const result = await runBound(b, () => sub.handler(payload, { corr, session: port.session }));
         if (isEventObj(result)) reemit(result, corr);
       } catch (err) {
@@ -79,16 +83,16 @@ export function createDispatcher(app: App, port: DispatcherPort): Dispatcher {
     corr: string,
     snap?: [Id, Path, unknown][],
     applyGate = true,
-  ): void {
+  ): boolean {
     const subs = subsFor(srcId, name, chan);
-    if (subs.length === 0) return;
+    if (subs.length === 0) return false;
 
     const def = internalOf(subs[0]!.src).def;
     const spec = chan ? def.channels[name]?.data : def.events[name]?.payload;
     const verdict = validate(spec, payload);
     if (!verdict.ok) {
       port.note("error", `${def.type}.${name}: invalid payload — ${verdict.message}`, { corr, src: srcId });
-      return;
+      return false;
     }
 
     const blocked = applyGate && port.gated?.(srcId) === true;
@@ -147,11 +151,12 @@ export function createDispatcher(app: App, port: DispatcherPort): Dispatcher {
     if (dropped > 0) {
       port.note("drop", `${def.type}.${name}: dropped — widget is ${chan ? "gated" : "disabled or busy"}`, { corr, src: srcId });
     }
+    return dropped < subs.length;
   }
 
   return {
     dispatchEvent: (srcId, name, payload, corr, snap) => deliver(srcId, name, false, payload, corr, snap),
-    dispatchChan: (srcId, name, data, corr) => deliver(srcId, name, true, data, corr),
+    dispatchChan: (srcId, name, data, corr) => void deliver(srcId, name, true, data, corr),
 
     dispatchWatch(wid, value, corr): void {
       const watch = app.watches[wid];

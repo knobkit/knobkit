@@ -11,7 +11,7 @@ import type { Store } from "./store.js";
 
 export interface FieldRuntime {
   store: Store;
-  emit(id: Id, name: string, payload: unknown): void;
+  emit(id: Id, name: string, payload: unknown): string | undefined;
   send(id: Id, name: string, data: unknown): void;
 }
 

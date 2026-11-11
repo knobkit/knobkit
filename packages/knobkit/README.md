@@ -135,7 +135,8 @@ A `Message` is `{ id?, role, content, image? }` with `role` one of `user`, `assi
 `tool`, `error`. A tool call is `{ id, name, input?, status, result?, diff? }` with `status` one of
 `running`, `awaiting`, `done`, `error`, `rejected`; `toolStatus(id, status)` sets it and
 `await toolCalls()` reads them. `history()` returns tool calls as `{ role: "tool", call: id }`
-entries. In a container that gives it height (a split pane, tabs, a `fill` page) the conversation
+entries. A message sent while an earlier `sent` handler is still running is shown at once, marked
+*waiting*, until its own handler begins — there is nothing to write for it. In a container that gives it height (a split pane, tabs, a `fill` page) the conversation
 scrolls and the input stays in place.
 
 **Outputs** (write-only):

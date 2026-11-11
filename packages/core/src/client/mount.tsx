@@ -76,7 +76,10 @@ export function mountApp(app: App, selector: string): void {
   renderApp(
     {
       store,
-      emit: (id, name, payload) => dispatcher.dispatchEvent(id, name, payload, mint(), collectSnap(app, id, name, store)),
+      emit(id, name, payload) {
+        const corr = mint();
+        return dispatcher.dispatchEvent(id, name, payload, corr, collectSnap(app, id, name, store)) ? corr : undefined;
+      },
       send: (id, name, data) => dispatcher.dispatchChan(id, name, data, mint()),
     },
     notes,

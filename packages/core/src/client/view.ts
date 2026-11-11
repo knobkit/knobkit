@@ -6,7 +6,8 @@ export interface ViewProps<S = Record<string, unknown>, P = Record<string, unkno
   id: Id;
   props: P;
   state: S & { $enabled: boolean; $busy: boolean };
-  emit: (name: string, payload?: unknown) => void;
+  /** Returns the event's corr when it went to a handler, `undefined` when nothing took it. */
+  emit: (name: string, payload?: unknown) => string | undefined;
   send: (chan: string, data: unknown) => void;
   set: (path: Path | Lens<unknown>, value: unknown) => void;
   slot: (id: Id) => ReactNode;

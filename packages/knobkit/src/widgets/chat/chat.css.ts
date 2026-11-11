@@ -32,6 +32,7 @@ export const puMsgImage = "pu-msg-image";
 export const puMsgMd = "pu-msg-md";
 export const puMsgQueued = "pu-msg-queued";
 export const puMsgQueuedTag = "pu-msg-queued-tag";
+export const puMsgWaiting = "pu-msg-waiting";
 export const puUser = "pu-user";
 export { puInput } from "../_primitives/controls.css.js";
 export { puMd } from "../output/markdown.css.js";
