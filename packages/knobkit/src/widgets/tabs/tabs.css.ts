@@ -8,5 +8,7 @@ export const puTabClose = "pu-tab-close";
 export const puTabLabel = "pu-tab-label";
 export const puTabs = "pu-tabs";
 export const puTabsBar = "pu-tabs-bar";
+export const puTabsPane = "pu-tabs-pane";
+export const puTabsPaneOff = "pu-tabs-pane-off";
 export const puTabsPanel = "pu-tabs-panel";
 export const puFillY = "pu-fill-y";
