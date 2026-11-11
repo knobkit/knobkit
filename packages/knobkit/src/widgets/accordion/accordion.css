@@ -3,6 +3,8 @@
     border: 1px solid var(--pu-border);
     border-radius: var(--pu-radius-sm);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   .pu-accordion-head {
     appearance: none;
@@ -17,6 +19,7 @@
     font-weight: 550;
     text-align: left;
     cursor: pointer;
+    flex: none;
   }
   .pu-accordion-caret {
     display: inline-block;
@@ -31,5 +34,8 @@
     flex-direction: column;
     gap: 18px;
     padding: 16px 14px;
+    /* internal: the header is intrinsic, the body takes the rest and lays its slots out as a column */
+    flex: 1 1 auto;
+    min-height: 0;
   }
 }

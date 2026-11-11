@@ -2,3 +2,4 @@
 import "./markdown.css";
 
 export const puMd = "pu-md";
+export const puBounded = "pu-bounded";

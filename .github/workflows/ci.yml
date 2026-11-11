@@ -25,4 +25,6 @@ jobs:
       - run: pnpm -F knobkit typecheck
       # Build before testing so the browser-runtime smoke test exercises the release artifact.
       - run: pnpm -F knobkit build
+      # The layout tests measure in a real browser.
+      - run: pnpm -F knobkit exec playwright install --with-deps chromium
       - run: pnpm -F knobkit test

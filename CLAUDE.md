@@ -48,7 +48,8 @@ packages/knobkit/src/       knobkit — the standard library; re-exports the cor
 
 ```bash
 pnpm build                  # core (tsc + css copy) then knobkit (tsc + css + browser bundle)
-pnpm test                   # core vitest (67 tests) + knobkit vitest (token CSS rule)
+pnpm test                   # core vitest (67 tests) + knobkit vitest (token CSS rule; layout, in a real browser —
+                            #   once: pnpm -F knobkit exec playwright install chromium)
 pnpm typecheck              # all packages incl. examples
 pnpm -F knobkit-example-<name> dev
 ```
@@ -163,26 +164,45 @@ a container says it offers some; `Field` emits the plumbing. No widget writes `h
 a parent, and no container writes rules about its children:
 
 ```ts
-defineWidget({ size: { x: "fill", y: "fill" }, … })   // terminal, code, table, tree, frame
-defineWidget({ slots: "distribute", … })              // row/col/grid, tabs, split-pane, drawer
+defineWidget({ size: { y: "fill" }, … })              // chat, code, terminal, table, tree, frame, log, diff, output
+defineWidget({ size: { y: "pass" }, slots: "distribute", … })   // row, col, grid, accordion
+defineWidget({ size: { x: "fill", y: "fill" }, slots: "distribute", … })   // tabs, split-pane, drawer
 ```
 
 Default is `{ x: "fill", y: "intrinsic" }` — as wide as offered, as tall as its content — so most
-widgets declare nothing. The declaration rides `$size`/`$slots` props stamped at `instantiate`,
-because the serve tier's client has views but no defs; props already cross the wire.
+widgets declare nothing. `pass` is for a container with no height of its own to want: it takes
+offered height when something inside it fills (or is grown), and is as tall as its content
+otherwise. The declaration rides `$size`/`$slots` props stamped at `instantiate`, because the serve
+tier's client has views but no defs; props already cross the wire.
 
-`Field` marks a child of a distributing container `.pu-slot` and adds `.pu-fill-x`/`.pu-fill-y` from
-its own declaration. Only `.pu-slot` rules do anything, so `fill` outside a distributing container
-keeps its intrinsic size instead of collapsing. **`flex-basis` stays `auto` everywhere** — with
-basis `0` an indefinite-height flex column (a plain `col` on a normal page) resolves its children to
-zero height. `grow(w)` still wins: when a col names the child that absorbs the leftover, siblings
-that merely *could* fill stand down.
+`Field` puts these classes on the wrapper, and `styles.css` reads only them:
 
-`data-fill` no longer propagates size; it is only page chrome (viewport-height page, full-bleed,
-smaller `h1`) plus the root field's claim, since the page is not a widget. A widget's *internal*
-layout (tabs' bar-plus-panel) is still its own CSS, keyed off `.pu-fill-y` — that part is local to
-one file. Block-level boxes between a container and its slots (tabs' panel, split-pane's panel,
-drawer's body) hand height down explicitly; the flex claim cannot cross them.
+- `.pu-slot` — a child of a distributing container. Only `.pu-slot` rules do anything, so `fill`
+  outside a distributing container keeps its intrinsic size instead of collapsing.
+- `.pu-fill-y` / `.pu-pass-y` / `.pu-fill-x` — the declaration.
+- `.pu-offered` — the height on offer is a definite one. `Field` passes this down: it starts at the
+  root of a `fill: true` page and continues through every field that takes the offer.
+- `.pu-bounded` — offered, and taken: this field's box has a definite height. **A widget keys its
+  own bounded form off `.pu-bounded > .pu-<name>`** (drop a `max-height`, scroll inside), never off
+  `.pu-fill-y`, which is also present on an ordinary page where nothing is bounded.
+
+In a `col`: a child that does not claim height keeps its own (`flex: none`); claimants share what
+is left **evenly** where the height is definite (`flex-basis: 0`), and by content where it is not —
+with basis `0` an indefinite-height column resolves its children to zero, which is why the basis is
+conditional on `.pu-offered`. `grow(w)` names the one child that absorbs the leftover; siblings that
+could fill stand down to their own height, capped at half the column. `row` and `grid` hold their
+rows to a definite height when they have one.
+
+`data-fill` does not propagate size; it is page chrome (viewport-height page, full-bleed, smaller
+`h1`) plus the root field's claim, since the page is not a widget. A widget's *internal* layout
+(tabs' bar-plus-panel, accordion's header-plus-body) is its own CSS. Block-level boxes between a
+container and its slots (tabs' panel, split-pane's panel, drawer's body) hand height down
+explicitly; the flex claim cannot cross them.
+
+Layout is tested where there is a layout engine: `src/widgets/layout/layout.browser.test.tsx` mounts
+compositions in Chromium with more content than fits and fails on a widget that collapses, runs
+past its container, or overlaps a sibling. Add a composition there when adding a container or a
+widget that fills.
 
 ## Gotchas
 

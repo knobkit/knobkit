@@ -2,3 +2,4 @@
 import "./output.css";
 
 export const puOutput = "pu-output";
+export const puBounded = "pu-bounded";

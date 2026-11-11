@@ -65,4 +65,11 @@
     border-top: 1px solid var(--pu-border);
     user-select: none;
   }
+
+  /* internal: given a definite height, the lines take what the footer leaves and scroll there */
+  .pu-bounded > .pu-log > .pu-log-lines {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+  }
 }

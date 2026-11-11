@@ -4,6 +4,7 @@ export type LogLevel = "info" | "warn" | "error" | "debug";
 
 export const log = defineWidget({
   type: "log",
+  size: { y: "fill" },
   state: { lines: { initial: [] as string[] }, filter: { initial: "" } },
   props: { maxLines: { default: 0 } }, // 0 = unlimited; the view shows only the last N
   ops: (at) => ({

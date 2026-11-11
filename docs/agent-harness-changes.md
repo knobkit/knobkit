@@ -18,7 +18,7 @@ source, not run.
 | 5 | Chat: message ids, so streamed text goes to a named message | read | done |
 | 6 | Chat: a place for queued messages and errors | ran | done |
 | 7 | Chat: input stays visible in a long conversation | ran | done |
-| 8 | Layout: `grow()` in a column in a split pane collapses its child | ran | open |
+| 8 | Layout: height is passed down through nested containers | ran | done |
 | 9 | Video: report time, let the user mark a span | read | open |
 | 10 | Clip list: picture, length, click event | read | open |
 | 11 | Table: reorderable rows | read | open |
@@ -65,11 +65,23 @@ the fold.
 
 ## Layout
 
-**8. `grow()` in a column in a split pane collapses its child.** `[data-fill] .pu-layout-col >
-.pu-field-grow` sets `flex: 1 1 0`. A `col` declares no vertical fill, so inside a split-pane
-panel its root has no definite height and a child with basis 0 resolves to nothing. Observed with
-`splitPane(col(grow(chat), output), …)`: the chat and a `diff` both rendered at zero height. A
-`col` that is itself offered a definite height should pass it down.
+**8. Height is passed down through nested containers.** Done on this branch. Measured in a
+browser over 35 compositions, each widget holding more content than fits:
+
+- `row`, `col` and `grid` offered height to their children but took none themselves, so inside a
+  split pane, tabs, a drawer or a `col` the height stopped at them: the content grew to full length
+  and the pane scrolled. They now take offered height when something inside them fills.
+- A fixed-size widget (a toolbar) above one that fills was squeezed, and drawn over.
+- `grow()` inside a split pane collapsed its child to zero height.
+- Two widgets that fill, in one `col`, split the space by content length (a code editor 639px, the
+  terminal below it 10px). They now split it evenly.
+- `accordion` passed no height down.
+- A vertical split pane was 6px taller than its space.
+- `log`, `diff` and `output` never filled a pane. They now do, and scroll inside themselves.
+
+The cause in each case, and the rules that replace it, are in the Sizing section of `CLAUDE.md`.
+None of this could fail a test, because the tests ran in jsdom, which lays nothing out; the
+compositions are now a test that runs in Chromium (`layout.browser.test.tsx`).
 
 ## Video editing
 

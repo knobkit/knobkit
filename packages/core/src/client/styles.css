@@ -329,30 +329,55 @@
     font-size: var(--pu-font-sm);
   }
   /* ---- sizing contract --------------------------------------------------------------------
-     Emitted by Field from the widget's `size` declaration and its parent's `slots: "distribute"`.
-     Everything here is scoped to .pu-slot — a child of a distributing container — so a widget that
-     declares `fill` outside one is untouched and keeps its intrinsic size. Nothing is keyed off
-     [data-fill]: the mode only decides whether the root has height to hand down, and propagation
-     from there is the contract's job. */
+     Emitted by Field from the widget's `size` declaration, its parent's `slots: "distribute"`, and
+     whether the height on offer is a definite one.
+
+       .pu-slot     a child of a distributing container
+       .pu-fill-y   declares `y: "fill"`
+       .pu-pass-y   declares `y: "pass"`: a container that fills when something inside it does
+       .pu-offered  the parent's box has a definite height (a page that fills the window, and an
+                    unbroken chain of fields that took the offer down to here)
+       .pu-bounded  .pu-offered and the field takes it: its own box has a definite height
+
+     A slot *claims* height when it is .pu-fill-y, or .pu-pass-y with a filler or a grown child
+     somewhere inside. Everything is scoped to .pu-slot, so a widget that declares `fill` outside a
+     distributing container is untouched and keeps its intrinsic size. */
   .pu-field {
     min-width: 0;
     min-height: 0;
   }
-  /* Claim the share the container is offering. flex-basis stays `auto` throughout: with basis 0 an
-     indefinite-height flex column (a plain `col` on a normal page) resolves its children to zero.
-     Basis auto sizes to content there and absorbs the leftover only once a container actually has
-     height to give — which is the degradation the contract promises. Grid containers (row, grid,
-     split-pane) stretch their items already, so the claim costs nothing there. */
-  .pu-slot.pu-fill-y {
+  /* Claim the share the container is offering, and hand it to the widget's own root element, one
+     hop below the field wrapper. Grid containers (row, grid, split-pane) stretch their items
+     already, so the claim costs nothing there. */
+  .pu-slot:is(.pu-fill-y, .pu-pass-y:has(.pu-fill-y, .pu-field-grow)) {
     flex-grow: 1;
     flex-basis: auto;
     display: flex;
     flex-direction: column;
   }
-  /* …and hand it to the widget's own root element, one hop below the field wrapper */
-  .pu-slot.pu-fill-y > * {
+  .pu-slot:is(.pu-fill-y, .pu-pass-y:has(.pu-fill-y, .pu-field-grow)) > * {
     flex: 1 1 auto;
     min-height: 0;
+  }
+  /* In a column, a child that does not claim keeps its own height: it is never squeezed to make
+     room for one that does. */
+  .pu-layout-col > .pu-slot:not(.pu-fill-y, .pu-pass-y:has(.pu-fill-y, .pu-field-grow), .pu-field-grow) {
+    flex: none;
+  }
+  /* flex-basis is `auto` when no definite height is on offer: with basis 0 an indefinite-height
+     flex column (a plain `col` on a normal page) resolves its children to zero, while basis auto
+     sizes them to their content. Where the height *is* definite, basis 0 is what makes the
+     claimants share it evenly instead of in proportion to how much content each one has. */
+  .pu-layout-col > .pu-offered:is(.pu-fill-y, .pu-pass-y:has(.pu-fill-y, .pu-field-grow)) {
+    flex-basis: 0;
+  }
+  /* A row or grid with a definite height holds its rows to it: a row is never taller than its
+     content needs while there is room, and rows that need more than there is share what is left. */
+  :is(.pu-bounded, .pu-offered.pu-pass-y:has(.pu-fill-y, .pu-field-grow)) > .pu-layout-row {
+    grid-template-rows: minmax(0, 1fr);
+  }
+  :is(.pu-bounded, .pu-offered.pu-pass-y:has(.pu-fill-y, .pu-field-grow)) > .pu-layout-grid {
+    grid-auto-rows: minmax(0, 1fr);
   }
   .pu-slot.pu-fill-x,
   .pu-slot.pu-fill-x > * {
@@ -371,14 +396,21 @@
   .pu-layout-col:has(> .pu-field-grow) > .pu-slot:not(.pu-field-grow) {
     flex-grow: 0;
   }
-  [data-fill] .pu-layout-col > .pu-field-grow {
+  .pu-layout-col > .pu-field-grow.pu-offered {
     flex: 1 1 0;
     display: flex;
+    flex-direction: column;
     overflow: hidden;
   }
-  [data-fill] .pu-layout-col > .pu-field-grow > * {
-    flex: 1;
+  .pu-layout-col > .pu-field-grow.pu-offered > * {
+    flex: 1 1 auto;
     min-width: 0;
     min-height: 0;
+  }
+  /* A sibling that stood down keeps its own height, but the leftover is what is left after it:
+     without a ceiling one long sibling would leave the grown child nothing. */
+  .pu-layout-col:has(> .pu-field-grow) > .pu-offered:not(.pu-field-grow):is(.pu-fill-y, .pu-pass-y:has(.pu-fill-y, .pu-field-grow)) {
+    flex: 0 1 auto;
+    max-height: 50%;
   }
 }

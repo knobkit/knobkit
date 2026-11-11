@@ -1,5 +1,5 @@
 import { puAccordion, puAccordionBody, puAccordionCaret, puAccordionHead, puAccordionOpen } from "./accordion.css.js";
-import type { ViewProps } from "@knobkit/core/client";
+import { puLayoutCol, type ViewProps } from "@knobkit/core/client";
 
 export default function AccordionView({ props, state, set, slot }: ViewProps<{ items: string[]; open: boolean }, { label: string }>) {
   const items = state.items ?? [];
@@ -10,7 +10,7 @@ export default function AccordionView({ props, state, set, slot }: ViewProps<{ i
         <span className={puAccordionCaret}>▸</span>
         {props.label}
       </button>
-      {open && <div className={puAccordionBody}>{items.map((id) => slot(id))}</div>}
+      {open && <div className={`${puAccordionBody} ${puLayoutCol}`}>{items.map((id) => slot(id))}</div>}
     </div>
   );
 }

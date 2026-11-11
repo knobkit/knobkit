@@ -24,7 +24,8 @@ Requires **Node ≥ 22** and pnpm.
 ```bash
 pnpm install                # the install prepare step builds both packages' dist/
 pnpm build                  # core (tsc + css copy), then knobkit (tsc + css + browser bundle)
-pnpm test                   # core vitest + knobkit vitest (includes the token CSS rule)
+pnpm test                   # core vitest + knobkit vitest (includes the token CSS rule, and the layout
+                            # tests, which run in Chromium — once: pnpm -F knobkit exec playwright install chromium)
 pnpm typecheck              # all packages, including examples
 pnpm -F knobkit-example-<name> dev
 node skills/knobkit/references/verify.mjs   # install + typecheck the skill reference projects

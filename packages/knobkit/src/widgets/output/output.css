@@ -17,4 +17,9 @@
     font-size: var(--pu-font-sm);
     line-height: 1.5;
   }
+
+  /* internal: given a definite height, long output scrolls inside its own box */
+  .pu-bounded > .pu-output {
+    overflow: auto;
+  }
 }

@@ -3,6 +3,7 @@ import { containerMethods } from "./container.js";
 
 const rowDef = defineWidget({
   type: "row",
+  size: { y: "pass" },
   slots: "distribute",
   state: { items: { initial: [] as unknown[] } },
   methods: (self) => containerMethods(() => self.at("items")),
@@ -11,6 +12,7 @@ const rowDef = defineWidget({
 
 const colDef = defineWidget({
   type: "col",
+  size: { y: "pass" },
   slots: "distribute",
   state: { items: { initial: [] as unknown[] } },
   methods: (self) => containerMethods(() => self.at("items")),
@@ -19,6 +21,7 @@ const colDef = defineWidget({
 
 const gridDef = defineWidget({
   type: "grid",
+  size: { y: "pass" },
   slots: "distribute",
   state: { items: { initial: [] as unknown[] } },
   props: { cols: { default: 2 } },

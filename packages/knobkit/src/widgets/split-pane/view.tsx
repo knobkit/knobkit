@@ -28,7 +28,8 @@ export default function SplitPaneView({ props, state, set, slot }: ViewProps<{ i
     [isHorizontal, set],
   );
 
-  const template = `${ratio * 100}% 6px ${(1 - ratio) * 100}%`;
+  // shares of what is left after the handle, so the three tracks always add up to the pane
+  const template = `minmax(0, ${ratio}fr) 6px minmax(0, ${1 - ratio}fr)`;
   return (
     <div
       ref={containerRef}

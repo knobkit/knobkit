@@ -53,6 +53,8 @@ jobs:
       # artifact, and so a broken build fails the job before any publish rather than
       # mid-way through `prepublishOnly` with one package already pushed.
       - run: pnpm -F knobkit build
+      # The layout tests measure in a real browser.
+      - run: pnpm -F knobkit exec playwright install --with-deps chromium
       - run: pnpm -F knobkit test
       # Publish order matters: core before knobkit, so a half-failed release can
       # never leave a knobkit on npm whose core dependency doesn't exist yet.

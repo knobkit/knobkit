@@ -163,6 +163,12 @@ A container's state is its arrangement, so a handler can restructure the UI at r
 Slot modifiers tune one child in place: `span(w, 2)` claims extra grid/row slots, `grow(w)`
 absorbs a `col`'s leftover space, `density(w, "sm")` / `theme(w, "dark")` restyle that subtree.
 
+Height works the same way at every depth. In a page that fills the window (`fill: true`), widgets
+that scroll their own content — `chat`, `code`, `terminal`, `table`, `tree`, `log`, `diff`, `output`,
+`frame` — are held to the space their container has, however the containers are nested; several in
+one `col` share it evenly, and `grow(w)` gives it to one. Everything else keeps its own height. On an
+ordinary page nothing is held, and the page scrolls.
+
 ## setup, busy, enable
 
 - **`app.setup(async () => { … })`** — runs once per session (browser on mount, per session on serve)
