@@ -86,6 +86,7 @@ export { terminal } from "./widgets/terminal/def.js";
 export { diff } from "./widgets/diff/def.js";
 export type { FileDiff } from "./widgets/diff/def.js";
 export { code } from "./widgets/code/def.js";
+export type { CodeChange } from "./widgets/code/def.js";
 export { frame } from "./widgets/frame/def.js";
 export { toast } from "./widgets/toast/def.js";
 export { toolbar } from "./widgets/toolbar/def.js";
