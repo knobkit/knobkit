@@ -57,7 +57,7 @@ const External = Annotation.define<boolean>();
 const langOf = (name: string): Promise<Extension> => LANGS[name]?.() ?? Promise.resolve([]);
 const editOf = (editable: boolean): Extension => [EditorView.editable.of(editable), EditorState.readOnly.of(!editable)];
 
-export default function CodeView({ props, state, emit, set }: ViewProps<{ value: string; language: string }, { readOnly: boolean }>) {
+export default function CodeView({ props, state, emit, set }: ViewProps<{ value: string; language: string }, { readOnly: boolean; wrap: boolean }>) {
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
   const lang = useRef(new Compartment());
@@ -94,6 +94,7 @@ export default function CodeView({ props, state, emit, set }: ViewProps<{ value:
           keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
           lang.current.of([]), // grammar loads async via the [language] effect below
           edit.current.of(editOf(editable)),
+          props.wrap ? EditorView.lineWrapping : [],
 
           // a selection is reported once it has settled: dragging one out changes it at every step
           EditorView.updateListener.of((u) => {

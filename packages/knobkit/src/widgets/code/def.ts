@@ -7,7 +7,10 @@ export const code = defineWidget({
     value: { initial: "" },
     language: { initial: "" }, // state, not prop: runtime-switchable via setLanguage()
   },
-  props: { readOnly: { default: false } },
+  props: {
+    readOnly: { default: false },
+    wrap: { default: false }, // a line longer than the pane continues on the next row instead of scrolling sideways
+  },
   events: {
     changed: { payload: t<string>() },
     // the user selected a phrase: where it starts and ends (characters from the start of the text), and the phrase
