@@ -17,8 +17,14 @@ const tabsDef = defineWidget({
     labels: { initial: [] as string[] },
     badges: { initial: [] as (string | null)[] },
     closable: { initial: [] as boolean[] },
+    // which tab is open: state, so a handler can bring one to the front as well as the user
+    active: { initial: 0 },
   },
-  methods: (self) => containerMethods(() => self.at("items")),
+  ops: (at) => ({ select: at("active").op("set") }),
+  methods: (self) => ({
+    ...containerMethods(() => self.at("items")),
+    selected: () => self.at("active").get(),
+  }),
   view: viewRef(import.meta.url, "./view.js"),
 });
 
