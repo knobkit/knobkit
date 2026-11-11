@@ -3,6 +3,16 @@
     display: flex;
     flex-direction: column;
     gap: calc(var(--pu-gap) * 0.5);
+    min-height: 0;
+  }
+  /* the conversation takes what the chat is given and scrolls; the composer below it never moves */
+  .pu-chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--pu-gap) * 0.5);
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
   }
   .pu-msg {
     margin: 0;
@@ -37,7 +47,119 @@
     color: var(--pu-text);
     border-bottom-left-radius: 4px;
   }
+  .pu-msg-error {
+    align-self: stretch;
+    max-width: none;
+    background: none;
+    border: 1px solid var(--pu-danger);
+    color: var(--pu-danger);
+    font-size: var(--pu-font-sm);
+  }
+  /* sent, not yet taken up */
+  .pu-msg-queued {
+    opacity: 0.55;
+  }
+  .pu-msg-queued-tag {
+    margin-left: 8px;
+    font-size: var(--pu-font-sm);
+    font-style: italic;
+  }
+  .pu-chat-tool {
+    align-self: stretch;
+    border: 1px solid var(--pu-border);
+    border-radius: var(--pu-radius-sm);
+    background: var(--pu-field);
+    font-size: var(--pu-font-sm);
+  }
+  .pu-chat-tool-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border: none;
+    background: none;
+    color: var(--pu-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .pu-chat-tool-dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pu-muted);
+  }
+  .pu-chat-tool-dot--running {
+    background: var(--pu-info);
+  }
+  .pu-chat-tool-dot--awaiting {
+    background: var(--pu-warning);
+  }
+  .pu-chat-tool-dot--done {
+    background: var(--pu-success);
+  }
+  .pu-chat-tool-dot--error,
+  .pu-chat-tool-dot--rejected {
+    background: var(--pu-danger);
+  }
+  .pu-chat-tool-name {
+    flex: none;
+    font-weight: 600;
+  }
+  .pu-chat-tool-brief {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--pu-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pu-chat-tool-status {
+    flex: none;
+    color: var(--pu-muted);
+  }
+  .pu-chat-tool-body {
+    margin: 0;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border-top: 1px solid var(--pu-border);
+    max-height: 220px;
+    overflow: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .pu-chat-tool-fail {
+    color: var(--pu-danger);
+  }
+  .pu-chat-tool-actions {
+    display: flex;
+    gap: 8px;
+    padding: var(--pu-cpad-y) var(--pu-cpad-x);
+    border-top: 1px solid var(--pu-border);
+  }
+  .pu-chat-tool-accept,
+  .pu-chat-tool-reject {
+    padding: 4px 14px;
+    border-radius: var(--pu-radius-sm);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .pu-chat-tool-accept {
+    border: 1px solid var(--pu-accent);
+    background: var(--pu-accent);
+    color: var(--pu-on-accent);
+  }
+  .pu-chat-tool-reject {
+    border: 1px solid var(--pu-border-strong);
+    background: none;
+    color: var(--pu-text);
+  }
   .pu-composer {
+    flex: none;
     display: flex;
     gap: calc(var(--pu-gap) * 0.5);
     align-items: center;

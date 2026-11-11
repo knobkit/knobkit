@@ -1,10 +1,38 @@
 import "../_primitives/controls.css";
-import { puAttach, puAttachX, puAttachment, puChat, puComposer, puInput, puMic, puMsg, puMsgImage, puMsgMd, puRec } from "./chat.css.js";
-import { lazy, Suspense, useRef, useState } from "react";
+import {
+  puAttach,
+  puAttachX,
+  puAttachment,
+  puChat,
+  puChatMessages,
+  puChatTool,
+  puChatToolAccept,
+  puChatToolActions,
+  puChatToolBody,
+  puChatToolBrief,
+  puChatToolDot,
+  puChatToolFail,
+  puChatToolHead,
+  puChatToolName,
+  puChatToolReject,
+  puChatToolStatus,
+  puComposer,
+  puInput,
+  puMic,
+  puMsg,
+  puMsgError,
+  puMsgImage,
+  puMsgMd,
+  puMsgQueued,
+  puMsgQueuedTag,
+  puRec,
+  puUser,
+} from "./chat.css.js";
+import { lazy, Suspense, useLayoutEffect, useRef, useState } from "react";
 import { mediaUrl, toMedia } from "@knobkit/core";
 import type { MediaRef } from "@knobkit/core";
 import type { ViewProps } from "@knobkit/core/client";
-import type { Message } from "./def.js";
+import type { Message, ToolCall } from "./def.js";
 
 const Markdown = lazy(() => import("../output/markdown.js"));
 
@@ -22,6 +50,47 @@ async function pickImage(file: File, max = 768): Promise<MediaRef> {
 
 const imageSrc = (image: MediaRef | string): string => (typeof image === "string" ? image : mediaUrl(image));
 
+const brief = (input: unknown): string => (input === undefined ? "" : typeof input === "string" ? input : JSON.stringify(input));
+const pretty = (input: unknown): string => (typeof input === "string" ? input : JSON.stringify(input, null, 2));
+
+function ToolCard({ call, decide }: { call: ToolCall; decide: (decision: "accept" | "reject") => void }) {
+  const awaiting = call.status === "awaiting";
+  // a call that wants a decision opens itself: what is being decided should not be a click away
+  const [open, setOpen] = useState(awaiting);
+  const shown = open || awaiting;
+  return (
+    <div className={puChatTool} data-call={call.id} data-status={call.status}>
+      <button type="button" className={puChatToolHead} aria-expanded={shown} onClick={() => setOpen(!shown)}>
+        <span className={`${puChatToolDot} pu-chat-tool-dot--${call.status}`} />
+        <span className={puChatToolName}>{call.name}</span>
+        <span className={puChatToolBrief}>{brief(call.input)}</span>
+        <span className={puChatToolStatus}>{awaiting ? "needs a decision" : call.status}</span>
+      </button>
+      {shown && call.input !== undefined && <pre className={puChatToolBody}>{pretty(call.input)}</pre>}
+      {shown && call.result !== undefined && (
+        <pre className={`${puChatToolBody}${call.status === "error" ? ` ${puChatToolFail}` : ""}`}>{call.result}</pre>
+      )}
+      {awaiting && (
+        <div className={puChatToolActions}>
+          <button type="button" className={puChatToolAccept} onClick={() => decide("accept")}>
+            Accept
+          </button>
+          <button type="button" className={puChatToolReject} onClick={() => decide("reject")}>
+            Reject
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface State {
+  messages: Message[];
+  streams: Record<string, string>;
+  tools: Record<string, ToolCall>;
+  queued: string[];
+}
+
 interface Props {
   placeholder: string;
   voice: boolean;
@@ -29,7 +98,26 @@ interface Props {
   markdown: boolean;
 }
 
-export default function ChatView({ props, state, emit, send }: ViewProps<{ messages: Message[] }, Props>) {
+export default function ChatView({ props, state, emit, send, set }: ViewProps<State, Props>) {
+  const messages = state.messages ?? [];
+  const streams = state.streams ?? {};
+  const tools = state.tools ?? {};
+  const queued = state.queued ?? [];
+
+  // follow the conversation while the reader is at the end of it; leave them alone once they scroll up
+  const scroller = useRef<HTMLDivElement>(null);
+  const following = useRef(true);
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    if (el && following.current) el.scrollTop = el.scrollHeight;
+  });
+
+  const decide = (id: string, decision: "accept" | "reject"): void => {
+    // settle the card at once, so a second click has nothing to press
+    set(["tools", id, "status"], decision === "accept" ? "running" : "rejected");
+    emit("decided", { id, decision });
+  };
+
   const streamRef = useRef<MediaStream | null>(null);
   const recRef = useRef<MediaRecorder | null>(null);
   const pressedRef = useRef(false);
@@ -40,6 +128,7 @@ export default function ChatView({ props, state, emit, send }: ViewProps<{ messa
   const submit = (input: HTMLInputElement): void => {
     if (!input.value.trim() && !pending) return;
     emit("sent", { text: input.value, image: pending ?? undefined });
+    following.current = true; // sending is asking to see what comes back
     input.value = "";
     setPending(null);
   };
@@ -80,22 +169,46 @@ export default function ChatView({ props, state, emit, send }: ViewProps<{ messa
 
   return (
     <div className={puChat}>
-      {state.messages.map((m, i) => {
-        const asMarkdown = props.markdown && m.role === "assistant";
-        return (
-          <div key={i} className={`${puMsg} pu-${m.role}${asMarkdown ? ` ${puMsgMd}` : ""}`}>
-            <b>{m.role}:</b>{" "}
-            {asMarkdown ? (
-              <Suspense fallback={<span>{m.content}</span>}>
-                <Markdown value={m.content} />
-              </Suspense>
-            ) : (
-              m.content
-            )}
-            {m.image && <img className={puMsgImage} src={imageSrc(m.image)} alt="" />}
+      <div
+        ref={scroller}
+        className={puChatMessages}
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          following.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+        }}
+      >
+        {messages.map((m, i) => {
+          if (m.role === "tool") {
+            const call = m.call ? tools[m.call] : undefined;
+            return call ? <ToolCard key={i} call={call} decide={(d) => decide(call.id, d)} /> : null;
+          }
+          const content = m.id && streams[m.id] ? m.content + streams[m.id] : m.content;
+          const asMarkdown = props.markdown && m.role === "assistant";
+          return (
+            <div
+              key={i}
+              className={`${puMsg} pu-${m.role}${asMarkdown ? ` ${puMsgMd}` : ""}${m.role === "error" ? ` ${puMsgError}` : ""}`}
+              role={m.role === "error" ? "alert" : undefined}
+            >
+              <b>{m.role}:</b>{" "}
+              {asMarkdown ? (
+                <Suspense fallback={<span>{content}</span>}>
+                  <Markdown value={content} />
+                </Suspense>
+              ) : (
+                content
+              )}
+              {m.image && <img className={puMsgImage} src={imageSrc(m.image)} alt="" />}
+            </div>
+          );
+        })}
+        {queued.map((text, i) => (
+          <div key={`queued-${i}`} className={`${puMsg} ${puUser} ${puMsgQueued}`}>
+            {text}
+            <span className={puMsgQueuedTag}>queued</span>
           </div>
-        );
-      })}
+        ))}
+      </div>
       {pending && (
         <div className={puAttachment}>
           <img src={mediaUrl(pending)} alt="" />
