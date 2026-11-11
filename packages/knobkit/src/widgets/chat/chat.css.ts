@@ -12,6 +12,7 @@ export const puChatToolAccept = "pu-chat-tool-accept";
 export const puChatToolActions = "pu-chat-tool-actions";
 export const puChatToolBody = "pu-chat-tool-body";
 export const puChatToolBrief = "pu-chat-tool-brief";
+export const puChatToolDiff = "pu-chat-tool-diff";
 export const puChatToolDot = "pu-chat-tool-dot";
 export const puChatToolDotAwaiting = "pu-chat-tool-dot--awaiting";
 export const puChatToolDotDone = "pu-chat-tool-dot--done";

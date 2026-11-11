@@ -121,6 +121,8 @@ convo.appendTo("r1", token);                      // streams into that message, 
 convo.tool({ id: "c1", name: "read", input: { path: "src/app.js" } });
 convo.toolResult("c1", text);                     // or toolResult(id, message, true) for a failure
 convo.tool({ id: "c2", name: "edit", input, status: "awaiting" });   // shows Accept / Reject
+convo.tool({ id: "c3", name: "edit", status: "awaiting",             // …and the change as a diff
+  diff: { path: "src/app.js", oldContent, newContent } });
 
 app.on(convo.decided, ({ id, decision }) => { /* "accept" | "reject", for the call `id` */ });
 
@@ -130,7 +132,7 @@ convo.say({ role: "error", content: "The model call failed" });
 ```
 
 A `Message` is `{ id?, role, content, image? }` with `role` one of `user`, `assistant`, `system`,
-`tool`, `error`. A tool call is `{ id, name, input?, status, result? }` with `status` one of
+`tool`, `error`. A tool call is `{ id, name, input?, status, result?, diff? }` with `status` one of
 `running`, `awaiting`, `done`, `error`, `rejected`; `toolStatus(id, status)` sets it and
 `await toolCalls()` reads them. `history()` returns tool calls as `{ role: "tool", call: id }`
 entries. In a container that gives it height (a split pane, tabs, a `fill` page) the conversation

@@ -68,7 +68,7 @@ export type { Annotation } from "./widgets/annotated-image/def.js";
 export { highlightedText } from "./widgets/highlighted-text/def.js";
 export type { HighlightSpan } from "./widgets/highlighted-text/def.js";
 export { chat } from "./widgets/chat/def.js";
-export type { Message } from "./widgets/chat/def.js";
+export type { Message, ToolCall, ToolDiff, ToolStatus } from "./widgets/chat/def.js";
 export { breadcrumb } from "./widgets/breadcrumb/def.js";
 export type { Crumb } from "./widgets/breadcrumb/def.js";
 export { menu } from "./widgets/menu/def.js";

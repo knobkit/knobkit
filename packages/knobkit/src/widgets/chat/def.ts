@@ -16,12 +16,21 @@ export interface Message {
 /** `awaiting` asks the user to accept or reject the call; the answer arrives as `decided`. */
 export type ToolStatus = "running" | "awaiting" | "done" | "error" | "rejected";
 
+/** A change to a file's text, shown on the call's card as a diff. */
+export interface ToolDiff {
+  path?: string;
+  oldContent: string;
+  newContent: string;
+}
+
 export interface ToolCall {
   id: string;
   name: string;
   input?: unknown;
   status: ToolStatus;
   result?: string;
+  /** shown in place of `input`: what the call would change, as added and removed lines */
+  diff?: ToolDiff;
 }
 
 export const chat = defineWidget({
@@ -57,7 +66,7 @@ export const chat = defineWidget({
     /** Stream a token into the message said with this `id`. */
     appendTo: (id: string, token: string): void => self.at("streams", id).appendText(token),
     /** Show a tool call at the end of the conversation. */
-    tool(call: { id: string; name: string; input?: unknown; status?: ToolStatus }): void {
+    tool(call: { id: string; name: string; input?: unknown; status?: ToolStatus; diff?: ToolDiff }): void {
       self.at("tools", call.id).set({ ...call, status: call.status ?? "running" });
       self.at("messages").append({ role: "tool", content: "", call: call.id });
     },

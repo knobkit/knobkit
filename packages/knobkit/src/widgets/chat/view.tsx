@@ -10,6 +10,7 @@ import {
   puChatToolActions,
   puChatToolBody,
   puChatToolBrief,
+  puChatToolDiff,
   puChatToolDot,
   puChatToolFail,
   puChatToolHead,
@@ -28,11 +29,12 @@ import {
   puRec,
   puUser,
 } from "./chat.css.js";
-import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { mediaUrl, toMedia } from "@knobkit/core";
 import type { MediaRef } from "@knobkit/core";
 import type { ViewProps } from "@knobkit/core/client";
-import type { Message, ToolCall } from "./def.js";
+import type { Message, ToolCall, ToolDiff } from "./def.js";
+import { computeDiff, splitLines, UnifiedView } from "../diff/lines.js";
 
 const Markdown = lazy(() => import("../output/markdown.js"));
 
@@ -53,6 +55,15 @@ const imageSrc = (image: MediaRef | string): string => (typeof image === "string
 const brief = (input: unknown): string => (input === undefined ? "" : typeof input === "string" ? input : JSON.stringify(input));
 const pretty = (input: unknown): string => (typeof input === "string" ? input : JSON.stringify(input, null, 2));
 
+function CallDiff({ diff }: { diff: ToolDiff }) {
+  const lines = useMemo(() => computeDiff(splitLines(diff.oldContent), splitLines(diff.newContent)), [diff.oldContent, diff.newContent]);
+  return (
+    <div className={puChatToolDiff}>
+      <UnifiedView lines={lines} />
+    </div>
+  );
+}
+
 function ToolCard({ call, decide }: { call: ToolCall; decide: (decision: "accept" | "reject") => void }) {
   const awaiting = call.status === "awaiting";
   // a call that wants a decision opens itself: what is being decided should not be a click away
@@ -63,10 +74,11 @@ function ToolCard({ call, decide }: { call: ToolCall; decide: (decision: "accept
       <button type="button" className={puChatToolHead} aria-expanded={shown} onClick={() => setOpen(!shown)}>
         <span className={`${puChatToolDot} pu-chat-tool-dot--${call.status}`} />
         <span className={puChatToolName}>{call.name}</span>
-        <span className={puChatToolBrief}>{brief(call.input)}</span>
+        <span className={puChatToolBrief}>{call.diff?.path ?? brief(call.input)}</span>
         <span className={puChatToolStatus}>{awaiting ? "needs a decision" : call.status}</span>
       </button>
-      {shown && call.input !== undefined && <pre className={puChatToolBody}>{pretty(call.input)}</pre>}
+      {shown && call.diff && <CallDiff diff={call.diff} />}
+      {shown && !call.diff && call.input !== undefined && <pre className={puChatToolBody}>{pretty(call.input)}</pre>}
       {shown && call.result !== undefined && (
         <pre className={`${puChatToolBody}${call.status === "error" ? ` ${puChatToolFail}` : ""}`}>{call.result}</pre>
       )}
