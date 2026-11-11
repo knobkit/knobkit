@@ -4,3 +4,4 @@ import "./gallery.css";
 export const puGallery = "pu-gallery";
 export const puGalleryCell = "pu-gallery-cell";
 export const puGalleryEmpty = "pu-gallery-empty";
+export const puGallerySelected = "pu-gallery-selected";

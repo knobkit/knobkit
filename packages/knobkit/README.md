@@ -154,7 +154,7 @@ scrolls and the input stays in place.
 | `progress({ label? })` | `set(value, label?)` | `value` is 0..1 |
 | `file()` | `set({ name?, url } \| url)` | offer a download; `url` may be a `MediaRef` |
 | `image()` | `show(srcOrRef)`, `clear()` | `MediaRef` or URL |
-| `gallery()` | `set(items)`, `add(item)` | `item: { src, caption? }`; `src` `MediaRef` or URL |
+| `gallery()` | `set(items)`, `add(item)`, `select(index \| null)`, `await selected()` | `item: { src, caption? }`; `src` `MediaRef` or URL. Event `clicked` (`{ index, caption? }`) when the user clicks a thumbnail; the clicked one is shown as selected |
 | `audio({ autoplay? })` | `set(srcOrRef)` | `MediaRef` or URL |
 | `video({ autoplay?, loop? })` | `set(srcOrRef)`, `seek(seconds)`, `play()`, `pause()`, `playRange(from, to)`, `await position()`, `await playing()`, `await duration()` | `MediaRef` or URL. Events for what the user does with the controls: `played`, `paused`, `seeked`, and `progress` about twice a second while playing — each `{ position }` in seconds. `seek` moves the player without loading the clip again; what a handler's own commands cause is not sent back as an event |
 | `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
