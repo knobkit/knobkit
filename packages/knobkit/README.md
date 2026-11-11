@@ -150,7 +150,7 @@ scrolls and the input stays in place.
 | `image()` | `show(srcOrRef)`, `clear()` | `MediaRef` or URL |
 | `gallery()` | `set(items)`, `add(item)` | `item: { src, caption? }`; `src` `MediaRef` or URL |
 | `audio({ autoplay? })` | `set(srcOrRef)` | `MediaRef` or URL |
-| `video({ autoplay?, loop? })` | `set(srcOrRef)` | `MediaRef` or URL |
+| `video({ autoplay?, loop? })` | `set(srcOrRef)`, `await position()`, `await playing()`, `await duration()` | `MediaRef` or URL. Events for what the user does with the controls: `played`, `paused`, `seeked`, and `progress` about twice a second while playing — each `{ position }` in seconds |
 | `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
 | `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain) |
 | `frame({ src? })` | `set(url)` | iframe |
