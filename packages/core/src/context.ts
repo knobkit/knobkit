@@ -11,6 +11,8 @@ export interface Bound {
   spawn(inst: Instance): Id;
   dispose(id: Id): void;
   note(level: NoteLevel, message: string, src?: Id): void;
+  /** Send a widget's event to the app's handlers from handler-side code, as the widget itself would. */
+  raise?(src: Id, name: string, payload: unknown): void;
   /** Register a handler for this session only — `app.on()` called while a handler is running. */
   subscribe?(entry: unknown): void;
   snap?: Map<string, unknown>;

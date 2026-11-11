@@ -60,6 +60,7 @@ export function mountApp(app: App, selector: string): void {
     },
     note: (level, message) => notes.push(level, message),
     subscribe: (entry) => dispatcher.addSub(entry as SubEntry),
+    raise: (src, name, payload) => dispatcher.raise(src, name, payload, corr),
   });
 
   const dispatcher = createDispatcher(app, {

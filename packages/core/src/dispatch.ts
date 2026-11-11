@@ -29,6 +29,8 @@ export interface Dispatcher {
   dispatchWatch(wid: number, value: unknown, corr: string): void;
   runSetups(corr: string): Promise<void>;
   hasSub(srcId: Id, name: string): boolean;
+  /** An event produced by handler-side code rather than by the user: not subject to the gate. */
+  raise(srcId: Id, name: string, payload: unknown, corr: string): void;
   /** A subscription made during a run: it lives and dies with this dispatcher's session. */
   addSub(entry: SubEntry): void;
   /** Forget the session's subscriptions to a widget that was removed. */
@@ -187,6 +189,7 @@ export function createDispatcher(app: App, port: DispatcherPort): Dispatcher {
     },
 
     hasSub: (srcId, name) => all().some((s) => s.name === name && from(s, srcId)),
+    raise: (srcId, name, payload, corr) => void deliver(srcId, name, false, payload, corr, undefined, false),
     addSub: (entry) => void local.push(entry),
     dropSubs(srcId) {
       local = local.filter((s) => !from(s, srcId));

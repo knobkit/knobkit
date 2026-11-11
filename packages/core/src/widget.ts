@@ -71,6 +71,14 @@ export function isEventObj(v: unknown): v is EventObj {
   return typeof v === "object" && v !== null && isHandle((v as EventObj).src) && typeof (v as EventObj).name === "string";
 }
 
+/**
+ * Send an event to the app's handlers from a widget's own handler-side code (a method that finds
+ * something out on the server): `raise(self.refused({ src }))`. Must be called with a Bound.
+ */
+export function raise(event: EventObj): void {
+  bound().raise?.(idOf(event.src), event.name, event.payload);
+}
+
 // ---------- ops declarations ----------
 
 export interface OpDecl<Args extends unknown[] = unknown[]> {

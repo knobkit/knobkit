@@ -98,6 +98,11 @@ tier's store; refs cross the wire as data; bytes transfer lazily (server→clien
 client→server via eager POST when a ref first crosses). The reducer refcounts refs entering/leaving
 state; the client pins/unpins its blob store off that.
 
+A method that finds something out where the handler runs (frame's `set()` asking a site for its
+headers on the server) reports it with `raise(self.refused({ src }))` — the event goes to the
+app's handlers as if the widget had emitted it. Capture `bound()` first and `runBound(b, …)` in the
+continuation: the handler that called the method may have returned by then.
+
 ## Protocol & scheduling
 
 One sequenced log per direction; every frame `{ seq, ack, … }`. Kinds: `event` (with optional
