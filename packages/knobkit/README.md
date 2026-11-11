@@ -201,7 +201,7 @@ runtime — `panel.add(chart)`, `await panel.removeChild(chart)`. A widget made 
 handlers the same way: call `app.on(w.changed, fn)` there, and it applies to that user's session.
 
 `tabs`: `book.select(2)` brings the third tab to the front, as a click does; `await book.selected()` reads
-which one is open.
+which one is open; `book.addTab({ label, content, badge?, closable? })` adds a tab during a run.
 
 Slot modifiers tune one child in place: `span(w, 2)` claims extra grid/row slots, `grow(w)` absorbs
 a `col`'s leftover space, and `density(w, "sm")` / `theme(w, "dark")` restyle just that subtree.
