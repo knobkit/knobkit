@@ -205,6 +205,9 @@ offered height when something inside it fills (or is grown), and is as tall as i
 otherwise. The declaration rides `$size`/`$slots` props stamped at `instantiate`, because the serve
 tier's client has views but no defs; props already cross the wire.
 
+`x: "intrinsic"` is for a widget with a width of its own (`sidebar`): in a `row` it keeps that width
+and the other children share what is left, instead of every child getting an equal slot.
+
 `Field` puts these classes on the wrapper, and `styles.css` reads only them:
 
 - `.pu-slot` — a child of a distributing container. Only `.pu-slot` rules do anything, so `fill`

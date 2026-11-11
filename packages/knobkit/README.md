@@ -217,6 +217,9 @@ was left when its tab is opened again.
 Slot modifiers tune one child in place: `span(w, 2)` claims extra grid/row slots, `grow(w)` absorbs
 a `col`'s leftover space, and `density(w, "sm")` / `theme(w, "dark")` restyle just that subtree.
 
+A `row` shares its width equally between its children. A child with a width of its own — `sidebar` —
+keeps that width, and the others share what is left.
+
 Height works the same way at every depth. In a page that fills the window (`fill: true`), widgets
 that scroll their own content — `chat`, `code`, `terminal`, `table`, `tree`, `log`, `diff`, `output`,
 `docView`, `frame` — are held to the space their container has, however the containers are nested; several in
