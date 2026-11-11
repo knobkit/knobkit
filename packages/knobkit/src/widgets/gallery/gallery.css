@@ -18,6 +18,20 @@
     border-radius: var(--pu-radius-sm);
     display: block;
   }
+  .pu-gallery-cell {
+    cursor: pointer;
+  }
+  .pu-gallery-cell:focus-visible {
+    outline: 2px solid var(--pu-accent);
+    outline-offset: 2px;
+  }
+  .pu-gallery-selected img {
+    border-color: var(--pu-accent);
+    outline: 2px solid var(--pu-accent);
+  }
+  .pu-gallery-selected figcaption {
+    color: var(--pu-text);
+  }
   .pu-gallery-cell figcaption {
     font-size: var(--pu-font-sm);
     color: var(--pu-muted);
