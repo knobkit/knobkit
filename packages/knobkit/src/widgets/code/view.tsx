@@ -69,6 +69,11 @@ export default function CodeView({ props, state, emit, set }: ViewProps<{ value:
     emit("changed", v);
   };
 
+  const onSelect = useRef<(s: { start: number; end: number; text: string }) => void>(() => {});
+  onSelect.current = (s) => emit("selected", s);
+  const selTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const lastSel = useRef("");
+
   const language = state.language ?? "";
   const editable = !props.readOnly;
 
@@ -90,6 +95,23 @@ export default function CodeView({ props, state, emit, set }: ViewProps<{ value:
           lang.current.of([]), // grammar loads async via the [language] effect below
           edit.current.of(editOf(editable)),
 
+          // a selection is reported once it has settled: dragging one out changes it at every step
+          EditorView.updateListener.of((u) => {
+            if (!u.selectionSet) return;
+            clearTimeout(selTimer.current);
+            selTimer.current = setTimeout(() => {
+              const cm = view.current;
+              if (!cm) return;
+              const { from, to } = cm.state.selection.main;
+              const key = `${from}:${to}`;
+              if (from === to) lastSel.current = "";
+              else if (key !== lastSel.current) {
+                lastSel.current = key;
+                onSelect.current({ start: from, end: to, text: cm.state.sliceDoc(from, to) });
+              }
+            }, 200);
+          }),
+
           EditorView.updateListener.of((u) => {
             if (!u.docChanged) return;
             if (u.transactions.some((tr) => tr.annotation(External))) return; // our own sync, not a user edit
@@ -99,7 +121,10 @@ export default function CodeView({ props, state, emit, set }: ViewProps<{ value:
       }),
     });
     view.current = v;
-    return () => v.destroy();
+    return () => {
+      clearTimeout(selTimer.current);
+      v.destroy();
+    };
     // mount once; external state / language / editable are synced by the effects below
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

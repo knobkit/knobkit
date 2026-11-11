@@ -105,11 +105,11 @@ All are write-only (no read getter unless noted).
 
 | Factory (defaults) | Write / methods | Notes |
 |--------------------|-----------------|-------|
-| `output({ format? })` | `set(text)`, `append(text)`, `clear()` | `format: "markdown"` renders GFM; `append` streams tokens |
+| `output({ format? })` | `set(text)`, `append(text)`, `clear()` | `format: "markdown"` renders GFM; `append` streams tokens. Event `selected` (`{ text }`) when the user selects a phrase |
 | `log({ maxLines? })` | `push(line)`, `pushStyled(line, level?)`, `setFilter(q)`, `clear()`, `await all()` | append-only lines; levels (`info`/`warn`/`error`/`debug`) color-code |
 | `json()` | `set(value)` | pretty-printed JSON |
 | `label()` | `set(string \| { label?, confidences? })` | classifier result; `confidences: { label, score }[]` → bars |
-| `html({ value? })` | `set(markup)` | raw HTML |
+| `html({ value? })` | `set(markup)` | raw HTML. Event `selected` (`{ text }`) when the user selects a phrase |
 | `progress({ label? })` | `set(value, label?)` | `value` is 0..1 |
 | `file()` | `set({ name?, url } \| url)` | offer a download; `url` may be a `MediaRef` |
 | `image()` | `show(srcOrRef)`, `clear()` | a `MediaRef` or URL |
@@ -117,7 +117,7 @@ All are write-only (no read getter unless noted).
 | `audio({ autoplay? })` | `set(srcOrRef)` | a `MediaRef` or URL |
 | `video({ autoplay?, loop? })` | `set(srcOrRef)`, `seek(seconds)`, `play()`, `pause()`, `playRange(from, to)`, `await position()`, `await playing()`, `await duration()` | a `MediaRef` or URL. Events for what the user does with the controls: `played`, `paused`, `seeked`, and `progress` about twice a second while playing — each `{ position }` in seconds. `seek` moves the player without loading the clip again; what a handler's own commands cause is not sent back as an event |
 | `annotatedImage()` | `set(src, annotations?, colorMap?)` | `Annotation: { label, box?: [x0,y0,x1,y1], mask? }` |
-| `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain) |
+| `highlightedText()` | `set(spans, colorMap?)` | `span: { text, label? }` (label omitted = plain). Events: `clicked` (`{ index, label, text }`) when the user clicks a marked span, `selected` (`{ text }`) when the user selects a phrase |
 | `frame({ src? })` | `set(url)`, `reload()` | iframe with its address and an open-in-a-new-window control; `reload()` loads the same address again. Events `loaded` and `refused` (`{ src }`): on `serve`, `set(url)` asks the site whether it allows embedding, and a site that does not gets a message in the pane and `refused` instead of a blank frame. `mount` cannot tell — the browser reports a refused page as loaded |
 | `chart({ x, y, kind?, data? })` | `setData(rows)` | `x` = category-axis key; `y` = one series key or `string[]` for several; `kind` `"bar"`/`"line"`/`"area"` (default bar); rows are `Record<string, unknown>` |
 | `diff()` | `setFiles(files)` | `FileDiff: { path, oldContent, newContent, language?, status? }` |
@@ -128,7 +128,7 @@ All are write-only (no read getter unless noted).
 
 | Factory (defaults) | Events | Read / write / methods |
 |--------------------|--------|------------------------|
-| `code({ value?, language?, readOnly? })` | `changed` (string) | syntax-highlighted CodeMirror. `await value()`, `set(src)`, `setLanguage(lang)` (switches grammar at runtime). `language` e.g. `"tsx"`, `"python"`, `"json"`, `"markdown"` |
+| `code({ value?, language?, readOnly? })` | `changed` (string), `selected` (`{ start, end, text }`: a phrase the user selected, by character offsets) | syntax-highlighted CodeMirror. `await value()`, `set(src)`, `setLanguage(lang)` (switches grammar at runtime). `language` e.g. `"tsx"`, `"python"`, `"json"`, `"markdown"` |
 | `table({ columns?, rows?, editable?, reorderable?, maxHeight? })` | `edited` (`{ row, key, value }`), `reordered` (`{ from, to }`), `selected` (`{ row, item }`, when the user goes to another row by a click or the keyboard) | RevoGrid. `Column: { key, label?, type?, width? }`; rows are `Record<string, unknown>`. `await data()`, `await selectedRow()`, `setRows(rows)`, `setColumns(cols)`, `addRow(row)`, `setCell(row, key, value)`. A `type: "number"` column holds and delivers numbers: `4` typed there arrives as the number 4, an emptied cell as `null`, and text that is not a number is not taken. `reorderable: true` gives each row a handle to drag it to another place (a line shows where it will land); the rows are then in the new order for `data()`, and column sorting is off. A column without a `width` is as wide as its header and its text need; when the grid is too narrow for that the columns are narrowed to fit, and a cell that is cut shows its full text on hover |
 | `terminal({ rows?, cols?, scrollback?, echo? })` | `data` (string), `resized` | xterm. `write(text)`, `writeln(line)`, `clear()`. `echo` echoes typed input locally |
 
