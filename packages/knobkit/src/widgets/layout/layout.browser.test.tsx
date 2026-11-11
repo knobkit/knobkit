@@ -106,6 +106,12 @@ function build(make: (w: Tools) => unknown): Made {
       fillers.push(() => d.show({ src: toMedia(blankPdf(8), "application/pdf") }));
       return d;
     },
+    csv() {
+      const d = docView();
+      const text = "a,b\n" + Array.from({ length: LONG }, (_, i) => `${i},row ${i}`).join("\n");
+      fillers.push(() => d.show({ src: toMedia(new TextEncoder().encode(text), "text/csv"), type: "csv" }));
+      return d;
+    },
     sheet() {
       const d = docView();
       fillers.push(() => d.show({ src: toMedia(longWorkbook(), "application/octet-stream"), type: "xlsx" }));
@@ -132,7 +138,7 @@ function build(make: (w: Tools) => unknown): Made {
 
 interface Kit {
   chat(): unknown; code(): unknown; table(): unknown; term(): unknown; tree(): unknown; log(): unknown;
-  diff(): unknown; out(): unknown; md(): unknown; pdf(): unknown; sheet(): unknown; bar(): unknown; badge(): unknown; nav(): unknown;
+  diff(): unknown; out(): unknown; md(): unknown; pdf(): unknown; csv(): unknown; sheet(): unknown; bar(): unknown; badge(): unknown; nav(): unknown;
 }
 interface Tools extends Kit {
   /** a widget the layout does not show at first (a tab that is not the open one) */
@@ -141,7 +147,7 @@ interface Tools extends Kit {
 
 const ROOTS: Record<keyof Kit, string> = {
   chat: ".pu-chat", code: ".pu-code .cm-editor", table: ".pu-table revo-grid", term: ".pu-terminal .xterm", tree: ".pu-tree",
-  log: ".pu-log", diff: ".pu-diff", out: ".pu-output", md: ".pu-md", pdf: '.pu-doc-view[data-pages="8"]', sheet: ".pu-doc-view revo-grid", bar: ".pu-toolbar", badge: ".pu-status-badge", nav: ".pu-sidebar",
+  log: ".pu-log", diff: ".pu-diff", out: ".pu-output", md: ".pu-md", pdf: '.pu-doc-view[data-pages="8"]', csv: ".pu-table revo-grid", sheet: ".pu-doc-view revo-grid", bar: ".pu-toolbar", badge: ".pu-status-badge", nav: ".pu-sidebar",
 };
 
 // the root element of each widget that should hold the height it is offered…
@@ -312,6 +318,9 @@ describe("on an ordinary page, nothing collapses and the page scrolls", () => {
     "tabs(col(bar, chat))": (w) => tabs([{ label: "Chat", content: col(w.bar(), w.chat()) }]),
     "col(accordion(chat), code)": (w) => col(accordion({ label: "Chat" }, w.chat()), w.code()),
     "col(bar, pdf, sheet)": (w) => col(w.bar(), w.pdf(), w.sheet()),
+    "table": (w) => w.table(),
+    "col(bar, table)": (w) => col(w.bar(), w.table()),
+    "col(bar, csv)": (w) => col(w.bar(), w.csv()),
   };
   for (const [name, make] of Object.entries(cases)) {
     test(name, async () => {

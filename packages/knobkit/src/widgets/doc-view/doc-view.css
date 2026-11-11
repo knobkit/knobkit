@@ -49,9 +49,9 @@
     border: none;
     border-radius: 0;
   }
-  /* (!important because the table's own rule for its grid is) */
-  .pu-field:not(.pu-bounded) > .pu-doc-view-sheet > .pu-table revo-grid {
-    height: var(--pu-doc-view-grid) !important;
+  /* (!important because the grid's own fitted height is set inline) */
+  .pu-bounded > .pu-doc-view-sheet > .pu-table revo-grid {
+    height: 100% !important;
   }
 
   /* pages or slides, one under another */
