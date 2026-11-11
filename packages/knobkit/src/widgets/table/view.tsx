@@ -1,4 +1,5 @@
 import { puTable } from "./table.css.js";
+import { titleWhenCut } from "../_primitives/cut-title.js";
 import { useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { RevoGrid } from "@revolist/react-datagrid";
 import type { ViewProps } from "@knobkit/core/client";
@@ -229,11 +230,7 @@ export default function TableView({ props, state, emit, set }: ViewProps<{ colum
   // a cell too narrow for its text shows the whole of it on hover
   const onMouseOver = (e: MouseEvent): void => {
     const cell = (e.target as HTMLElement).closest<HTMLElement>(".rgCell, .rgHeaderCell .header-content");
-    if (!cell) return;
-    const cut = cell.scrollWidth > cell.clientWidth;
-    const text = cell.textContent ?? "";
-    if (cut && text) cell.title = text;
-    else if (cell.title) cell.removeAttribute("title");
+    if (cell) titleWhenCut(cell);
   };
 
   const onContextMenu = async (e: MouseEvent): Promise<void> => {

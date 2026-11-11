@@ -1,5 +1,6 @@
 import { puSidebar, puSidebarBadge, puSidebarCollapsed, puSidebarIcon, puSidebarItem, puSidebarItemSelected, puSidebarLabel, puSidebarSection, puSidebarSectionLabel, puSidebarToggle } from "./sidebar.css.js";
 import { useState } from "react";
+import { titleWhenCut } from "../_primitives/cut-title.js";
 import type { ViewProps } from "@knobkit/core/client";
 import type { SidebarSection } from "./def.js";
 
@@ -30,6 +31,11 @@ export default function SidebarView({ state, emit }: ViewProps<{ sections: Sideb
                 emit("selected", { id: item.id });
               }}
               title={collapsed ? item.label : undefined}
+              onMouseEnter={(e) => {
+                // a label too long for the sidebar is cut: hovering shows the whole of it
+                const label = e.currentTarget.querySelector<HTMLElement>(`.${puSidebarLabel}`);
+                if (label) titleWhenCut(label, item.label);
+              }}
             >
               {item.icon && <span className={puSidebarIcon}>{item.icon}</span>}
               {!collapsed && (

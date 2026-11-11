@@ -140,7 +140,7 @@ All are write-only (no read getter unless noted).
 | `tree(nodes \| { nodes?, expanded?, selected? })` | `selected`/`activated` (`{ id, data? }`), `expanded`/`collapsed`, `contextmenu` (`{ id, x, y }`), `renamed` (`{ id, name }`) | `setNodes`, `setChildren(id, nodes)`, `expand(id)`, `collapse(id)`, `select(id)`, `rename(id)`. `TreeNode: { id, label, icon?, children?, hasChildren?, data? }` |
 | `breadcrumb({ crumbs? })` | `selected` (`{ id }`) | `set(crumbs)`. `Crumb: { id, label }` |
 | `menu()` | `selected` (`{ action, target }`) | `open({ x, y, items, target? })`, `close()` — a context menu; pair with `tree`/`table` `contextmenu` events. `MenuItem: { id, label, icon?, danger?, disabled?, separator? }` |
-| `sidebar(sections?)` | `selected` (`{ id }`) | `setSections(sections)`. Section: `{ label, items: { id, label, icon?, badge? }[] }` |
+| `sidebar(sections?)` | `selected` (`{ id }`) | `setSections(sections)`. Section: `{ label, items: { id, label, icon?, badge? }[] }`. A label too long for the sidebar is cut, and shows in full on hover |
 
 ## Layout
 
