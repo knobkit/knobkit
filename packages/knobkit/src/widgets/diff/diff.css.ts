@@ -30,3 +30,4 @@ export const puDiffSplitPane = "pu-diff-split-pane";
 export const puDiffTable = "pu-diff-table";
 export const puDiffToolbar = "pu-diff-toolbar";
 export const puDiffToolbarPath = "pu-diff-toolbar-path";
+export const puBounded = "pu-bounded";

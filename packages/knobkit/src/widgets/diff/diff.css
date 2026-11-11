@@ -251,4 +251,10 @@
     padding: 40px 20px;
     text-align: center;
   }
+
+  /* internal: given a definite height, the diff is exactly that tall; its panes already scroll */
+  .pu-bounded > .pu-diff {
+    min-height: 0;
+    max-height: none;
+  }
 }

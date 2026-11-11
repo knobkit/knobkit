@@ -3,6 +3,10 @@ import { containerMethods } from "../layout/container.js";
 
 const accordionDef = defineWidget({
   type: "accordion",
+  // open, with something inside that fills, it takes the height it is offered; otherwise it is as
+  // tall as its content (shut: its header)
+  size: { y: "pass" },
+  slots: "distribute",
   state: {
     items: { initial: [] as unknown[] },
     open: { initial: true }, // toggling is a view-local edit

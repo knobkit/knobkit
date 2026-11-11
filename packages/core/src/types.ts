@@ -66,7 +66,12 @@ export const SLOTS = "$slots";
 export type Extent = "fill" | "intrinsic";
 export interface SizeSpec {
   x?: Extent;
-  y?: Extent;
+  /**
+   * `pass` is for a container with no height of its own to want (row, col, grid, accordion): it
+   * takes offered height when something inside it fills, and hands it on; otherwise it is as tall
+   * as its content.
+   */
+  y?: Extent | "pass";
 }
 /** Block-level default: as wide as offered, as tall as its content. */
 export const DEFAULT_SIZE: Required<SizeSpec> = { x: "fill", y: "intrinsic" };

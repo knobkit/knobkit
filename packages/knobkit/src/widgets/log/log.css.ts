@@ -14,3 +14,4 @@ export const puLogLineError = "pu-log-line--error";
 export const puLogLineInfo = "pu-log-line--info";
 export const puLogLineWarn = "pu-log-line--warn";
 export const puLogLines = "pu-log-lines";
+export const puBounded = "pu-bounded";

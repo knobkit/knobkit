@@ -55,4 +55,9 @@
     border: 1px solid var(--pu-border);
     padding: 4px 8px;
   }
+
+  /* internal: given a definite height, long output scrolls inside its own box */
+  .pu-bounded > .pu-md {
+    overflow: auto;
+  }
 }

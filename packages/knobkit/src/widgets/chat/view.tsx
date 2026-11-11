@@ -28,7 +28,7 @@ import {
   puRec,
   puUser,
 } from "./chat.css.js";
-import { lazy, Suspense, useLayoutEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { mediaUrl, toMedia } from "@knobkit/core";
 import type { MediaRef } from "@knobkit/core";
 import type { ViewProps } from "@knobkit/core/client";
@@ -111,6 +111,16 @@ export default function ChatView({ props, state, emit, send, set }: ViewProps<St
     const el = scroller.current;
     if (el && following.current) el.scrollTop = el.scrollHeight;
   });
+  // the box itself changes height too (a pane is dragged, the layout settles around it)
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const watch = new ResizeObserver(() => {
+      if (following.current) el.scrollTop = el.scrollHeight;
+    });
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, []);
 
   const decide = (id: string, decision: "accept" | "reject"): void => {
     // settle the card at once, so a second click has nothing to press

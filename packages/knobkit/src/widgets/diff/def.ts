@@ -10,6 +10,7 @@ export interface FileDiff {
 
 export const diff = defineWidget({
   type: "diff",
+  size: { y: "fill" },
   state: { files: { initial: [] as FileDiff[] } },
   ops: (at) => ({ setFiles: at("files").op("set") }),
   view: viewRef(import.meta.url, "./view.js"),

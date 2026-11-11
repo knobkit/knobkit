@@ -1,4 +1,4 @@
-import { puBusy, puBusyBar, puDisabled, puField, puFillX, puFillY, puSlot } from "./styles.css.js";
+import { puBounded, puBusy, puBusyBar, puDisabled, puField, puFillX, puFillY, puOffered, puPassY, puSlot } from "./styles.css.js";
 import { puViewError } from "./overlay.css.js";
 import { Component, Suspense, createElement, useCallback, useMemo, useSyncExternalStore } from "react";
 import type { CSSProperties, ReactNode } from "react";
@@ -34,8 +34,25 @@ class ViewBoundary extends Component<{ type: string; children: ReactNode }, { er
   }
 }
 
-/** `distributed` is set by a parent whose def declares `slots: "distribute"` — see slot() below. */
-export function Field({ id, runtime, distributed = false }: { id: Id; runtime: FieldRuntime; distributed?: boolean }) {
+/**
+ * `distributed` is set by a parent whose def declares `slots: "distribute"` — see slot() below.
+ * `offered` says the height on offer is a definite one: the parent's own box is bounded, all the
+ * way up to a page that fills the window. `root` marks the page's one field, which is given the
+ * window's height whatever it declares.
+ */
+export function Field({
+  id,
+  runtime,
+  distributed = false,
+  offered = false,
+  root = false,
+}: {
+  id: Id;
+  runtime: FieldRuntime;
+  distributed?: boolean;
+  offered?: boolean;
+  root?: boolean;
+}) {
   const { store } = runtime;
   const subscribe = useCallback((cb: () => void) => store.subscribe(id, cb), [store, id]);
   const inst = useSyncExternalStore(subscribe, () => store.get(id), () => store.get(id));
@@ -47,9 +64,14 @@ export function Field({ id, runtime, distributed = false }: { id: Id; runtime: F
     [store, id],
   );
   const distributes = inst?.props[SLOTS] === true;
+  const sizeY = (inst?.props[SIZE] as SizeSpec | undefined)?.y ?? DEFAULT_SIZE.y;
+  // what this field can hand its own slots: a definite height, if it was offered one and takes it.
+  // A `pass` container takes it only when something inside fills — which is the only case in which
+  // a child would use the offer, so the offer can be made unconditionally.
+  const gives = distributes && offered && (root || sizeY !== "intrinsic" || inst?.props[GROW] === true);
   const slot = useCallback(
-    (child: Id): ReactNode => <Field key={child} id={child} runtime={runtime} distributed={distributes} />,
-    [runtime, distributes],
+    (child: Id): ReactNode => <Field key={child} id={child} runtime={runtime} distributed={distributes} offered={gives} />,
+    [runtime, distributes, gives],
   );
   const viewProps = useMemo(
     () => ({ id, props: inst?.props, state: inst?.state, emit, send, set, slot }),
@@ -68,14 +90,19 @@ export function Field({ id, runtime, distributed = false }: { id: Id; runtime: F
     colspan > 1 || rowspan > 1
       ? { gridColumn: colspan > 1 ? `span ${colspan}` : undefined, gridRow: rowspan > 1 ? `span ${rowspan}` : undefined }
       : undefined;
-  const grow = inst.props[GROW] ? " pu-field-grow" : "";
+  const grows = inst.props[GROW] === true;
+  const grow = grows ? " pu-field-grow" : "";
   // a widget only *claims* space inside a container that distributes it; elsewhere `fill` degrades
   // to its intrinsic size rather than collapsing against an indefinite parent
   const size: Required<SizeSpec> = { ...DEFAULT_SIZE, ...((inst.props[SIZE] as SizeSpec | undefined) ?? {}) };
   const fill =
     (size.x === "fill" ? ` ${puFillX}` : "") +
     (size.y === "fill" ? ` ${puFillY}` : "") +
-    (distributed ? ` ${puSlot}` : "");
+    (size.y === "pass" ? ` ${puPassY}` : "") +
+    (distributed ? ` ${puSlot}` : "") +
+    (distributed && offered ? ` ${puOffered}` : "") +
+    // its box has a definite height: a widget's own stylesheet keys its bounded form off this
+    (distributed && offered && (root || size.y === "fill" || grows) ? ` ${puBounded}` : "");
   const density = typeof inst.props[DENSITY] === "string" ? (inst.props[DENSITY] as string) : undefined;
   const theme = typeof inst.props[THEME] === "string" ? (inst.props[THEME] as string) : undefined;
 

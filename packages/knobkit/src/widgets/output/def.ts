@@ -2,6 +2,7 @@ import { defineWidget, viewRef } from "@knobkit/core";
 
 export const output = defineWidget({
   type: "output",
+  size: { y: "fill" },
   state: { value: { initial: "" } },
   props: { format: { default: "text" as "text" | "markdown" } },
   ops: (at) => ({
