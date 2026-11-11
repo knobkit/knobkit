@@ -11,6 +11,7 @@ interface GridColumn {
   sortable: boolean;
   readonly: boolean;
   size: number;
+  rowDrag?: boolean;
 }
 type GridRow = Record<string, unknown>;
 
@@ -24,6 +25,7 @@ const ROW_PX = 32;
 // auto-size it stays stable as data changes. Measured with canvas for proportional-font accuracy.
 const HEADER_FONT = "600 14px Helvetica, Arial, sans-serif"; // compact theme header
 const COL_PAD = 34; // header cell padding + room for the sort arrow
+const DRAG_PX = 24; // the row-drag handle, in the first column of a reorderable grid
 const MIN_COL = 80;
 const MAX_COL = 240;
 let measureCtx: CanvasRenderingContext2D | null | undefined;
@@ -41,11 +43,12 @@ function headerWidth(label: string): number {
 
 interface Props {
   editable: boolean;
+  reorderable: boolean;
   maxHeight: number;
 }
 
 export default function TableView({ props, state, emit, set }: ViewProps<{ columns: Column[]; rows: Row[]; selected: number | null }, Props>) {
-  const { editable, maxHeight } = props;
+  const { editable, reorderable, maxHeight } = props;
   // fit to content (header + rows), capped at maxHeight; +2 leaves room for a horizontal scrollbar so
   // a fitting grid doesn't sprout a vertical one
   const height = Math.min(maxHeight, HEADER_PX + state.rows.length * ROW_PX + 2);
@@ -54,14 +57,16 @@ export default function TableView({ props, state, emit, set }: ViewProps<{ colum
   // only on a real edit (edits are immutable), so memoizing on those references is both stable and correct.
   const columns = useMemo<GridColumn[]>(
     () =>
-      state.columns.map((c) => ({
+      state.columns.map((c, i) => ({
         prop: c.key,
         name: c.label ?? c.key,
-        sortable: true,
+        // rows the user orders by hand are not also sorted by a column: a place in a sorted list means nothing
+        sortable: !reorderable,
         readonly: !editable,
-        size: c.width ?? headerWidth(c.label ?? c.key),
+        size: (c.width ?? headerWidth(c.label ?? c.key)) + (reorderable && i === 0 ? DRAG_PX : 0),
+        ...(reorderable && i === 0 ? { rowDrag: true } : {}), // the handle sits in the first column
       })),
-    [state.columns, editable],
+    [state.columns, editable, reorderable],
   );
   // clone each row: RevoGrid mutates its own source in place on edit — we must not let it touch the
   // store's state objects. The real change is applied through the store via onAfteredit below.
@@ -130,6 +135,18 @@ export default function TableView({ props, state, emit, set }: ViewProps<{ colum
     if (d && typeof d.rowIndex === "number" && (d.rowType ?? "rgRow") === "rgRow") void select(e.target as Element, d.rowIndex);
   };
 
+  // the user dropped a row somewhere else. The grid has not moved it yet: the order lives in the
+  // state, and the grid redraws from that.
+  const onRoworderchanged = (e: CustomEvent): void => {
+    const d = e.detail as { from: number; to: number } | null;
+    e.preventDefault();
+    if (!d || d.from === d.to || !state.rows[d.from] || d.to < 0 || d.to >= state.rows.length) return;
+    const rows = state.rows.slice();
+    rows.splice(d.to, 0, ...rows.splice(d.from, 1));
+    set(["rows"], rows);
+    emit("reordered", { from: d.from, to: d.to });
+  };
+
   const onContextMenu = async (e: MouseEvent): Promise<void> => {
     const cell = (e.target as HTMLElement).closest("[data-rgrow]");
     if (!cell) return;
@@ -155,6 +172,7 @@ export default function TableView({ props, state, emit, set }: ViewProps<{ colum
         style={{ height }}
         onAfteredit={onAfteredit}
         onAfterfocus={onAfterfocus}
+        onRoworderchanged={onRoworderchanged}
       />
     </div>
   );

@@ -170,7 +170,7 @@ scrolls and the input stays in place.
 | Factory (defaults) | Events | Methods |
 |---|---|---|
 | `code({ value?, language?, readOnly? })` | `changed` (string) | `await value()`, `set(src)`, `setLanguage(lang)` |
-| `table({ columns?, rows?, editable?, maxHeight? })` | `edited` (`{ row, key, value }`), `selected` (`{ row, item }`, when the user goes to another row by a click or the keyboard), `contextmenu` (`{ item, row, x, y }`) | `await data()`, `await selectedRow()`, `setRows`, `setColumns`, `addRow`, `setCell`. `Column: { key, label?, type?, width? }`. A `type: "number"` column holds and delivers numbers: `4` typed there arrives as the number 4, an emptied cell as `null`, and text that is not a number is not taken |
+| `table({ columns?, rows?, editable?, reorderable?, maxHeight? })` | `edited` (`{ row, key, value }`), `reordered` (`{ from, to }`), `selected` (`{ row, item }`, when the user goes to another row by a click or the keyboard), `contextmenu` (`{ item, row, x, y }`) | `await data()`, `await selectedRow()`, `setRows`, `setColumns`, `addRow`, `setCell`. `Column: { key, label?, type?, width? }`. A `type: "number"` column holds and delivers numbers: `4` typed there arrives as the number 4, an emptied cell as `null`, and text that is not a number is not taken. `reorderable: true` gives each row a handle to drag it to another place (a line shows where it will land); the rows are then in the new order for `data()`, and column sorting is off |
 | `terminal({ rows?, cols?, scrollback?, echo? })` | `data` (string), `resized` | `write(text)`, `writeln(line)`, `clear()`. `echo` echoes typed input locally |
 
 **Navigation:**
